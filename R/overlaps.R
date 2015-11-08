@@ -28,9 +28,32 @@
     return(list(first=first.query, last=last.query))
 }
 
+.reselect <- function(hits, select) {
+    if (select=="all") { return(hits) }
+
+    # Hits are sorted by query, so we can do this:    
+    all.qs <- rle(queryHits(hits))
+    actual.q <- all.qs$values
+    stopifnot(!is.unsorted(actual.q))
+    indices <- rep(as.integer(NA), queryLength(hits))
+
+    last.of.q <- cumsum(all.qs$lengths)
+    first.of.q <- last.of.q - all.qs$lengths + 1L
+    if (select=="first") { 
+        indices[actual.q] <- subjectHits(hits)[first.of.q]
+    } else if (select=="last") { 
+        indices[actual.q] <- subjectHits(hits)[last.of.q]
+    } else {
+        # 'arbitrary'. Who knows what this gives?
+        indices[actual.q] <- subjectHits(hits)[round((first.of.q + last.of.q)/2L)]
+    }
+    return(indices)
+}
+
 setMethod("findOverlaps", c(query="InteractionSet", subject="GRanges"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
         olap <- .fast_overlap(query, subject, maxgap=maxgap, minoverlap=minoverlap,
@@ -46,18 +69,21 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="GRanges"),
 
         # Cleaning up (1-indexing, and resorting).
         final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), length(subject))
-        final <- sort(final)
-        return(final)
+        select <- match.arg(select)
+        return(.reselect(final, select=select))
     }
 )
 
 setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap,
-           type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+        final <- t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap, select="all",
+                       type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+        select <- match.arg(select)
+        return(.reselect(final, select=select))
     }
 )
 
@@ -90,23 +116,28 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
 setMethod("findOverlaps", c(query="InteractionSet", subject="GRangesList"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
         out <- .paired_overlap_finder(query, subject, "expand_paired_olaps", 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
         final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), length(subject[[1]])) # Cleaning up (1-indexing and resorting).
-        return(final)
+        select <- match.arg(select)
+        return(.reselect(final, select=select))
     }
 )
 
 setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap, 
-            type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+        final <- t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap, select="all",
+                    type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+        select <- match.arg(select)
+        return(.reselect(final, select=select))
     }
 )
 
@@ -157,13 +188,15 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
 setMethod("findOverlaps", c(query="InteractionSet", subject="InteractionSet"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
         out <- .paired_overlap_finder2(query, subject, "expand_paired_olaps", 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
         final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), nrow(subject))
-        return(final)
+        select <- match.arg(select)
+        return(.reselect(final, select=select))
     }
 )
 

@@ -28,22 +28,27 @@ Find overlaps between interactions and linear intervals, between interactions an
 \usage{
 \S4method{findOverlaps}{InteractionSet,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
+    select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"), 
     ignore.strand=TRUE)
 \S4method{findOverlaps}{GRanges,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
+    select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
 \S4method{findOverlaps}{InteractionSet,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
+    select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
 \S4method{findOverlaps}{GRangesList,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
+    select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
 \S4method{findOverlaps}{InteractionSet,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
+    select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
 
@@ -92,7 +97,7 @@ Find overlaps between interactions and linear intervals, between interactions an
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
 
-\item{algorithm, ignore.strand}{
+\item{select, algorithm, ignore.strand}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
 }
@@ -109,15 +114,17 @@ An overlap is defined between each pair of target regions and an InteractionSet 
 Overlaps between two InteractionSet objects are computed in a similar manner.
 Interactions from one object are used to define pairs of target regions, which are overlapped with the interactions from the other object as described for the GRangesList.
 
-\code{findOverlaps} returns a Hits object containing overlapping pairs of queries and subjects (or more specifically, their indices in the supplied objects - 
+When \code{select="all"}, \code{findOverlaps} returns a Hits object containing overlapping pairs of queries and subjects (or more specifically, their indices in the supplied objects - 
     see \code{?\link[GenomicRanges]{findOverlaps}} for more details).
-\code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
+For other values of \code{select}, an integer vector is returned that specifies the index of the chosen (first, last or arbitrary) overlapping feature in \code{subject} for each element of \code{query}.
+Queries with no overlaps at all are assigned \code{NA} values.
+
+For the other methods, \code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
 \code{subsetByOverlaps} returns a subsetted \code{query} containing only those elements overlapped by at least one element in \code{subject}.
 For GRangesList queries, the constituent GRanges objects are subsetted rather than the GRangesList itself.
 
 Note that, unlike \code{findOverlaps} for \code{GRanges} methods, strandedness is ignored by default.
 This is due to the typical use of InteractionSet objects for interactions between unstranded genomic regions rather than stranded transcripts.
-Also note that the \code{select} argument is not yet supported in the InteractionSet methods.
 }
 
 \examples{
@@ -135,6 +142,7 @@ x <- InteractionSet(counts, all.anchor1, all.anchor2, all.regions)
 of.interest <- resize(sample(regions(x), 2), width=1, fix="center")
 findOverlaps(of.interest, x)
 findOverlaps(x, of.interest)
+findOverlaps(x, of.interest, select="first")
 overlapsAny(x, of.interest)
 overlapsAny(of.interest, x)
 subsetByOverlaps(x, of.interest)
@@ -144,6 +152,7 @@ subsetByOverlaps(of.interest, x)
 of.interest <- GRangesList(first=regions(x), second=regions(x))
 findOverlaps(of.interest, x)
 findOverlaps(x, of.interest)
+findOverlaps(x, of.interest, select="last")
 overlapsAny(x, of.interest)
 overlapsAny(of.interest, x)
 subsetByOverlaps(x, of.interest)
@@ -153,6 +162,7 @@ subsetByOverlaps(of.interest, x)
 first.half <- x[1:Np/2]
 second.half <- x[Np/2+1:Np/2]
 findOverlaps(first.half, second.half)
+findOverlaps(first.half, second.half, select="arbitrary")
 overlapsAny(first.half, second.half)
 subsetByOverlaps(first.half, second.half)
 }
