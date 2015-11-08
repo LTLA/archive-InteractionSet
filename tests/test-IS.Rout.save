@@ -1,0 +1,427 @@
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> suppressPackageStartupMessages(require(InteractionSet))
+> 
+> ############################
+> # InteractionSet testing:
+> 
+> out <- InteractionSet(matrix(0, 4, 2), 1:4, 4:1, GRanges("chr1", IRanges(1:4, 1:4)), 
++             colData=DataFrame(whee=1:2), metadata=list())
+> 
+> # Getter test
+> regions(out)
+GRanges object with 4 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [1, 1]      *
+  [2]     chr1    [2, 2]      *
+  [3]     chr1    [3, 3]      *
+  [4]     chr1    [4, 4]      *
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> anchors(out)
+GRangesList object of length 2:
+$first 
+GRanges object with 4 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [4, 4]      *
+  [2]     chr1    [3, 3]      *
+  [3]     chr1    [3, 3]      *
+  [4]     chr1    [4, 4]      *
+
+$second 
+GRanges object with 4 ranges and 0 metadata columns:
+      seqnames ranges strand
+  [1]     chr1 [1, 1]      *
+  [2]     chr1 [2, 2]      *
+  [3]     chr1 [2, 2]      *
+  [4]     chr1 [1, 1]      *
+
+-------
+seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> anchors(out, type="first")
+GRanges object with 4 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [4, 4]      *
+  [2]     chr1    [3, 3]      *
+  [3]     chr1    [3, 3]      *
+  [4]     chr1    [4, 4]      *
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> anchors(out, type="second")
+GRanges object with 4 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [1, 1]      *
+  [2]     chr1    [2, 2]      *
+  [3]     chr1    [2, 2]      *
+  [4]     chr1    [1, 1]      *
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> 
+> anchors(out, id=TRUE)
+$first
+[1] 4 3 3 4
+
+$second
+[1] 1 2 2 1
+
+> anchors(out, type="first", id=TRUE)
+[1] 4 3 3 4
+> anchors(out, type="second", id=TRUE)
+[1] 1 2 2 1
+> 
+> # Setter test
+> regions(out)$x <- "whee"
+> regions(out)
+GRanges object with 4 ranges and 1 metadata column:
+      seqnames    ranges strand |           x
+         <Rle> <IRanges>  <Rle> | <character>
+  [1]     chr1    [1, 1]      * |        whee
+  [2]     chr1    [2, 2]      * |        whee
+  [3]     chr1    [3, 3]      * |        whee
+  [4]     chr1    [4, 4]      * |        whee
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> anchors(out) <- list(1:4, 1:4)
+> anchors(out, id=TRUE)
+$first
+[1] 1 2 3 4
+
+$second
+[1] 1 2 3 4
+
+> anchors(out) <- list(rep(4L, 4), 1:4)
+> anchors(out, id=TRUE)
+$first
+[1] 4 4 4 4
+
+$second
+[1] 1 2 3 4
+
+> 
+> # Subset test
+> out[,2]
+class: InteractionSet 
+dim: 4 1 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> out[1,]
+class: InteractionSet 
+dim: 1 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> anchors(out[4:1,])
+GRangesList object of length 2:
+$first 
+GRanges object with 4 ranges and 1 metadata column:
+      seqnames    ranges strand |           x
+         <Rle> <IRanges>  <Rle> | <character>
+  [1]     chr1    [4, 4]      * |        whee
+  [2]     chr1    [4, 4]      * |        whee
+  [3]     chr1    [4, 4]      * |        whee
+  [4]     chr1    [4, 4]      * |        whee
+
+$second 
+GRanges object with 4 ranges and 1 metadata column:
+      seqnames ranges strand |    x
+  [1]     chr1 [4, 4]      * | whee
+  [2]     chr1 [3, 3]      * | whee
+  [3]     chr1 [2, 2]      * | whee
+  [4]     chr1 [1, 1]      * | whee
+
+-------
+seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> 
+> # Combining.
+> cbind(out, out)
+class: InteractionSet 
+dim: 4 4 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> rbind(out, out)
+class: InteractionSet 
+dim: 8 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> 
+> elementMetadata(regions(out)) <- NULL
+> out2 <- InteractionSet(matrix(0, 4, 2), 1:4, 4:1, GRanges("chr1", IRanges(2:5, 2:5)))
+> try(rbind(out, out2))
+Error in .Method(..., deparse.level = deparse.level) : 
+  regions must be identical in 'rbind'
+> out3 <- c(out, out2)
+> regions(out3)
+GRanges object with 5 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [1, 1]      *
+  [2]     chr1    [2, 2]      *
+  [3]     chr1    [3, 3]      *
+  [4]     chr1    [4, 4]      *
+  [5]     chr1    [5, 5]      *
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> anchors(out3, id=TRUE)
+$first
+[1] 4 4 4 4 5 4 4 5
+
+$second
+[1] 1 2 3 4 2 3 3 2
+
+> 
+> # Other methods test
+> order(out)
+[1] 1 2 3 4
+> order(out[4:1,])
+[1] 4 3 2 1
+> sort(out)
+class: InteractionSet 
+dim: 4 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> 
+> sout <- split(out, c(1,1,1,2))
+> sout[[1]]
+class: InteractionSet 
+dim: 3 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> anchors(sout[[1]])
+GRangesList object of length 2:
+$first 
+GRanges object with 3 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [4, 4]      *
+  [2]     chr1    [4, 4]      *
+  [3]     chr1    [4, 4]      *
+
+$second 
+GRanges object with 3 ranges and 0 metadata columns:
+      seqnames ranges strand
+  [1]     chr1 [1, 1]      *
+  [2]     chr1 [2, 2]      *
+  [3]     chr1 [3, 3]      *
+
+-------
+seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> 
+> # Alternative construction
+> out <- InteractionSet(matrix(0, 2, 2), GRanges("chr1", IRanges(4:3, 4:3)),
++            GRanges("chr1", IRanges(2:1, 2:1))) 
+> anchors(out)
+GRangesList object of length 2:
+$first 
+GRanges object with 2 ranges and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [4, 4]      *
+  [2]     chr1    [3, 3]      *
+
+$second 
+GRanges object with 2 ranges and 0 metadata columns:
+      seqnames ranges strand
+  [1]     chr1 [2, 2]      *
+  [2]     chr1 [1, 1]      *
+
+-------
+seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> out <- InteractionSet(matrix(0, 2, 2), GRanges("chr1", IRanges(4:3, 4:3)),
++            GRanges("chr1", IRanges(2:1, 2:1)), regions=GRanges("chr1", IRanges(1:5, 1:5))) 
+> anchors(out, id=TRUE)
+$first
+[1] 4 3
+
+$second
+[1] 2 1
+
+>                                               
+> ############################
+> # Testing findOverlaps:
+> 
+> out <- InteractionSet(matrix(0, 4, 2), 1:4, 4:1, GRanges("chr1", IRanges(1:4, 1:4)), 
++             colData=DataFrame(whee=1:2), metadata=list())
+> 
+> findOverlaps(out, GRanges("chr1", IRanges(1, 1)))
+Hits object with 2 hits and 0 metadata columns:
+      queryHits subjectHits
+      <integer>   <integer>
+  [1]         1           1
+  [2]         4           1
+  -------
+  queryLength: 4
+  subjectLength: 1
+> overlapsAny(out, GRanges("chr1", IRanges(1, 1)))
+[1]  TRUE FALSE FALSE  TRUE
+> findOverlaps(out, GRanges("chr1", IRanges(1, 2)))
+Hits object with 4 hits and 0 metadata columns:
+      queryHits subjectHits
+      <integer>   <integer>
+  [1]         1           1
+  [2]         2           1
+  [3]         3           1
+  [4]         4           1
+  -------
+  queryLength: 4
+  subjectLength: 1
+> findOverlaps(out, GRanges("chr1", IRanges(1:2, 1:2)))
+Hits object with 4 hits and 0 metadata columns:
+      queryHits subjectHits
+      <integer>   <integer>
+  [1]         1           1
+  [2]         2           2
+  [3]         3           2
+  [4]         4           1
+  -------
+  queryLength: 4
+  subjectLength: 2
+> 
+> subsetByOverlaps(out, GRanges("chr1", IRanges(2, 2)))
+class: InteractionSet 
+dim: 2 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> subsetByOverlaps(GRanges("chr1", IRanges(2, 2)), out)
+GRanges object with 1 range and 0 metadata columns:
+      seqnames    ranges strand
+         <Rle> <IRanges>  <Rle>
+  [1]     chr1    [2, 2]      *
+  -------
+  seqinfo: 1 sequence from an unspecified genome; no seqlengths
+> 
+> findOverlaps(out, GRangesList(first=GRanges("chr1", IRanges(1:2, 1:2)),
++                               second=GRanges("chr1", IRanges(1:2, 1:2))))
+Hits object with 0 hits and 0 metadata columns:
+   queryHits subjectHits
+   <integer>   <integer>
+  -------
+  queryLength: 4
+  subjectLength: 2
+> overlapsAny(out, GRangesList(first=GRanges("chr1", IRanges(1:2, 1:2)),
++                               second=GRanges("chr1", IRanges(1:2, 1:2))))
+[1] FALSE FALSE FALSE FALSE
+> findOverlaps(out, GRangesList(first=GRanges("chr1", IRanges(2, 2)),
++                               second=GRanges("chr1", IRanges(3, 3))))
+Hits object with 2 hits and 0 metadata columns:
+      queryHits subjectHits
+      <integer>   <integer>
+  [1]         2           1
+  [2]         3           1
+  -------
+  queryLength: 4
+  subjectLength: 1
+> overlapsAny(out, GRangesList(first=GRanges("chr1", IRanges(2, 2)),
++                    second=GRanges("chr1", IRanges(3, 3))))
+[1] FALSE  TRUE  TRUE FALSE
+> overlapsAny(GRangesList(first=GRanges("chr1", IRanges(1:4, 1:4)),
++         second=GRanges("chr1", IRanges(1:4, 1:4))), out)
+[1] FALSE FALSE FALSE FALSE
+> 
+> out2 <- InteractionSet(matrix(0, 4, 2), 1:4, 1:4, GRanges("chr1", IRanges(1:4, 1:4))) 
+> findOverlaps(out, out2)
+Hits object with 0 hits and 0 metadata columns:
+   queryHits subjectHits
+   <integer>   <integer>
+  -------
+  queryLength: 4
+  subjectLength: 4
+> 
+> out2 <- InteractionSet(matrix(0, 4, 2), c(1,2,2,4), 1:4, GRanges("chr1", IRanges(1:4, 1:4))) 
+> findOverlaps(out, out2)
+Hits object with 2 hits and 0 metadata columns:
+      queryHits subjectHits
+      <integer>   <integer>
+  [1]         2           3
+  [2]         3           3
+  -------
+  queryLength: 4
+  subjectLength: 4
+> overlapsAny(out, out2)
+[1] FALSE  TRUE  TRUE FALSE
+> 
+> subsetByOverlaps(out, out2)
+class: InteractionSet 
+dim: 2 2 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames: NULL
+colData names(1): whee
+regions: 4
+> 
+> ##############################
+> # Testing distance functions:
+> 
+> out <- InteractionSet(matrix(0, 4, 2), 1:4, 4:1, GRanges("chr1", IRanges(1:4, 1:4)), 
++             colData=DataFrame(whee=1:2), metadata=list())
+> pairdist(out)
+[1] 3 1 1 3
+> pairdist(out, type="gap")
+[1] 2 0 0 2
+> pairdist(out, type="span")
+[1] 4 2 2 4
+> pairdist(out, type="diag")
+[1] 3 1 1 3
+> intrachr(out)
+[1] TRUE TRUE TRUE TRUE
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.853   0.059   3.906 

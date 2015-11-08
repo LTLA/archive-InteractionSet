@@ -1,0 +1,18 @@
+useDynLib(InteractionSet)
+
+# Exporting the InteractionSet class.
+exportClasses(
+    InteractionSet
+)
+
+exportMethods(
+    anchors, regions, InteractionSet,
+    "anchors<-", "regions<-",
+    pairdist, intrachr,
+    linearize
+)
+
+# Requires several imports.
+import(GenomicRanges, SummarizedExperiment, methods,
+     S4Vectors, IRanges, GenomeInfoDb)
+
