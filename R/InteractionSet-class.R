@@ -17,28 +17,28 @@ setClass("InteractionSet",
 )
 
 setValidity("InteractionSet", function(object) {
-	if (nrow(object@assays)!=length(object@anchor1)) {
-		return("'assay' nrow differs from length of first anchor vector")
-	} 
-	if (nrow(object@assays)!=length(object@anchor2)) { 
-		return("'assay' nrow differs from length of second anchor vector")
-	}
-	if (ncol(object@assays)!=nrow(object@colData)) {
-		return("'assay' ncol differs from 'colData' nrow")
-	}
+    if (nrow(object@assays)!=length(object@anchor1)) {
+        return("'assay' nrow differs from length of first anchor vector")
+    } 
+    if (nrow(object@assays)!=length(object@anchor2)) { 
+        return("'assay' nrow differs from length of second anchor vector")
+    }
+    if (ncol(object@assays)!=nrow(object@colData)) {
+        return("'assay' ncol differs from 'colData' nrow")
+    }
 
-	if (!all(object@anchor1 >= 1L) || !all(object@anchor2 >= 1L)) {
-		return('all anchors must be positive integers')
-	} 
+    if (!all(object@anchor1 >= 1L) || !all(object@anchor2 >= 1L)) {
+        return('all anchors must be positive integers')
+    } 
     nregs <- length(object@regions)
-	if ( !all(object@anchor1 <= nregs) || !all(object@anchor2 <= nregs)
+    if ( !all(object@anchor1 <= nregs) || !all(object@anchor2 <= nregs)
         || !all(is.finite(object@anchor1)) || !all(is.finite(object@anchor2)) ) {
-		return('all anchors must refer to valid regions')
-	} 
-	if (!all(object@anchor1 >= object@anchor2)) { 
-		return('first anchors cannot be less than the second anchor')
-	}
-	return(TRUE)
+        return('all anchors must refer to valid regions')
+    } 
+    if (!all(object@anchor1 >= object@anchor2)) { 
+        return('first anchors cannot be less than the second anchor')
+    }
+    return(TRUE)
 })
 
 setMethod("show", signature("InteractionSet"), function(object) {

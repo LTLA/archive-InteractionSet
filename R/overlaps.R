@@ -306,7 +306,3 @@ setMethod("subsetByOverlaps", c(query="GRanges", subject="InteractionSet"),
 
 ###############################################################
 # End
-
-
-
-
