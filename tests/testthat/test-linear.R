@@ -22,7 +22,7 @@ new.pos[o] <- seq_along(new.pos)
 new.anchor1 <- pmax(new.pos[all.anchor1], new.pos[all.anchor2])
 new.anchor2 <- pmin(new.pos[all.anchor1], new.pos[all.anchor2])
 
-# Running throuh all possibilities:
+# Running through all possibilities:
 
 for (interest in seq_len(N)) {
     cur.reg <- regions(x)[interest]
