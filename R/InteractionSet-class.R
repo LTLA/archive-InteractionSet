@@ -198,7 +198,7 @@ setMethod("regions", signature("InteractionSet"), function(x) {
 
 setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") }) 
 setReplaceMethod("regions", "InteractionSet", function(x, value) {
-    stopifnot(length(value)!=length(regions(x)))
+    stopifnot(length(value)==length(regions(x)))
     out <- .resort_regions(x@anchor1, x@anchor2, value)
     x@anchor1 <- out$anchor1 
     x@anchor2 <- out$anchor2
