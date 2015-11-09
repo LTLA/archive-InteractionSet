@@ -1,5 +1,3 @@
-require(InteractionSet); require(testthat)
-
 # Tests the construction and manipulation of InteractionSet objects.
 
 set.seed(1000)
