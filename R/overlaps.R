@@ -93,7 +93,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
 {
     if (length(pairings)!=2L) { stop("input GRangesList must be of length 2") }
     npairs <- length(pairings[[1]])
-    if (npairs==length(pairings[[2]])) { stop("component GRanges in the GRangesList must be of the same length") }
+    if (npairs!=length(pairings[[2]])) { stop("component GRanges in the GRangesList must be of the same length") }
     
     olap1 <- .fast_overlap(iset, pairings[[1]], ..., IS.query=IS.query)
     olap2 <- .fast_overlap(iset, pairings[[2]], ..., IS.query=IS.query)
