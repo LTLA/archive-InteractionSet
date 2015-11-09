@@ -51,7 +51,7 @@ expect_that(anchors(x), is_identical_to(GRangesList(first=new.regions[new.anchor
 # Testing alternative construction methods:
 
 x2 <- InteractionSet(counts, all.regions[all.anchor1], all.regions[all.anchor2])
-was.used <- sort(unique(all.regions[union(all.anchor1, all.anchor2)]))
+was.used <- sort(unique(all.regions[union(all.anchor1, all.anchor2)])) # Only includes the regions actually used.
 expect_that(regions(x2), is_identical_to(was.used))
 expect_that(anchors(x2), is_identical_to(anchors(x)))
 
