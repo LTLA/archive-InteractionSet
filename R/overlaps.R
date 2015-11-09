@@ -91,9 +91,9 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
 # This is split into a separate function, because we'll re-use 
 # the code to run 'overlapsAny'.
 {
-    stopifnot(length(pairings)==2L)
+    if (length(pairings)!=2L) { stop("input GRangesList must be of length 2") }
     npairs <- length(pairings[[1]])
-    stopifnot(npairs==length(pairings[[2]]))
+    if (npairs==length(pairings[[2]])) { stop("component GRanges in the GRangesList must be of the same length") }
     
     olap1 <- .fast_overlap(iset, pairings[[1]], ..., IS.query=IS.query)
     olap2 <- .fast_overlap(iset, pairings[[2]], ..., IS.query=IS.query)
@@ -138,7 +138,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
 
-        final <- Hits(out[[2]]+1L, out[[1]]+1L, nrow(query), length(subject[[1]])) # Cleaning up (1-indexing).
+        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query[[1]]), nrow(subject)) 
         final <- sort(final) 
         return(selectHits(final, select=match.arg(select)))
     }
