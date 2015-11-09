@@ -36,7 +36,7 @@ Methods to subset or combine InteractionSet objects.
 \arguments{
 \item{x}{An InteractionSet object.}
 
-\item{i, j}{An integer or numeric vector of subscripts, indicating the rows and columns to be subsetted, respectively.}
+\item{i, j}{A vector of subscripts, indicating the rows and columns to be subsetted for \code{i} and \code{j}, respectively.}
 
 \item{...}{    
     For \code{cbind}, \code{rbind} and \code{c}, \code{...} contains InteractionSet objects to be combined.
