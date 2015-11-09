@@ -1,31 +1,45 @@
 ###############################################################
 # This defines the findOverlaps method for InteractionSet objects.
 
-.get_used <- function(query) {
-    all1 <- anchors(query, type="first", id=TRUE)
-    all2 <- anchors(query, type="second", id=TRUE)
-    used <- logical(length(regions(query)))
+.get_used <- function(iset) {
+    all1 <- anchors(iset, type="first", id=TRUE)
+    all2 <- anchors(iset, type="second", id=TRUE)
+    used <- logical(length(regions(iset)))
     used[all1] <- TRUE
     used[all2] <- TRUE
     which(used)
 }
 
-.fast_overlap <- function(query, subject, ...) {
-    rquery <- regions(query)
-    subset <- .get_used(query)
-    if (length(subset)!=length(rquery)) { rquery <- rquery[subset] }
-    olap <- findOverlaps(rquery, subject, select="all", ...)
-    return(list(query.dex=subset[queryHits(olap)], subject.dex=subjectHits(olap)))
+.fast_overlap <- function(iset, ranges, ..., IS.query=TRUE) {
+    regs <- regions(iset)
+    subset <- .get_used(iset)
+    if (length(subset)!=length(regs)) { regs <- regs[subset] }
+
+    # Need this behaviour, as type="within" will vary depending on manner of query vs. subject.        
+    if (IS.query) { 
+        olap <- findOverlaps(regs, ranges, select="all", ...)
+        iset.dex <- subset[queryHits(olap)]
+        ranges.dex <- subjectHits(olap)
+    } else {
+        olap <- findOverlaps(ranges, regs, select="all", ...)
+        iset.dex <- subset[subjectHits(olap)]
+        ranges.dex <- queryHits(olap)
+        o <- order(iset.dex, ranges.dex)
+        iset.dex <- iset.dex[o]
+        ranges.dex <- ranges.dex[o]
+    }
+
+    return(list(iset.dex=iset.dex, ranges.dex=ranges.dex))
 }
 
-.get_query_bounds <- function(olap, N) {
-    qrle <- rle(olap$query.dex)
-    first.query <- rep(1L, N)
-    last.query <- integer(N)
-    cum.end <- cumsum(qrle$lengths)
-    first.query[qrle$values] <- cum.end - qrle$lengths + 1L
-    last.query[qrle$values] <- cum.end
-    return(list(first=first.query, last=last.query))
+.get_iset_bounds <- function(olap, N) {
+    current.rle <- rle(olap$iset.dex)
+    first.in.rle <- rep(1L, N)
+    last.in.rle <- integer(N)
+    cum.end <- cumsum(current.rle$lengths)
+    first.in.rle[current.rle$values] <- cum.end - current.rle$lengths + 1L
+    last.in.rle[current.rle$values] <- cum.end
+    return(list(first=first.in.rle, last=last.in.rle))
 }
 
 .reselect <- function(hits, select) {
@@ -50,27 +64,33 @@
     return(indices)
 }
 
+.linear_olap_finder <- function(iset, ranges, ..., IS.query=TRUE) {
+    olap <- .fast_overlap(iset, ranges, ..., IS.query=IS.query)
+    a1 <- anchors(iset, type="first", id=TRUE)
+    a2 <- anchors(iset, type="second", id=TRUE)
+
+    # Getting all combinations of overlaps (zero-indexing for C code).
+    bounds <- .get_iset_bounds(olap, length(regions(iset)))
+    out <- .Call("expand_olaps", a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
+                 olap$ranges.dex - 1L, length(ranges), PACKAGE="InteractionSet")
+    if (is.character(out)) { stop(out) }
+    
+    # Cleaning up (1-indexing, and resorting).
+    final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(iset), length(ranges))
+    return(final)
+}
+
 setMethod("findOverlaps", c(query="InteractionSet", subject="GRanges"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        olap <- .fast_overlap(query, subject, maxgap=maxgap, minoverlap=minoverlap,
-                    type=type, algorithm=algorithm, ignore.strand=ignore.strand)
-        a1 <- anchors(query, type="first", id=TRUE)
-        a2 <- anchors(query, type="second", id=TRUE)
 
-        # Getting all combinations of overlaps (zero-indexing for C code).
-        qbounds <- .get_query_bounds(olap, length(regions(query)))
-        out <- .Call("expand_olaps", a1 - 1L, a2 - 1L, qbounds$first - 1L, qbounds$last, 
-                     olap$subject.dex - 1L, length(subject), PACKAGE="InteractionSet")
-        if (is.character(out)) { stop(out) }
-
-        # Cleaning up (1-indexing, and resorting).
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), length(subject))
+        final <- .linear_olap_finder(query, subject, maxgap=maxgap, minoverlap=minoverlap,
+                    type=type, algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
         select <- match.arg(select)
-        return(.reselect(final, select=select))
+        return(.reselect(final, select=select)) 
     }
 )
 
@@ -80,34 +100,36 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        final <- t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap, select="all",
-                       type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+
+        final <- .linear_olap_finder(subject, query, maxgap=maxgap, minoverlap=minoverlap,
+                    type=type, algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
+        final <- sort(t(final)) 
         select <- match.arg(select)
-        return(.reselect(final, select=select))
+        return(.reselect(final, select=select)) 
     }
 )
 
 ###############################################################
 
-.paired_overlap_finder <- function(query, subject, cxxfun, ...) 
+.paired_overlap_finder <- function(iset, pairings, cxxfun, ..., IS.query=TRUE) 
 # This is split into a separate function, because we'll re-use 
 # the code to run 'overlapsAny'.
 {
-    stopifnot(length(subject)==2L)
-    npairs <- length(subject[[1]])
-    stopifnot(npairs==length(subject[[2]]))
+    stopifnot(length(pairings)==2L)
+    npairs <- length(pairings[[1]])
+    stopifnot(npairs==length(pairings[[2]]))
     
-    olap1 <- .fast_overlap(query, subject[[1]], ...)
-    olap2 <- .fast_overlap(query, subject[[2]], ...)
-    a1 <- anchors(query, type="first", id=TRUE)
-    a2 <- anchors(query, type="second", id=TRUE)
+    olap1 <- .fast_overlap(iset, pairings[[1]], ..., IS.query=IS.query)
+    olap2 <- .fast_overlap(iset, pairings[[2]], ..., IS.query=IS.query)
+    a1 <- anchors(iset, type="first", id=TRUE)
+    a2 <- anchors(iset, type="second", id=TRUE)
     
     # Getting all 2D overlaps.
-    qbounds1 <- .get_query_bounds(olap1, length(regions(query)))
-    qbounds2 <- .get_query_bounds(olap2, length(regions(query)))
+    bounds1 <- .get_iset_bounds(olap1, length(regions(iset)))
+    bounds2 <- .get_iset_bounds(olap2, length(regions(iset)))
     out <- .Call(cxxfun, a1 - 1L, a2 - 1L, 
-                 qbounds1$first - 1L, qbounds1$last, olap1$subject.dex - 1L, 
-                 qbounds2$first - 1L, qbounds2$last, olap2$subject.dex - 1L,
+                 bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
+                 bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
                  npairs, PACKAGE="InteractionSet")
     if (is.character(out)) { stop(out) }
     return(out)
@@ -119,10 +141,12 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="GRangesList"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        out <- .paired_overlap_finder(query, subject, "expand_paired_olaps", 
+
+        out <- .paired_overlap_finder(query, subject, "expand_paired_olaps",
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    algorithm=algorithm, ignore.strand=ignore.strand)
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), length(subject[[1]])) # Cleaning up (1-indexing and resorting).
+                    algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
+       
+        final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), length(subject[[1]])) # Cleaning up (1-indexing).
         select <- match.arg(select)
         return(.reselect(final, select=select))
     }
@@ -134,8 +158,13 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        final <- t(findOverlaps(subject, query, maxgap=maxgap, minoverlap=minoverlap, select="all",
-                    type=type, algorithm=algorithm, ignore.strand=ignore.strand))
+
+        out <- .paired_overlap_finder(subject, query, "expand_paired_olaps",
+                    maxgap=maxgap, minoverlap=minoverlap, type=type, 
+                    algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
+
+        final <- Hits(out[[2]]+1L, out[[1]]+1L, nrow(query), length(subject[[1]])) # Cleaning up (1-indexing).
+        final <- sort(final) 
         select <- match.arg(select)
         return(.reselect(final, select=select))
     }
@@ -154,32 +183,32 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
     return(list(query.dex=all.queries[o], subject.dex=all.anchors[o]))
 }
 
-.paired_overlap_finder2 <- function(query, subject, cxxfun, ...) 
+.paired_overlap_finder2 <- function(iset.left, iset.right, cxxfun, ...) 
 # Again, splitting the code for re-use in 'overlapsAny'.
 {
-    used2 <- .get_used(subject)
-    olap <- .fast_overlap(query, regions(subject)[used2], ...)
-    olap$subject.dex <- used2[olap$subject.dex]
-    sub.list <- split(olap$query.dex, olap$subject.dex)
-    ref.list <- rep(list(integer(0)), length(regions(subject)))
+    used2 <- .get_used(iset.right)
+    olap <- .fast_overlap(iset.left, regions(iset.right)[used2], ..., IS.query=TRUE)
+    olap$ranges.dex <- used2[olap$ranges.dex]
+    sub.list <- split(olap$iset.dex, olap$ranges.dex)
+    ref.list <- rep(list(integer(0)), length(regions(iset.right)))
     ref.list[as.integer(names(sub.list))] <- sub.list
 
     # Reconstructing, as if we had done .fast_overlap on the anchor ranges directly.
-    as1 <- anchors(subject, type="first", id=TRUE)
+    as1 <- anchors(iset.right, type="first", id=TRUE)
     olap1 <- .reindex_by_anchor(ref.list, as1)
-    as2 <- anchors(subject, type="second", id=TRUE)
+    as2 <- anchors(iset.right, type="second", id=TRUE)
     olap2 <- .reindex_by_anchor(ref.list, as2)
    
-    aq1 <- anchors(query, type="first", id=TRUE)
-    aq2 <- anchors(query, type="second", id=TRUE)
+    aq1 <- anchors(iset.left, type="first", id=TRUE)
+    aq2 <- anchors(iset.left, type="second", id=TRUE)
 
     # Getting all 2D overlaps.
-    npairs <- nrow(subject)
-    qbounds1 <- .get_query_bounds(olap1, length(regions(query)))
-    qbounds2 <- .get_query_bounds(olap2, length(regions(query)))
+    npairs <- nrow(iset.right)
+    bounds1 <- .get_iset_bounds(olap1, length(regions(iset.left)))
+    bounds2 <- .get_iset_bounds(olap2, length(regions(iset.left)))
     out <- .Call(cxxfun, aq1 - 1L, aq2 - 1L, 
-                 qbounds1$first - 1L, qbounds1$last, olap1$subject.dex - 1L, 
-                 qbounds2$first - 1L, qbounds2$last, olap2$subject.dex - 1L,
+                 bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
+                 bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
                  npairs, PACKAGE="InteractionSet")
     if (is.character(out)) { stop(out) }
     return(out)
