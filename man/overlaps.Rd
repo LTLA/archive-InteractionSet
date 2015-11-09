@@ -22,9 +22,11 @@
 \alias{overlapsAny,InteractionSet,InteractionSet-method}
 
 \alias{subsetByOverlaps}
-\alias{subsetByOverlaps,InteractionSet,Vector-method}
+\alias{subsetByOverlaps,InteractionSet,GRanges-method}
 \alias{subsetByOverlaps,GRanges,InteractionSet-method}
+\alias{subsetByOverlaps,InteractionSet,GRangesList-method}
 \alias{subsetByOverlaps,GRangesList,InteractionSet-method}
+\alias{subsetByOverlaps,InteractionSet,InteractionSet-method}
 
 \title{Find overlaps between interactions in one or two dimensions}
 
@@ -102,7 +104,7 @@ Find overlaps between interactions and linear intervals, between interactions an
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
 
-\S4method{subsetByOverlaps}{InteractionSet,Vector}(query, subject, maxgap=0L, minoverlap=1L,
+\S4method{subsetByOverlaps}{InteractionSet,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
@@ -110,7 +112,15 @@ Find overlaps between interactions and linear intervals, between interactions an
     type=c("any", "start", "end", "within", "equal"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
+\S4method{subsetByOverlaps}{InteractionSet,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
 \S4method{subsetByOverlaps}{GRangesList,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{subsetByOverlaps}{InteractionSet,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)

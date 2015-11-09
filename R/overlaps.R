@@ -293,15 +293,20 @@ for (siglist in list(
 ###############################################################
 # This defines the subsetByOverlaps method.
 
-setMethod("subsetByOverlaps", c(query="InteractionSet", subject="Vector"), 
-    function(query, subject, maxgap=0L, minoverlap=1L, 
+for (siglist in list(
+        c(query="InteractionSet", subject="GRanges"), 
+        c(query="GRanges", subject="InteractionSet"),
+        c(query="InteractionSet", subject="GRangesList"),
+        c(query="InteractionSet", subject="InteractionSet")
+    )) { 
+    setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
         query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
                 type=type, algorithm=algorithm, ignore.strand=ignore.strand),] 
-    }
-)
+    })
+}
 
 setMethod("subsetByOverlaps", c(query="GRangesList", subject="InteractionSet"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
@@ -313,16 +318,6 @@ setMethod("subsetByOverlaps", c(query="GRangesList", subject="InteractionSet"),
         query[[1]] <- query[[1]][keep]
         query[[2]] <- query[[2]][keep]
         return(query)
-    }
-)
-
-setMethod("subsetByOverlaps", c(query="GRanges", subject="InteractionSet"), 
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
-        query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
-                type=type, algorithm=algorithm, ignore.strand=ignore.strand),] 
     }
 )
 
