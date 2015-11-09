@@ -146,15 +146,15 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
 
 ###############################################################
 
-.reindex_by_anchor <- function(ref.list, anchor.dex) 
+.reindex_by_anchor <- function(ref.list, all.anchors) 
 # 'ref.list' stores the map from indices of region(subject) -> multiple indices of region(query) 
 # We want to get the map from indices of anchor(subject) -> multiple indices of region(query)
 {
-    ref.list <- ref.list[anchor.dex]
-    all.queries <- unlist(ref.list)
-    all.anchors <- rep(seq_along(anchor.dex), lengths(ref.list))
-    o <- order(all.queries, all.anchors)
-    return(list(query.dex=all.queries[o], subject.dex=all.anchors[o]))
+    ref.list <- ref.list[all.anchors]
+    left.indices <- as.integer(unlist(ref.list)) # coerces to 'integer(0)' if all.anchors is empty.
+    anchor.indices <- rep(seq_along(all.anchors), lengths(ref.list))
+    o <- order(left.indices, anchor.indices)
+    return(list(iset.dex=left.indices[o], ranges.dex=anchor.indices[o]))
 }
 
 .paired_overlap_finder2 <- function(iset.left, iset.right, cxxfun, ...) 
