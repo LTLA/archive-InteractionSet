@@ -208,6 +208,8 @@ setReplaceMethod("regions", "InteractionSet", function(x, value) {
 
 setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 setReplaceMethod("anchors", "InteractionSet", function(x, value) {
+    stopifnot(length(value)==2L)
+    stopifnot(length(value[[1]])==length(value[[2]]))
     out <- .enforce_order(as.integer(value[[1]]), as.integer(value[[2]]))
     x@anchor1 <- out$anchor1
     x@anchor2 <- out$anchor2
@@ -288,12 +290,12 @@ setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
 # Other methods
 
 setMethod("order", "InteractionSet", function(..., na.last=TRUE, decreasing=FALSE) {
-     all.ids <- unlist(lapply(list(...), anchors, id=TRUE), recursive=FALSE)
-     do.call(order, c(all.ids, list(na.last=na.last, decreasing=decreasing)))
+    all.ids <- unlist(lapply(list(...), anchors, id=TRUE), recursive=FALSE)
+    do.call(order, c(all.ids, list(na.last=na.last, decreasing=decreasing)))
 })
 
 setMethod("sort", "InteractionSet", function(x, decreasing=FALSE, ...) {
-     x[order(x, decreasing=decreasing),]
+    x[order(x, decreasing=decreasing),]
 })
 
 # Not sure how much sense it makes to provide GRanges methods on the InteractionSet,
