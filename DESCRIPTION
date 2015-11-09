@@ -1,13 +1,13 @@
 Package: InteractionSet
-Version: 0.0.2
-Date: 2015/11/08
+Version: 0.0.3
+Date: 2015/11/09
 Title: InteractionSet object for holding interaction data
 Author: Aaron Lun <alun@wehi.edu.au>
 Maintainer: Aaron Lun <alun@wehi.edu.au>
 Depends: R (>= 3.2.2), GenomicRanges
 Imports: SummarizedExperiment, IRanges, S4Vectors, GenomeInfoDb, 
         methods
-Suggests: 
+Suggests: testthat
 biocViews: HiC
 Description: Provides the InteractionSet and ContactMatrix
     objects and methods for holding genomic interaction data
