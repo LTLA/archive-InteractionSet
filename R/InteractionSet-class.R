@@ -16,25 +16,34 @@ setClass("InteractionSet",
      )
 )
 
-setValidity("InteractionSet", function(object) {
-    if (nrow(object@assays)!=length(object@anchor1)) {
-        return("'assay' nrow differs from length of first anchor vector")
-    } 
-    if (nrow(object@assays)!=length(object@anchor2)) { 
-        return("'assay' nrow differs from length of second anchor vector")
+.check_inputs <- function(anchor1, anchor2, regions) {
+    if (length(anchor1)!=length(anchor2)) { 
+        return("first and second anchor vectors have different lengths")
     }
+    if (!all(is.finite(anchor1)) || !all(is.finite(anchor2))) { 
+        return("all anchor indices must be finite integers")
+    }
+    if (!all(anchor1 >= 1L) || !all(anchor2 >= 1L)) {
+        return('all anchor indices must be positive integers')
+    } 
+    nregs <- length(regions)
+    if ( !all(anchor1 <= nregs) || !all(anchor2 <= nregs)) {
+        return("all anchor indices must refer to entries in 'regions'")
+    } 
+    return(TRUE)
+}
+
+setValidity("InteractionSet", function(object) {
+    msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
+    if (is.character(msg)) { return(msg) }
+
+    if (nrow(object@assays)!=length(object@anchor1)) {
+        return("'assay' nrow differs from length of anchor vectors")
+    } 
+
     if (ncol(object@assays)!=nrow(object@colData)) {
         return("'assay' ncol differs from 'colData' nrow")
     }
-
-    if (!all(object@anchor1 >= 1L) || !all(object@anchor2 >= 1L)) {
-        return('all anchors must be positive integers')
-    } 
-    nregs <- length(object@regions)
-    if ( !all(object@anchor1 <= nregs) || !all(object@anchor2 <= nregs)
-        || !all(is.finite(object@anchor1)) || !all(is.finite(object@anchor2)) ) {
-        return('all anchors must refer to valid regions')
-    } 
     if (!all(object@anchor1 >= object@anchor2)) { 
         return('first anchors cannot be less than the second anchor')
     }
@@ -82,6 +91,9 @@ setMethod("show", signature("InteractionSet"), function(object) {
     # Checking odds and ends.
     anchor1 <- as.integer(anchor1)
     anchor2 <- as.integer(anchor2)
+    msg <- .check_inputs(anchor1, anchor2, regions)
+    if (is.character(msg)) { stop(msg) }
+
     out <- .resort_regions(anchor1, anchor2, regions)
     anchor1 <- out$anchor1
     anchor2 <- out$anchor2
@@ -99,15 +111,15 @@ setMethod("show", signature("InteractionSet"), function(object) {
 
 setGeneric("InteractionSet", function(assays, anchor1, anchor2, ...) { standardGeneric("InteractionSet") })
 setMethod("InteractionSet", c("ANY", "numeric", "numeric"),
-   function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
-       .new_InteractionSet(assays, anchor1=anchor1, anchor2=anchor2, 
+    function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
+        .new_InteractionSet(assays, anchor1=anchor1, anchor2=anchor2, 
             regions=regions, colData=colData, metadata=metadata)
    }
 )
 
 .collate_GRanges <- function(...) {
     incoming <- list(...)
-    obj.dex <- rep(seq_along(incoming), lengths(incoming))
+    obj.dex <- rep(factor(seq_along(incoming)), lengths(incoming))
     combined <- do.call(c, incoming)
     refdex <- seq_along(combined)
     
@@ -127,7 +139,7 @@ setMethod("InteractionSet", c("ANY", "numeric", "numeric"),
 }
 
 setMethod("InteractionSet", c("ANY", "GRanges", "GRanges"), 
-   function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
+    function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
 
         # Making unique regions to save space (metadata is ignored)
         if (missing(regions)) {
