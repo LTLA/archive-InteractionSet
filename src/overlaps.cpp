@@ -290,7 +290,7 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
 
             for (curindex=qsptr2[curq2]; curindex<qeptr2[curq2]; ++curindex) {
                 curs=sjptr2[curindex];
-                if (mode && latest_pair_A[curs] == curpair && is_stored[curs]) { continue; }
+                if (mode && latest_pair_A[curs] == curpair && is_stored_A[curs]) { continue; }
                 if (latest_pair[curs] == curpair && !is_stored[curs]) {
                     output->acknowledge(curpair, curs);
                     is_stored[curs] = true;
