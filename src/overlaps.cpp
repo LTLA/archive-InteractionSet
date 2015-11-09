@@ -269,7 +269,7 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
                 curq1 = a1ptr[curpair];
                 curq2 = a2ptr[curpair];
                 if (curq1 >= Nq || curq1 < 0 || curq1==NA_INTEGER) { throw std::runtime_error("region index (1) out of bounds"); }
-                if (curq2 >= Nq || curq2 < 0 || curq2==NA_INTEGER) { throw std::runtime_error("region index (2)out of bounds"); }
+                if (curq2 >= Nq || curq2 < 0 || curq2==NA_INTEGER) { throw std::runtime_error("region index (2) out of bounds"); }
                 latest_pair = latest_pair_A;
                 is_stored = is_stored_A;
             } else {
@@ -281,6 +281,7 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
 
             for (curindex=qsptr1[curq1]; curindex<qeptr1[curq1]; ++curindex) {
                 curs=sjptr1[curindex];
+                if (mode && latest_pair_A[curs] == curpair && is_stored_A[curs]) { continue; } // Already added in first cycle.
                 if (latest_pair[curs] < curpair) { 
                     latest_pair[curs] = curpair;
                     is_stored[curs] = false;
@@ -289,6 +290,7 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
 
             for (curindex=qsptr2[curq2]; curindex<qeptr2[curq2]; ++curindex) {
                 curs=sjptr2[curindex];
+                if (mode && latest_pair_A[curs] == curpair && is_stored[curs]) { continue; }
                 if (latest_pair[curs] == curpair && !is_stored[curs]) {
                     output->acknowledge(curpair, curs);
                     is_stored[curs] = true;
