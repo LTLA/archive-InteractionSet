@@ -19,7 +19,7 @@ void check_indices (const int* qsptr, const int* qeptr, const int Nq, const int*
         if (curqe > Ns || curqe < 0) { throw std::runtime_error("query end index out of bounds"); }
     }
     
-    if (Ns_all <= 0) { throw std::runtime_error("total number of subjects must be non-negative"); }
+    if (Ns_all < 0) { throw std::runtime_error("total number of subjects must be non-negative"); }
     int curs;
     for (int checkdex=0; checkdex < Ns; ++checkdex) { 
         curs = sjptr[checkdex];
