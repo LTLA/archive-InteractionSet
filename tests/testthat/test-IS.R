@@ -89,7 +89,10 @@ expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(pmax(fresh.anchor
 expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(pmin(fresh.anchor1, fresh.anchor2)))
 anchors(x) <- list(new.anchor1, new.anchor2) # Restoring.
 
-x$totals <- 1:4*1000L
+lib.sizes <- 1:4*1000L
+x$totals <- lib.sizes
+expect_that(x$totals, is_identical_to(lib.sizes))
+expect_that(colData(x)$totals, is_identical_to(lib.sizes))
 
 # Testing the subsetting.
 
