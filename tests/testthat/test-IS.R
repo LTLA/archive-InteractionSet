@@ -152,10 +152,10 @@ expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor
 
 xsub <- x[1:5,]
 xsub2 <- x[6:20,]
-expect_that(rbind(xsub, xsub2), is_equivalent_to(x))
+expect_that(rbind(xsub, xsub2), equals(x))
 xsub <- x[,1]
 xsub2 <- x[,2:4]
-expect_that(cbind(xsub, xsub2), is_equivalent_to(x))
+expect_that(cbind(xsub, xsub2), equals(x))
 
 set.seed(1002)
 N <- 30
@@ -180,7 +180,7 @@ expect_that(unique(sort(c(regions(x), regions(next.x)))), is_identical_to(region
 
 o.x <- order(anchors(x, type="first"), anchors(x, type="second"))
 expect_that(o.x, is_identical_to(order(x)))
-expect_that(sort(x), is_equivalent_to(x[o.x,]))
+expect_that(sort(x), equals(x[o.x,]))
 
 o.x2 <- order(anchors(x, type="first"), anchors(x, type="second"), anchors(next.x, type="first"), anchors(next.x, type="second"))
 expect_that(o.x2, is_identical_to(order(x, next.x)))
