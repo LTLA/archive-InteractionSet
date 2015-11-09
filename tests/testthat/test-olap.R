@@ -1,5 +1,3 @@
-require(InteractionSet); require(testthat)
-
 # Testing the various overlap methods for InteractionSet objects.
 
 set.seed(300)
@@ -53,7 +51,9 @@ for (param in seq_len(4)) {
         expect_that(selected, is_identical_to(selectHits(olap, select)))
     }
 
-    # Checking that 'overlapsAny' works.
+    # Checking that 'overlapsAny', 'countOverlaps' and 'subsetByOverlaps' works.
+    count.lap <- countOverlaps(x, query.regions, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(olap, "count"))
     out <- overlapsAny(x, query.regions, type=type, maxgap=maxgap, minoverlap=minoverlap)
     expect_identical(out, !is.na(selected))
     expect_equal(subsetByOverlaps(x, query.regions, type=type, maxgap=maxgap, minoverlap=minoverlap), x[out,])
@@ -73,6 +73,8 @@ for (param in seq_len(4)) {
         expect_that(selected, is_identical_to(selectHits(rolap, select)))
     }
     
+    count.lap <- countOverlaps(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(rolap, "count"))
     out <- overlapsAny(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap)
     expect_identical(out, !is.na(selected))
     expect_identical(subsetByOverlaps(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap), query.regions[out])
@@ -145,7 +147,9 @@ for (param in seq_len(4)) {
         expect_that(selected, is_identical_to(selectHits(olap, select)))
     }
 
-    # Checking that 'overlapsAny' works.
+    # Checking that 'overlapsAny', 'countOverlaps' and 'subsetByOverlaps' works.
+    count.lap <- countOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(olap, "count"))
     out <- overlapsAny(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap)
     expect_identical(out, !is.na(selected))
     expect_equal(subsetByOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap), x[out,])
@@ -174,6 +178,8 @@ for (param in seq_len(4)) {
         expect_that(selected, is_identical_to(selectHits(rolap, select)))
     }
 
+    count.lap <- countOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(rolap, "count"))
     out <- overlapsAny(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap)
     expect_identical(out, !is.na(selected))
     expect_identical(subsetByOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap), 
@@ -254,7 +260,9 @@ for (param in seq_len(4)) {
         expect_that(selected, is_identical_to(selectHits(olap, select)))
     }
 
-    # Checking that 'overlapsAny' works.
+    # Checking that 'overlapsAny', 'countOverlaps' and 'subsetByOverlaps' works.
+    count.lap <- countOverlaps(x, x2, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(olap, "count"))
     out <- overlapsAny(x, x2, type=type, maxgap=maxgap, minoverlap=minoverlap)
     expect_identical(out, !is.na(selected))
     expect_equal(subsetByOverlaps(x, x2, type=type, maxgap=maxgap, minoverlap=minoverlap), x[out,])

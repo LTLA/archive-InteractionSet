@@ -7,6 +7,13 @@
 \alias{findOverlaps,GRangesList,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,InteractionSet-method}
 
+\alias{countOverlaps}
+\alias{countOverlaps,InteractionSet,GRanges-method}
+\alias{countOverlaps,GRanges,InteractionSet-method}
+\alias{countOverlaps,InteractionSet,GRangesList-method}
+\alias{countOverlaps,GRangesList,InteractionSet-method}
+\alias{countOverlaps,InteractionSet,InteractionSet-method}
+
 \alias{overlapsAny}
 \alias{overlapsAny,InteractionSet,GRanges-method}
 \alias{overlapsAny,GRanges,InteractionSet-method}
@@ -51,6 +58,28 @@ Find overlaps between interactions and linear intervals, between interactions an
     select=c("all", "first", "last", "arbitrary"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
+
+\S4method{countOverlaps}{InteractionSet,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{countOverlaps}{GRanges,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{countOverlaps}{InteractionSet,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{countOverlaps}{GRangesList,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{countOverlaps}{InteractionSet,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+
 
 \S4method{overlapsAny}{InteractionSet,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
@@ -119,7 +148,8 @@ When \code{select="all"}, \code{findOverlaps} returns a Hits object containing o
 For other values of \code{select}, an integer vector is returned that specifies the index of the chosen (first, last or arbitrary) overlapping feature in \code{subject} for each element of \code{query}.
 Queries with no overlaps at all are assigned \code{NA} values.
 
-For the other methods, \code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
+For the other methods, \code{countOverlaps} returns an integer vector indicating the number of elements in \code{subject} that were overlapped by each element in \code{query}.
+\code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
 \code{subsetByOverlaps} returns a subsetted \code{query} containing only those elements overlapped by at least one element in \code{subject}.
 For GRangesList queries, the constituent GRanges objects are subsetted rather than the GRangesList itself.
 
@@ -145,6 +175,8 @@ findOverlaps(x, of.interest)
 findOverlaps(x, of.interest, select="first")
 overlapsAny(x, of.interest)
 overlapsAny(of.interest, x)
+countOverlaps(x, of.interest)
+countOverlaps(of.interest, x)
 subsetByOverlaps(x, of.interest)
 subsetByOverlaps(of.interest, x)
 
@@ -155,6 +187,8 @@ findOverlaps(x, of.interest)
 findOverlaps(x, of.interest, select="last")
 overlapsAny(x, of.interest)
 overlapsAny(of.interest, x)
+countOverlaps(x, of.interest)
+countOverlaps(of.interest, x)
 subsetByOverlaps(x, of.interest)
 subsetByOverlaps(of.interest, x)
 
@@ -164,6 +198,7 @@ second.half <- x[Np/2+1:Np/2]
 findOverlaps(first.half, second.half)
 findOverlaps(first.half, second.half, select="arbitrary")
 overlapsAny(first.half, second.half)
+countOverlaps(first.half, second.half)
 subsetByOverlaps(first.half, second.half)
 }
 
