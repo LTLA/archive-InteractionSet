@@ -12,9 +12,11 @@ void check_indices (const int* qsptr, const int* qeptr, const int Nq, const int*
     int curqs, curqe;
     for (int checkdex=0; checkdex < Nq; ++checkdex) { 
         curqs = qsptr[checkdex];
-        if (curqs >= Ns || curqs < 0 || curqs==NA_INTEGER) { throw std::runtime_error("query start index out of bounds"); }
         curqe = qeptr[checkdex];
-        if (curqe > Ns || curqe < 0 || curqe==NA_INTEGER) { throw std::runtime_error("query end index out of bounds"); }
+        if (curqs==NA_INTEGER || curqe==NA_INTEGER) { throw std::runtime_error("query indices must be finite integers"); }
+        if (curqs >= curqe)  { continue; } // Empty range, no need to check actual values.
+        if (curqs >= Ns || curqs < 0) { throw std::runtime_error("query start index out of bounds"); }
+        if (curqe > Ns || curqe < 0) { throw std::runtime_error("query end index out of bounds"); }
     }
     
     if (Ns_all <= 0) { throw std::runtime_error("total number of subjects must be non-negative"); }
