@@ -241,7 +241,7 @@ setMethod("overlapsAny", c(query="InteractionSet", subject="GRangesList"),
              ignore.strand=TRUE) {
         out <- .paired_overlap_finder(query, subject, "queryhit_paired_olaps", 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    algorithm=algorithm, ignore.strand=ignore.strand)
+                    algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
         return(out>0L)
     }
 )
@@ -253,7 +253,7 @@ setMethod("overlapsAny", c(query="GRangesList", subject="InteractionSet"),
              ignore.strand=TRUE) {
         out <- .paired_overlap_finder(subject, query, "subjecthit_paired_olaps", 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    algorithm=algorithm, ignore.strand=ignore.strand)
+                    algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
         return(out>0L)
     }
 )
