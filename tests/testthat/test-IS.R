@@ -157,6 +157,13 @@ xsub <- x[,1]
 xsub2 <- x[,2:4]
 expect_that(cbind(xsub, xsub2), equals(x))
 
+expect_that(nrow(rbind(x[0,], x[0,])), is_identical_to(0L)) # Behaviour with empties.
+expect_that(ncol(rbind(x[0,], x[0,])), is_identical_to(ncol(x)))
+expect_that(rbind(x, x[0,]), equals(x))
+expect_that(nrow(cbind(x[,0], x[,0])), is_identical_to(nrow(x)))
+expect_that(ncol(cbind(x[,0], x[,0])), is_identical_to(0L))
+expect_that(cbind(x, x[,0]), equals(x))
+
 set.seed(1002)
 N <- 30
 next.starts <- round(runif(N, 1, 100))
@@ -175,6 +182,10 @@ c.x <- c(x, next.x)
 expect_that(c(anchors(x, type="first"), anchors(next.x, type="first")), is_identical_to(anchors(c.x, type="first")))
 expect_that(c(anchors(x, type="second"), anchors(next.x, type="second")), is_identical_to(anchors(c.x, type="second")))
 expect_that(unique(sort(c(regions(x), regions(next.x)))), is_identical_to(regions(c.x)))
+
+expect_that(nrow(c(x[0,], next.x[0,])), is_identical_to(0L)) # Behaviour with empties.
+expect_that(ncol(c(x[0,], next.x[0,])), is_identical_to(ncol(x)))
+expect_that(nrow(c(x, next.x[0,])), is_identical_to(nrow(x))) # Not fully equal, as regions have changed.
 
 # Testing the sorting.
 
