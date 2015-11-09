@@ -69,14 +69,14 @@ setMethod("show", signature("InteractionSet"), function(object) {
 }
 
 .resort_regions <- function(anchor1, anchor2, regions) {
-    o <- order(regions)
-    if (any(diff(o)!=1L)) { 
+    if (is.unsorted(regions)) { 
+        o <- order(regions)
         new.pos <- seq_along(o)
         new.pos[o] <- new.pos
         anchor1 <- new.pos[anchor1]
         anchor2 <- new.pos[anchor2]
         regions <- regions[o]
-    } 
+    }
     out <- .enforce_order(anchor1, anchor2)
     return(list(anchor1=out$anchor1, anchor2=out$anchor2, regions=regions)) 
 }
@@ -198,6 +198,7 @@ setMethod("regions", signature("InteractionSet"), function(x) {
 
 setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") }) 
 setReplaceMethod("regions", "InteractionSet", function(x, value) {
+    stopifnot(length(value)!=length(regions(x)))
     out <- .resort_regions(x@anchor1, x@anchor2, value)
     x@anchor1 <- out$anchor1 
     x@anchor2 <- out$anchor2
