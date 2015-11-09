@@ -14,6 +14,10 @@ extern "C" {
 
 SEXP expand_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
+SEXP queryhit_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+
+SEXP subjecthit_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+
 SEXP expand_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 SEXP queryhit_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);

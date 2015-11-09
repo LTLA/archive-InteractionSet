@@ -24,80 +24,6 @@ void check_indices (const int* qsptr, const int* qeptr, const int Nq, const int*
     return;
 }
 
-/* Detects all overlaps between linear ranges and either interacting loci in a pair */
-
-SEXP expand_olaps (SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
-    if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
-    const int Npairs = LENGTH(anchor1);
-    if (Npairs != LENGTH(anchor2)) { throw std::runtime_error("anchor vectors must be of equal length"); } 
-    const int* a1ptr=INTEGER(anchor1), *a2ptr=INTEGER(anchor2);
-    
-    if (!isInteger(querystarts) || !isInteger(queryends)) { throw std::runtime_error("query indices must be integer vectors"); }
-    const int Nq = LENGTH(querystarts);
-    if (Nq != LENGTH(queryends)) { throw std::runtime_error("query indices must be of equal length"); }
-    const int* qsptr=INTEGER(querystarts), *qeptr=INTEGER(queryends);
-    
-    if (!isInteger(subject)) { throw std::runtime_error("subject indices must be integer"); }
-    const int Ns = LENGTH(subject);
-    const int *sjptr=INTEGER(subject);
-    if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
-    const int Ns_all = asInteger(nsubjects);
-   
-    // Checking indices. 
-    check_indices(qsptr, qeptr, Nq, sjptr, Ns, Ns_all);
-
-    /* Constructing an output deque */
-    std::deque<int> new_query, new_subject;
-    int* latest_pair=(int*)R_alloc(Ns_all, sizeof(int));
-    for (int checkdex=0; checkdex < Ns_all; ++checkdex) { latest_pair[checkdex] = -1; }
-
-    int curpair=0, mode=0, curq=0, curindex=0, curs=0, just_added=0;
-    for (curpair=0; curpair<Npairs; ++curpair) {
-        just_added=0;
-
-        for (mode=0; mode<2;  ++mode) { 
-            if (mode == 0) {
-                curq = a1ptr[curpair];
-            } else if (curq != a2ptr[curpair]) {
-                curq = a2ptr[curpair];
-            } else { break; }
-
-            if (curq >= Nq || curq < 0 || curq==NA_INTEGER) { throw std::runtime_error("region index out of bounds"); }
-            for (curindex=qsptr[curq]; curindex<qeptr[curq]; ++curindex) {
-                curs=sjptr[curindex];
-                if (latest_pair[curs] < curpair) { 
-                    new_query.push_back(curpair);
-                    new_subject.push_back(curs);
-                    latest_pair[curs] = curpair;
-                    ++just_added;
-                }
-            }
-        }
-
-        // Sorting for output.
-        std::sort(new_subject.end()-just_added, new_subject.end());
-    }
-
-    // Transplanting the object.
-    SEXP output=PROTECT(allocVector(VECSXP, 2));
-    try { 
-        SET_VECTOR_ELT(output, 0, allocVector(INTSXP, new_query.size()));
-        SET_VECTOR_ELT(output, 1, allocVector(INTSXP, new_subject.size()));
-        int * new_qptr=INTEGER(VECTOR_ELT(output, 0));
-        std::copy(new_query.begin(), new_query.end(), new_qptr);
-        int * new_sptr=INTEGER(VECTOR_ELT(output, 1));
-        std::copy(new_subject.begin(), new_subject.end(), new_sptr);
-    } catch (std::exception& e) {
-        UNPROTECT(1);
-        throw;
-    }
-    
-    UNPROTECT(1);
-    return output;
-} catch (std::exception& e) { 
-    return mkString(e.what());
-}
-
 /* Useful classes to get different outputs from the same code. */
 
 class output_store {
@@ -120,7 +46,7 @@ public:
         new_subject.push_back(s);
         ++just_added;
     }
-    void postprocess() {
+    void postprocess() { // Sorting for output.
         std::sort(new_subject.end()-just_added, new_subject.end());
         just_added=0;
     }
@@ -204,6 +130,59 @@ private:
     int nsubject;
     std::deque<int> subject_hit;
 };
+
+/* Base function, to detect all overlaps between linear ranges and either interacting loci in a pair */
+
+void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) {
+    if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
+    const int Npairs = LENGTH(anchor1);
+    if (Npairs != LENGTH(anchor2)) { throw std::runtime_error("anchor vectors must be of equal length"); } 
+    const int* a1ptr=INTEGER(anchor1), *a2ptr=INTEGER(anchor2);
+    
+    if (!isInteger(querystarts) || !isInteger(queryends)) { throw std::runtime_error("query indices must be integer vectors"); }
+    const int Nq = LENGTH(querystarts);
+    if (Nq != LENGTH(queryends)) { throw std::runtime_error("query indices must be of equal length"); }
+    const int* qsptr=INTEGER(querystarts), *qeptr=INTEGER(queryends);
+    
+    if (!isInteger(subject)) { throw std::runtime_error("subject indices must be integer"); }
+    const int Ns = LENGTH(subject);
+    const int *sjptr=INTEGER(subject);
+    if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
+    const int Ns_all = asInteger(nsubjects);
+   
+    // Checking indices. 
+    check_indices(qsptr, qeptr, Nq, sjptr, Ns, Ns_all);
+
+    /* Constructing an output deque */
+    output->prime(Npairs, Ns_all);
+    int* latest_pair=(int*)R_alloc(Ns_all, sizeof(int));
+    for (int checkdex=0; checkdex < Ns_all; ++checkdex) { latest_pair[checkdex] = -1; }
+
+    int curpair=0, mode=0, curq=0, curindex=0, curs=0;
+    for (curpair=0; curpair<Npairs; ++curpair) {
+
+        for (mode=0; mode<2;  ++mode) { 
+            if (mode == 0) {
+                curq = a1ptr[curpair];
+            } else if (curq != a2ptr[curpair]) {
+                curq = a2ptr[curpair];
+            } else { break; }
+
+            if (curq >= Nq || curq < 0 || curq==NA_INTEGER) { throw std::runtime_error("region index out of bounds"); }
+            for (curindex=qsptr[curq]; curindex<qeptr[curq]; ++curindex) {
+                curs=sjptr[curindex];
+                if (latest_pair[curs] < curpair) { 
+                    output->acknowledge(curpair, curs);
+                    latest_pair[curs] = curpair;
+                }
+            }
+        }
+
+        output->postprocess();
+    }
+
+    return;
+}
 
 /* Base function, to detect all overlaps between paired ranges and both interacting loci in a pair */
 
@@ -300,7 +279,33 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
     return;
 }
 
+}
+
 /* Functions based on derived classes. */
+
+SEXP expand_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+    expanded_overlap x;
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    return x.generate();
+} catch (std::exception& e) {
+    return mkString(e.what());
+}
+
+SEXP queryhit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+    query_overlap x;
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    return x.generate();
+} catch (std::exception& e) {
+    return mkString(e.what());
+}
+
+SEXP subjecthit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+    subject_overlap x;
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    return x.generate();
+} catch (std::exception& e) {
+    return mkString(e.what());
+}
 
 SEXP expand_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
         SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects) try {
@@ -332,4 +337,4 @@ SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP
     return mkString(e.what());
 }
 
-}
+
