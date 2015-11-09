@@ -1,8 +1,4 @@
-#include "R.h"
-#include "Rinternals.h"
-#include <deque>
-#include <algorithm>
-#include <stdexcept>
+#include "iset.h"
 
 extern "C" {
 

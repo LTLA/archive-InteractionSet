@@ -49,8 +49,8 @@
 
     # Getting all combinations of overlaps (zero-indexing for C code).
     bounds <- .get_iset_bounds(olap, length(regions(iset)))
-    out <- .Call("expand_olaps", a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
-                 olap$ranges.dex - 1L, length(ranges), PACKAGE="InteractionSet")
+    out <- .Call(cxx_expand_olaps, a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
+                 olap$ranges.dex - 1L, length(ranges))
     if (is.character(out)) { stop(out) }
     
     # Cleaning up (1-indexing, and resorting).
@@ -106,7 +106,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
     out <- .Call(cxxfun, a1 - 1L, a2 - 1L, 
                  bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
                  bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
-                 npairs, PACKAGE="InteractionSet")
+                 npairs)
     if (is.character(out)) { stop(out) }
     return(out)
 }
@@ -118,7 +118,7 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="GRangesList"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
 
-        out <- .paired_overlap_finder(query, subject, "expand_paired_olaps",
+        out <- .paired_overlap_finder(query, subject, cxx_expand_paired_olaps,
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
        
@@ -134,7 +134,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
 
-        out <- .paired_overlap_finder(subject, query, "expand_paired_olaps",
+        out <- .paired_overlap_finder(subject, query, cxx_expand_paired_olaps,
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
 
@@ -183,7 +183,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
     out <- .Call(cxxfun, aq1 - 1L, aq2 - 1L, 
                  bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
                  bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
-                 npairs, PACKAGE="InteractionSet")
+                 npairs)
     if (is.character(out)) { stop(out) }
     return(out)
 }
@@ -194,7 +194,7 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="InteractionSet"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        out <- .paired_overlap_finder2(query, subject, "expand_paired_olaps", 
+        out <- .paired_overlap_finder2(query, subject, cxx_expand_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
         final <- Hits(out[[1]]+1L, out[[2]]+1L, nrow(query), nrow(subject))
@@ -239,7 +239,7 @@ setMethod("overlapsAny", c(query="InteractionSet", subject="GRangesList"),
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        out <- .paired_overlap_finder(query, subject, "queryhit_paired_olaps", 
+        out <- .paired_overlap_finder(query, subject, cxx_queryhit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
         return(out>0L)
@@ -251,7 +251,7 @@ setMethod("overlapsAny", c(query="GRangesList", subject="InteractionSet"),
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        out <- .paired_overlap_finder(subject, query, "subjecthit_paired_olaps", 
+        out <- .paired_overlap_finder(subject, query, cxx_subjecthit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
         return(out>0L)
@@ -263,7 +263,7 @@ setMethod("overlapsAny", c(query="InteractionSet", subject="InteractionSet"),
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
              ignore.strand=TRUE) {
-        out <- .paired_overlap_finder2(query, subject, "queryhit_paired_olaps", 
+        out <- .paired_overlap_finder2(query, subject, cxx_queryhit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
         return(out>0L)        
