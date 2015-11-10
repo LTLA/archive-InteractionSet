@@ -70,7 +70,7 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"),
 )
 
 ##############################################
-# Dimensions
+# Matrix dimensions
 
 setMethod("dim", "ContactMatrix", function(x) { 
     dim(x@matrix)
@@ -88,6 +88,10 @@ setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
     dimnames(x@matrix) <- value
     return(x)
 })
+
+setMethod("as.matrix", "ContactMatrix", function(x) {
+    return(x@matrix)
+}) 
 
 ##############################################
 # Subsetting
@@ -147,11 +151,20 @@ setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
 })
 
 ##############################################
-# Other getters
+# Overlap method (use outer(output$row, output$column, "|" or "&") to get area in the interaction space)
 
-setMethod("as.matrix", "ContactMatrix", function(x) {
-    return(x@matrix)
-}) 
+setMethod("overlapsAny", c("ContactMatrix", "GRanges"), 
+    function(query, subject, type=c("any", "start", "end", "within", "equal"),
+        algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE) {
+        a1 <- anchors(query, id=TRUE, type="row")
+        a2 <- anchors(query, id=TRUE, type="column")
+        
+        is.used <- union(a1, a2)
+        is.overlapped <- logical(length(regions(query)))
+        is.overlapped[is.used] <- overlapsAny(regions(query)[is.used], subject, type=type,
+                                       algorithm=algorithm, ignore.strand=ignore.strand)
+        return(list(row=is.overlapped[a1], column=is.overlapped[a2]))
+})
 
 ##############################################
 # End
