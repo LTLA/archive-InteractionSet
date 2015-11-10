@@ -161,9 +161,11 @@ expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor
 xsub <- x[1:5,]
 xsub2 <- x[6:20,]
 expect_that(rbind(xsub, xsub2), equals(x))
+expect_error(rbind(xsub, xsub2[,1:2]), "objects must have the same number of samples")
 xsub <- x[,1]
 xsub2 <- x[,2:4]
 expect_that(cbind(xsub, xsub2), equals(x))
+expect_error(cbind(xsub, xsub2[1:10,]), "anchors must be identical")
 
 expect_that(nrow(rbind(x[0,], x[0,])), is_identical_to(0L)) # Behaviour with empties.
 expect_that(ncol(rbind(x[0,], x[0,])), is_identical_to(ncol(x)))
