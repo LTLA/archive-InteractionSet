@@ -34,6 +34,9 @@ setClass("InteractionSet",
 }
 
 setValidity("InteractionSet", function(object) {
+    if (is.unsorted(object@regions)) {
+        return("'regions' should be sorted")
+    }
     msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
     if (is.character(msg)) { return(msg) }
 
