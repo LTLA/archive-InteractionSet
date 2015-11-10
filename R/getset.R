@@ -69,7 +69,33 @@ region.fun.gen <- function(enforce.order) {
 setReplaceMethod("regions", "InteractionSet", region.fun.gen(TRUE))
 setReplaceMethod("regions", "ContactMatrix", region.fun.gen(FALSE))
 
-# This is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
+# Also allow setting of regions of different length.
+
+setGeneric("newRegions<-", function(x, value) { standardGeneric("newRegions<-") })
+
+newRegion.fun.gen <- function(enforce.order) {
+    function(x, value) {
+        converter <- match(regions(x), value)
+        new.a1 <- converter[x@anchor1]
+        new.a2 <- converter[x@anchor2]
+        if (any(is.na(new.a1)) || any(is.na(new.a2))) { 
+            stop("some existing ranges do not exist in replacement GRanges") 
+        }
+
+        out <- .resort_regions(new.a1, new.a2, value, enforce.order=enforce.order)
+        x@anchor1 <- out$anchor1
+        x@anchor2 <- out$anchor2
+        x@regions <- out$regions
+        return(x)
+    }
+}
+
+setReplaceMethod("newRegions", "InteractionSet", newRegion.fun.gen(TRUE))
+setReplaceMethod("newRegions", "ContactMatrix", newRegion.fun.gen(FALSE))
+
+###############################################################
+
+# 'anchors<-' is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
 # nor is there any need to enforce 'anchor1 >= anchor2' in "ContactMatrix" objects.
 
 setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
@@ -100,4 +126,5 @@ setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
     return(x)
 })
 
-
+###############################################################
+# End
