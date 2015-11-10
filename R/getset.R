@@ -12,6 +12,7 @@ anchor.fun.gen <- function(is.IS) {
         type.arg <- c("both", "row", "column") 
     }
     out.names <- type.arg[2:3]
+    type1 <- out.names[1]
 
     function(x, type="both", id=FALSE) {
         type <- match.arg(type, type.arg)
@@ -20,7 +21,7 @@ anchor.fun.gen <- function(is.IS) {
                 out <- list(x@anchor1, x@anchor2)
                 names(out) <- out.names
                 return(out)
-            } else if (type=="first") {
+            } else if (type==type1) {
                 return(x@anchor1)
             } else {
                 return(x@anchor2)
@@ -30,7 +31,7 @@ anchor.fun.gen <- function(is.IS) {
                 out <- GRangesList(x@regions[x@anchor1], x@regions[x@anchor2])
                 names(out) <- out.names
                 return(out)
-            } else if (type=="first") {
+            } else if (type==type1) {
                 return(x@regions[x@anchor1])
             } else {
                 return(x@regions[x@anchor2])
