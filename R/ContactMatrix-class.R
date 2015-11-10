@@ -98,7 +98,7 @@ setMethod("as.matrix", "ContactMatrix", function(x) {
 
 setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) { 
-        x@anchor1 <- x@anchor1
+        x@anchor1 <- x@anchor1[i]
     }
     if (!missing(j)) {
         x@anchor2 <- x@anchor2[j]
@@ -151,7 +151,23 @@ setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
 })
 
 ##############################################
-# Overlap method (use outer(output$row, output$column, "|" or "&") to get area in the interaction space)
+# Sorting and ordering
+
+setMethod("order", "ContactMatrix", function(..., na.last=TRUE, decreasing=FALSE) {
+    incoming <- list(...)
+    if (length(incoming)!=1L) { stop("multiple ContrastMatrix objects not supported in 'order'") }
+    ref <- incoming[[1]]
+    list(row=order(anchors(ref, type="row", id=TRUE), na.last=na.last, decreasing=decreasing),
+         column=order(anchors(ref, type="column", id=TRUE), na.last=na.last, decreasing=decreasing))
+})
+
+setMethod("sort", "ContactMatrix", function(x, decreasing=FALSE, ...) {
+    out <- order(x, decreasing=decreasing)
+    x[out$row, out$column]
+})
+
+##############################################
+# overlapsAny
 
 setMethod("overlapsAny", c("ContactMatrix", "GRanges"), 
     function(query, subject, type=c("any", "start", "end", "within", "equal"),
@@ -166,10 +182,13 @@ setMethod("overlapsAny", c("ContactMatrix", "GRanges"),
         return(list(row=is.overlapped[a1], column=is.overlapped[a2]))
 })
 
+# Use outer(output$row, output$column, "|" or "&") to get the logical area in the interaction space.
+# Not sure it makes a great deal of sense to define 'findOverlaps' here.
+
 ##############################################
 # End
 
 
 # Testing:
-# cm <- ContactMatrix(matrix(0, 4, 4), 1:4, 1:4, GRanges("chr1", IRanges(1:4, 1:4)))
+# cm <- ContactMatrix(matrix(runif(16), 4, 4), sample(4), sample(4), GRanges("chr1", IRanges(1:4, 1:4)))
 
