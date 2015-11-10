@@ -60,7 +60,9 @@ For \code{regions<-,InteractionSet-method}, resorting of the input GRanges in \c
 
 The \code{show} method will print information equivalent to that done for a SummarizedExperiment object.
 An additional line is added indicating the number of regions in the \code{regions} slot of the object.
-For all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
+
+For access and setting of all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
+This includes \code{assays}, \code{colData}, \code{mcol} or \code{metadata}, which can be applied to InteractionSet objects.
 }
 
 \examples{
@@ -87,5 +89,6 @@ Aaron Lun
 }
 
 \seealso{
-\code{\link{InteractionSet-class}}
+\code{\link{InteractionSet-class}},
+\code{\link{SummarizedExperiment0-class}}
 }
