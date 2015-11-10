@@ -5,10 +5,14 @@
 \alias{anchors,InteractionSet-method}
 \alias{anchors<-}
 \alias{anchors<-,InteractionSet-method}
+
 \alias{regions}
 \alias{regions,InteractionSet-method}
 \alias{regions<-}
 \alias{regions<-,InteractionSet-method}
+
+\alias{newRegions<-}
+\alias{newRegions<-,InteractionSet-method}
 
 \alias{show}
 \alias{show,InteractionSet-method}
@@ -25,6 +29,7 @@ Methods to get and set fields in an InteractionSet object.
 
 \S4method{regions}{InteractionSet}(x)
 \S4method{regions}{InteractionSet}(x) <- value
+\S4method{newRegions}{InteractionSet}(x) <- value
 
 \S4method{show}{InteractionSet}(x)
 }
@@ -41,6 +46,8 @@ Methods to get and set fields in an InteractionSet object.
     All vectors must be of length equal to the number of rows in \code{x}.
 
     For \code{regions<-,InteractionSet-method}, a GRanges object of length equal to that of \code{regions(x)}.
+    
+    For \code{newRegions<-,InteractionSet-method}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
 }
 }
 
@@ -58,12 +65,13 @@ Swapping is performed automatically to ensure that the entries in the \code{anch
 For \code{regions,InteractionSet-method}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
 For \code{regions<-,InteractionSet-method}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
+The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 
 The \code{show} method will print information equivalent to that done for a SummarizedExperiment object.
 An additional line is added indicating the number of regions in the \code{regions} slot of the object.
 
 For access and setting of all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
-This includes \code{assays}, \code{colData}, \code{mcol} or \code{metadata}, which can be applied to InteractionSet objects.
+This includes \code{assays}, \code{colData}, \code{mcols} or \code{metadata}, which can all be applied to InteractionSet objects.
 }
 
 \examples{
@@ -83,6 +91,16 @@ anchors(x, id=TRUE, type="second")
 
 regions(x)
 regions(x)$score <- runif(length(regions(x)))
+
+new.ranges <- c(regions(x), resize(regions(x), fix="center", width=50))
+try(regions(x) <- new.ranges) # Fails
+newRegions(x) <- new.ranges
+
+
+# Standard SE methods:
+colData(x)
+metadata(x)
+mcols(x)
 }
 
 \author{

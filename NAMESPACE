@@ -8,7 +8,7 @@ exportClasses(
 
 exportMethods(
     anchors, regions, InteractionSet,
-    "anchors<-", "regions<-",
+    "anchors<-", "regions<-", "newRegions<-",
     pairdist, intrachr,
     linearize,
     ContactMatrix 

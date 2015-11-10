@@ -92,6 +92,14 @@ x$totals <- lib.sizes
 expect_that(x$totals, is_identical_to(lib.sizes))
 expect_that(colData(x)$totals, is_identical_to(lib.sizes))
 
+x.dump <- x
+mod.ranges <- resize(regions(x), fix="center", width=50)
+new.ranges <- c(regions(x), mod.ranges) 
+expect_error(regions(x.dump) <- new.ranges, "assigned value must be of the same length")
+newRegions(x.dump) <- new.ranges
+expect_identical(anchors(x.dump), anchors(x))
+expect_error(newRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
+
 # Testing the subsetting.
 
 rchosen <- 1:10
