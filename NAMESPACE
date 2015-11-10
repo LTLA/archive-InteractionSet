@@ -2,7 +2,8 @@ useDynLib(InteractionSet, .registration=TRUE, .fixes="cxx_")
 
 # Exporting the InteractionSet class.
 exportClasses(
-    InteractionSet
+    InteractionSet, 
+    ContactMatrix
 )
 
 exportMethods(
