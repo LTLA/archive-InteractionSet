@@ -5,7 +5,7 @@ setGeneric("anchors", function(x, ...) { standardGeneric("anchors") })
 setGeneric("regions", function(x, ...) { standardGeneric("regions") })
 
 # A generating function, to capture differences in 'type' for 'anchors' call.
-anchorfun.gen <- function(is.IS) { 
+anchor.fun.gen <- function(is.IS) { 
     if (is.IS) { 
         type.arg <- c("both", "first", "second") 
     } else {
@@ -40,12 +40,10 @@ anchorfun.gen <- function(is.IS) {
 }
 
 # Defining the methods:
-for (siglist in list(
-        "InteractionSet",
-        "ContactMatrix"
-    )) {
+setMethod("anchors", "InteractionSet", anchor.fun.gen(TRUE))
+setMethod("anchors", "ContactMatrix", anchor.fun.gen(FALSE))
 
-    setMethod("anchors", siglist, anchorfun.gen(siglist=="InteractionSet"))
+for (siglist in list("InteractionSet", "ContactMatrix")) {
     setMethod("regions", siglist, function(x) { x@regions })
 }
 
@@ -53,19 +51,28 @@ for (siglist in list(
 # Setters:
 
 setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") })
-setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 
-setReplaceMethod("regions", "InteractionSet", function(x, value) {
-    if (length(value)!=length(regions(x))) { 
-        stop("assigned value must be of the same length as 'regions(x)'")
+region.fun.gen <- function(enforce.order) {
+    function(x, value) {
+        if (length(value)!=length(regions(x))) { 
+            stop("assigned value must be of the same length as 'regions(x)'")
+        }
+        out <- .resort_regions(x@anchor1, x@anchor2, value, enforce.order=enforce.order)
+        x@anchor1 <- out$anchor1
+        x@anchor2 <- out$anchor2
+        x@regions <- out$regions
+        validObject(x)
+        return(x)
     }
-    out <- .resort_regions(x@anchor1, x@anchor2, value)
-    x@anchor1 <- out$anchor1
-    x@anchor2 <- out$anchor2
-    x@regions <- out$regions
-    validObject(x)
-    return(x)
-})
+}
+
+setReplaceMethod("regions", "InteractionSet", region.fun.gen(TRUE))
+setReplaceMethod("regions", "ContactMatrix", region.fun.gen(FALSE))
+
+# This is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
+# nor is there any need to enforce 'anchor1 >= anchor2' in "ContactMatrix" objects.
+
+setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 
 setReplaceMethod("anchors", "InteractionSet", function(x, value) {
     if (length(value)!=2L) { 
@@ -83,21 +90,6 @@ setReplaceMethod("anchors", "InteractionSet", function(x, value) {
     return(x)
 })
 
-# This is necessarily different, as there is no requirement for equal length 'anchor1' and 'anchor2',
-# nor is there any need to enforce 'anchor1 >= anchor2'.
-
-setReplaceMethod("regions", "ContactMatrix", function(x, value) {
-    if (length(value)!=length(regions(x))) { 
-        stop("assigned value must be of the same length as 'regions(x)'")
-    }
-    out <- .resort_regions(x@anchor1, x@anchor2, value, enforce.order=FALSE)
-    x@anchor1 <- out$anchor1
-    x@anchor2 <- out$anchor2
-    x@regions <- out$regions
-    validObject(x)
-    return(x)
-})
-
 setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
     if (length(value)!=2L) { 
         stop("'value' must be a list of 2 numeric vectors")
@@ -107,4 +99,5 @@ setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
     validObject(x)
     return(x)
 })
+
 
