@@ -1,10 +1,8 @@
 ###############################################################
-# Getters and setters
+# Getters:
 
 setGeneric("anchors", function(x, ...) { standardGeneric("anchors") })
 setGeneric("regions", function(x, ...) { standardGeneric("regions") })
-setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") })
-setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 
 # A generating function, to capture differences in 'type' for 'anchors' call.
 anchorfun.gen <- function(is.IS) { 
@@ -41,7 +39,7 @@ anchorfun.gen <- function(is.IS) {
     }
 }
 
-# Defining the methods
+# Defining the methods:
 for (siglist in list(
         "InteractionSet",
         "ContactMatrix"
@@ -49,29 +47,64 @@ for (siglist in list(
 
     setMethod("anchors", siglist, anchorfun.gen(siglist=="InteractionSet"))
     setMethod("regions", siglist, function(x) { x@regions })
-
-    setReplaceMethod("regions", siglist, function(x, value) {
-        stopifnot(length(value)==length(regions(x)))
-        out <- .resort_regions(x@anchor1, x@anchor2, value)
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
-        x@regions <- out$regions
-        validObject(x)
-        return(x)
-    })
-
-    setReplaceMethod("anchors", siglist, function(x, value) {
-        if (length(value)!=2L) { stop("'value' must be a list of 2 numeric vectors") }
-        if (length(value[[1]])!=length(value[[2]])) { stop("vectors in 'value' must be of the same length") }
-        first <- as.integer(value[[1]])
-        second <- as.integer(value[[2]])
-        if (!all(is.finite(first)) || !all(is.finite(second))) { stop("all anchor indices should be finite") }
-
-        out <- .enforce_order(first, second)
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
-        validObject(x)
-        return(x)
-    })
 }
+
+###############################################################
+# Setters:
+
+setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") })
+setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
+
+setReplaceMethod("regions", "InteractionSet", function(x, value) {
+    if (length(value)!=length(regions(x))) { 
+        stop("assigned value must be of the same length as 'regions(x)'")
+    }
+    out <- .resort_regions(x@anchor1, x@anchor2, value)
+    x@anchor1 <- out$anchor1
+    x@anchor2 <- out$anchor2
+    x@regions <- out$regions
+    validObject(x)
+    return(x)
+})
+
+setReplaceMethod("anchors", "InteractionSet", function(x, value) {
+    if (length(value)!=2L) { 
+        stop("'value' must be a list of 2 numeric vectors")
+    }
+    first <- as.integer(value[[1]])
+    second <- as.integer(value[[2]])
+    msg <- .check_inputs(first, second, regions(x)) # Need check here, otherwise .enforce_order might fail.
+    if (is.character(msg)) { stop(msg) }
+
+    out <- .enforce_order(first, second)
+    x@anchor1 <- out$anchor1
+    x@anchor2 <- out$anchor2
+    validObject(x)
+    return(x)
+})
+
+# This is necessarily different, as there is no requirement for equal length 'anchor1' and 'anchor2',
+# nor is there any need to enforce 'anchor1 >= anchor2'.
+
+setReplaceMethod("regions", "ContactMatrix", function(x, value) {
+    if (length(value)!=length(regions(x))) { 
+        stop("assigned value must be of the same length as 'regions(x)'")
+    }
+    out <- .resort_regions(x@anchor1, x@anchor2, value, enforce.order=FALSE)
+    x@anchor1 <- out$anchor1
+    x@anchor2 <- out$anchor2
+    x@regions <- out$regions
+    validObject(x)
+    return(x)
+})
+
+setReplaceMethod("anchors", "InteractionSet", function(x, value) {
+    if (length(value)!=2L) { 
+        stop("'value' must be a list of 2 numeric vectors")
+    }
+    x@anchor1 <- as.integer(value[[1]])
+    x@anchor2 <- as.integer(value[[2]])
+    validObject(x)
+    return(x)
+})
 
