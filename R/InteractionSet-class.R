@@ -164,68 +164,6 @@ setMethod("InteractionSet", c("ANY", "GRanges", "GRanges"),
 )
 
 ###############################################################
-# Getters 
-
-setGeneric("anchors", function(x, ...) { standardGeneric("anchors") })
-setMethod("anchors", signature("InteractionSet"), 
-    function(x, type="both", id=FALSE) {
-        type <- match.arg(type, c("both", "first", "second"))
-        if (id) { 
-            if (type=="both") {
-                return(list(first=x@anchor1, second=x@anchor2))
-            } else if (type=="first") { 
-                return(x@anchor1)
-            } else { 
-                return(x@anchor2)
-            }
-        } else {
-            if (type=="both") { 
-                return(GRangesList("first"=x@regions[x@anchor1],
-                                   "second"=x@regions[x@anchor2]))
-            } else if (type=="first") { 
-                return(x@regions[x@anchor1])
-            } else {
-                return(x@regions[x@anchor2])
-            }
-        }
-    }
-)
-
-setGeneric("regions", function(x, ...) { standardGeneric("regions") })
-setMethod("regions", signature("InteractionSet"), function(x) {
-    x@regions
-})
-
-###############################################################
-# Setters
-
-setGeneric("regions<-", function(x, value) { standardGeneric("regions<-") }) 
-setReplaceMethod("regions", "InteractionSet", function(x, value) {
-    stopifnot(length(value)==length(regions(x)))
-    out <- .resort_regions(x@anchor1, x@anchor2, value)
-    x@anchor1 <- out$anchor1 
-    x@anchor2 <- out$anchor2
-    x@regions <- out$regions
-    validObject(x) 
-    return(x)
-})
-
-setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
-setReplaceMethod("anchors", "InteractionSet", function(x, value) {
-    if (length(value)!=2L) { stop("'value' must be a list of 2 numeric vectors") }
-    if (length(value[[1]])!=length(value[[2]])) { stop("vectors in 'value' must be of the same length") }
-    first <- as.integer(value[[1]])
-    second <- as.integer(value[[2]])
-    if (!all(is.finite(first)) || !all(is.finite(second))) { stop("all anchor indices should be finite") }
-
-    out <- .enforce_order(first, second)
-    x@anchor1 <- out$anchor1
-    x@anchor2 <- out$anchor2
-    validObject(x)
-    return(x)
-})
-
-###############################################################
 # Subsetting
 
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
