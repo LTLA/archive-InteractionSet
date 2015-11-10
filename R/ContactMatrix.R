@@ -70,6 +70,26 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"),
 )
 
 ##############################################
+# Dimensions
+
+setMethod("dim", "ContactMatrix", function(x) { 
+    dim(x@matrix)
+})
+
+setMethod("length", "ContactMatrix", function(x) { 
+    length(x@matrix)
+})
+
+setMethod("dimnames", "ContactMatrix", function(x) {
+    dimnames(x@matrix)
+})
+
+setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
+    dimnames(x@matrix) <- value
+    return(x)
+})
+
+##############################################
 # Subsetting
 
 setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
