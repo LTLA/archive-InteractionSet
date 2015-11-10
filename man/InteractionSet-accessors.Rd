@@ -55,8 +55,9 @@ However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{a
 Replacement in \code{anchors<-,InteractionSet-method} can only be performed using a list of two integer vectors in \code{value}.
 Swapping is performed automatically to ensure that the entries in the \code{anchor1} slot are not less than those in \code{anchor2} in the modified object.
    
-For \code{regions,InteractionSet-method}, a GRanges list is returned equal to the \code{regions} slot in \code{x}.
+For \code{regions,InteractionSet-method}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
 For \code{regions<-,InteractionSet-method}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
+In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
 
 The \code{show} method will print information equivalent to that done for a SummarizedExperiment object.
 An additional line is added indicating the number of regions in the \code{regions} slot of the object.
