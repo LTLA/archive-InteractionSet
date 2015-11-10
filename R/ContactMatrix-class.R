@@ -108,6 +108,45 @@ setMethod("subset", "ContactMatrix", function(x, i, j) {
 })
 
 ##############################################
+# Combining
+
+setMethod("cbind", "ContactMatrix", function(..., deparse.level=1) {
+    incoming <- list(...)
+    ref <- incoming[[1]]
+    for (x in incoming[-1]) {
+        if (!identical(regions(ref), regions(x))) { 
+            stop("'regions' must be identical for 'cbind'")
+        }
+        if (!identical(anchors(ref, type="row", id=TRUE),
+                       anchors(x, type="row", id=TRUE))) {
+            stop("row anchor indices must be identical for 'cbind'")
+        }    
+    }
+    
+    ref@matrix <- do.call(cbind, lapply(incoming, as.matrix))
+    ref@anchor2 <- unlist(lapply(incoming, anchors, id=TRUE, type="column"))
+    return(ref)
+})
+
+setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
+    incoming <- list(...)
+    ref <- incoming[[1]]
+    for (x in incoming[-1]) {
+        if (!identical(regions(ref), regions(x))) { 
+            stop("'regions' must be identical for 'rbind'")
+        }
+        if (!identical(anchors(ref, type="column", id=TRUE),
+                       anchors(x, type="column", id=TRUE))) {
+            stop("column anchor indices must be identical for 'rbind'")
+        }    
+    }
+    
+    ref@matrix <- do.call(rbind, lapply(incoming, as.matrix))
+    ref@anchor2 <- unlist(lapply(incoming, anchors, id=TRUE, type="row"))
+    return(ref)
+})
+
+##############################################
 # Other getters
 
 setMethod("as.matrix", "ContactMatrix", function(x) {
