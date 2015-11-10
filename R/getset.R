@@ -98,7 +98,7 @@ setReplaceMethod("regions", "ContactMatrix", function(x, value) {
     return(x)
 })
 
-setReplaceMethod("anchors", "InteractionSet", function(x, value) {
+setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
     if (length(value)!=2L) { 
         stop("'value' must be a list of 2 numeric vectors")
     }

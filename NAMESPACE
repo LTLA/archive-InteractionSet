@@ -10,7 +10,8 @@ exportMethods(
     anchors, regions, InteractionSet,
     "anchors<-", "regions<-",
     pairdist, intrachr,
-    linearize
+    linearize,
+    ContactMatrix 
 )
 
 # Requires several imports.
