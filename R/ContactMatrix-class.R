@@ -142,7 +142,7 @@ setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
     }
     
     ref@matrix <- do.call(rbind, lapply(incoming, as.matrix))
-    ref@anchor2 <- unlist(lapply(incoming, anchors, id=TRUE, type="row"))
+    ref@anchor1 <- unlist(lapply(incoming, anchors, id=TRUE, type="row"))
     return(ref)
 })
 
@@ -158,5 +158,5 @@ setMethod("as.matrix", "ContactMatrix", function(x) {
 
 
 # Testing:
-# cm <- InteractionSet:::ContactMatrix(matrix(0, 4, 4), 1:4, 1:4, GRanges("chr1", IRanges(1:4, 1:4)))
+# cm <- ContactMatrix(matrix(0, 4, 4), 1:4, 1:4, GRanges("chr1", IRanges(1:4, 1:4)))
 
