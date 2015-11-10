@@ -16,10 +16,7 @@ setClass("InteractionSet",
      )
 )
 
-.check_inputs <- function(anchor1, anchor2, regions) {
-    if (length(anchor1)!=length(anchor2)) { 
-        return("first and second anchor vectors have different lengths")
-    }
+.check_inputs <- function(anchor1, anchor2, regions, same.length=TRUE) {
     if (!all(is.finite(anchor1)) || !all(is.finite(anchor2))) { 
         return("all anchor indices must be finite integers")
     }
@@ -30,11 +27,14 @@ setClass("InteractionSet",
     if ( !all(anchor1 <= nregs) || !all(anchor2 <= nregs)) {
         return("all anchor indices must refer to entries in 'regions'")
     } 
+    if (same.length && length(anchor1)!=length(anchor2)) { 
+        return("first and second anchor vectors have different lengths")
+    }
     return(TRUE)
 }
 
 setValidity("InteractionSet", function(object) {
-    if (is.unsorted(object@regions)) {
+    if (is.unsorted(object@regions)) { # Don't move into .check_inputs, as resorting comes after checking validity in various methods.
         return("'regions' should be sorted")
     }
     msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
@@ -71,7 +71,7 @@ setMethod("show", signature("InteractionSet"), function(object) {
     return(list(anchor1=anchor1, anchor2=anchor2))   
 }
 
-.resort_regions <- function(anchor1, anchor2, regions) {
+.resort_regions <- function(anchor1, anchor2, regions, enforce.order=TRUE) {
     if (is.unsorted(regions)) { 
         o <- order(regions)
         new.pos <- seq_along(o)
@@ -80,8 +80,12 @@ setMethod("show", signature("InteractionSet"), function(object) {
         anchor2 <- new.pos[anchor2]
         regions <- regions[o]
     }
-    out <- .enforce_order(anchor1, anchor2)
-    return(list(anchor1=out$anchor1, anchor2=out$anchor2, regions=regions)) 
+    if (enforce.order) { 
+        out <- .enforce_order(anchor1, anchor2)
+        anchor1 <- out$anchor1
+        anchor2 <- out$anchor2
+    }
+    return(list(anchor1=anchor1, anchor2=anchor2, regions=regions)) 
 }
 
 .new_InteractionSet <- function(assays, anchor1, anchor2, regions, colData, metadata) {
