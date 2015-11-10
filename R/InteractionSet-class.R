@@ -212,9 +212,13 @@ setReplaceMethod("regions", "InteractionSet", function(x, value) {
 
 setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 setReplaceMethod("anchors", "InteractionSet", function(x, value) {
-    stopifnot(length(value)==2L)
-    stopifnot(length(value[[1]])==length(value[[2]]))
-    out <- .enforce_order(as.integer(value[[1]]), as.integer(value[[2]]))
+    if (length(value)!=2L) { stop("'value' must be a list of 2 numeric vectors") }
+    if (length(value[[1]])!=length(value[[2]])) { stop("vectors in 'value' must be of the same length") }
+    first <- as.integer(value[[1]])
+    second <- as.integer(value[[2]])
+    if (!all(is.finite(first)) || !all(is.finite(second))) { stop("all anchor indices should be finite") }
+
+    out <- .enforce_order(first, second)
     x@anchor1 <- out$anchor1
     x@anchor2 <- out$anchor2
     validObject(x)
