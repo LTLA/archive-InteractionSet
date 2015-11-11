@@ -1,0 +1,124 @@
+\name{ContactMatrix accessors}
+\alias{ContactMatrix-access}
+
+\alias{anchors}
+\alias{anchors,ContactMatrix-method}
+\alias{anchors<-}
+\alias{anchors<-,ContactMatrix-method}
+
+\alias{regions}
+\alias{regions,ContactMatrix-method}
+\alias{regions<-}
+\alias{regions<-,ContactMatrix-method}
+
+\alias{newRegions<-}
+\alias{newRegions<-,ContactMatrix-method}
+
+\alias{show}
+\alias{show,ContactMatrix-method}
+\alias{dim,ContactMatrix-method}
+\alias{dimnames,ContactMatrix-method}
+\alias{dimnames<-,ContactMatrix-method}
+\alias{length,ContactMatrix-method}
+
+\title{ContactMatrix accessors}
+
+\description{
+Methods to get and set fields in an ContactMatrix object.
+} 
+
+\usage{
+\S4method{anchors}{ContactMatrix}(x, type="both", id=FALSE)
+\S4method{anchors}{ContactMatrix}(x) <- value
+
+\S4method{regions}{ContactMatrix}(x)
+\S4method{regions}{ContactMatrix}(x) <- value
+\S4method{newRegions}{ContactMatrix}(x) <- value
+
+\S4method{show}{ContactMatrix}(x)
+
+\S4method{dim}{ContactMatrix}(x)
+\S4method{dimnames}{ContactMatrix}(x)
+\S4method{dimnames}{ContactMatrix}(x) <- value
+\S4method{length}{ContactMatrix}(x)
+}
+
+\arguments{
+\item{x}{An ContactMatrix object.}
+
+\item{type}{a string specifying which anchors are to be extracted or replaced.}
+
+\item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
+
+\item{value}{
+    For \code{anchors<-,ContactMatrix-method}, a list of two integer vectors.
+    The first and second vectors must have length equal to the number of rows and columns of \code{x}, respectively.
+
+    For \code{regions<-,ContactMatrix-method}, a GRanges object of length equal to that of \code{regions(x)}.
+    
+    For \code{newRegions<-,ContactMatrix-method}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
+
+    For \code{dimnames<-,ContactMatrix-method}, a list of two character vectors corresponding to the row and column names, respectively.
+}
+}
+
+\details{
+The return value of \code{anchors,ContactMatrix-method} varies depending on \code{type} and \code{id}.
+If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
+    for \code{type=="row"} or \code{"column"}, respectively.
+If \code{type="both"}, a GRangesList will be returned with two entries - \code{row} and \code{column}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
+    
+However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly 
+    (a list of length two is returned for \code{type="both"}, containing both of the vectors).
+Replacement in \code{anchors<-,ContactMatrix-method} can only be performed using a list of two integer vectors in \code{value}.
+   
+For \code{regions,ContactMatrix-method}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
+For \code{regions<-,ContactMatrix-method}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
+In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
+The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
+
+The \code{show} method will print out the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
+The \code{dim} method will return a vector of length 2, containing the dimensions of the \code{matrix} slot.
+The \code{dimnames} method will return a list of length 2, containing the row and column names (these can be modified with the \code{dimnames<-} method).
+The \code{length} method will return an integer scalar corresponding to the total number of entries in \code{matrix}.
+
+}
+
+\examples{
+example(ContactMatrix, echo=FALSE) # Generate a nice object.
+show(x)
+nrow(x)
+ncol(x)
+length(x)
+
+# Accessing anchor ranges or indices:
+anchors(x)
+anchors(x, type="row")
+anchors(x, id=TRUE)
+
+anchors(x, id=TRUE, type="row")
+anchors(x, id=TRUE, type="column")
+
+# Modifying anchor indices:
+nregs <- length(regions(x))
+anchors(x) <- list(sample(nregs, nrow(x), replace=TRUE),
+                   sample(nregs, ncol(x), replace=TRUE))
+anchors(x, id=TRUE, type="row")
+anchors(x, id=TRUE, type="column")
+
+# Accessing or modifying regions:
+regions(x)
+regions(x)$score <- runif(length(regions(x)))
+
+new.ranges <- c(regions(x), resize(regions(x), fix="center", width=50))
+try(regions(x) <- new.ranges) # Fails
+newRegions(x) <- new.ranges # Succeeds
+}
+
+\author{
+Aaron Lun
+}
+
+\seealso{
+\code{\link{ContactMatrix-class}}
+}
