@@ -78,24 +78,34 @@ This includes \code{assays}, \code{colData}, \code{mcols} or \code{metadata}, wh
 example(InteractionSet, echo=FALSE) # Generate a nice object.
 show(x)
 
+# Accessing anchor ranges or indices:
 anchors(x)
 anchors(x, type="first")
 anchors(x, id=TRUE)
 
 anchors(x, id=TRUE, type="first")
 anchors(x, id=TRUE, type="second")
-anchors(x) <- list(sample(length(regions(x)), nrow(x), replace=TRUE),
-    sample(length(regions(x)), nrow(x), replace=TRUE))
+
+# Modifying anchor indices:
+nregs <- length(regions(x))
+anchors(x) <- list(sample(nregs, nrow(x), replace=TRUE),
+                   sample(nregs, nrow(x), replace=TRUE))
 anchors(x, id=TRUE, type="first")
 anchors(x, id=TRUE, type="second")
 
+# Alternative with Hits:
+hits <- Hits(sample(nregs, nrow(x), replace=TRUE),
+             sample(nregs, nrow(x), replace=TRUE),
+             nregs, nregs)
+anchors(x) <- as.data.frame(hits)[,1:2]
+
+# Accessing or modifying regions:
 regions(x)
 regions(x)$score <- runif(length(regions(x)))
 
 new.ranges <- c(regions(x), resize(regions(x), fix="center", width=50))
 try(regions(x) <- new.ranges) # Fails
-newRegions(x) <- new.ranges
-
+newRegions(x) <- new.ranges # Succeeds
 
 # Standard SE methods:
 colData(x)
