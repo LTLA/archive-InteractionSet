@@ -150,6 +150,14 @@ setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
     return(ref)
 })
 
+setMethod("t", "ContactMatrix", function(x) { 
+    x@matrix <- t(x@matrix)
+    tmp <- x@anchor1
+    x@anchor1 <- x@anchor2
+    x@anchor2 <- tmp
+    return(x)
+})
+
 ##############################################
 # Sorting and ordering
 
@@ -164,6 +172,17 @@ setMethod("order", "ContactMatrix", function(..., na.last=TRUE, decreasing=FALSE
 setMethod("sort", "ContactMatrix", function(x, decreasing=FALSE, ...) {
     out <- order(x, decreasing=decreasing)
     x[out$row, out$column]
+})
+
+setMethod("duplicated", "ContactMatrix", function(x, incomparables=FALSE, ...) {
+    r1 <- duplicated(x@anchor1, incomparables=incomparables, ...)
+    r2 <- duplicated(x@anchor2, incomparables=incomparables, ...)
+    return(list(row=r1, column=r2))
+})
+
+setMethod("unique", "ContactMatrix", function(x, incomparables=FALSE, ...) {
+    is.dup <- duplicated(x, incomparables=incomparables, ...)
+    return(x[!is.dup$row,!is.dup$column])
 })
 
 ##############################################
