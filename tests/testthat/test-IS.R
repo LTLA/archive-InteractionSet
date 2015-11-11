@@ -218,6 +218,7 @@ is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, 
 expect_that(is.dup, is_identical_to(duplicated(temp.x, fromLast=TRUE)))
 expect_true(all(head(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
 expect_equal(x, unique(temp.x, fromLast=TRUE))
+expect_false(any(duplicated(unique(temp.x))))
 
 # Testing the splitting.
 
