@@ -2,7 +2,6 @@
 \alias{ContactMatrix-access}
 
 \alias{anchors,ContactMatrix-method}
-\alias{anchors<-}
 \alias{anchors<-,ContactMatrix-method}
 
 \alias{regions,ContactMatrix-method}
@@ -13,7 +12,7 @@
 \alias{show,ContactMatrix-method}
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
-\alias{dimnames<-,ContactMatrix-method}
+\alias{dimnames<-,ContactMatrix,ANY-method}
 \alias{length,ContactMatrix-method}
 
 \title{ContactMatrix accessors}
