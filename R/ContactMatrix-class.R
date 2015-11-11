@@ -163,10 +163,10 @@ setMethod("t", "ContactMatrix", function(x) {
 
 setMethod("order", "ContactMatrix", function(..., na.last=TRUE, decreasing=FALSE) {
     incoming <- list(...)
-    if (length(incoming)!=1L) { stop("multiple ContrastMatrix objects not supported in 'order'") }
-    ref <- incoming[[1]]
-    list(row=order(anchors(ref, type="row", id=TRUE), na.last=na.last, decreasing=decreasing),
-         column=order(anchors(ref, type="column", id=TRUE), na.last=na.last, decreasing=decreasing))
+    all.rows <- lapply(incoming, anchors, type="row", id=TRUE)
+    all.columns <- lapply(incoming, anchors, type="column", id=TRUE)
+    list(row=do.call(order, c(all.rows, na.last=na.last, decreasing=decreasing)),
+         column=do.call(order, c(all.columns, na.last=na.last, decreasing=decreasing)))
 })
 
 setMethod("sort", "ContactMatrix", function(x, decreasing=FALSE, ...) {
