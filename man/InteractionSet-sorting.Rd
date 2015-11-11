@@ -49,11 +49,15 @@ Methods to sort and order InteractionSet objects, based on the anchor indices.
 Sorting is performed based on the anchor indices of the InteractionSet object.
 Rows are ordered for increasing values of the \code{anchor1} slot - if these are equal, ordering is performed with values of the \code{anchor2} slot.
 This equates to ordering by the coordinates directly, as the GRanges in the \code{regions} slot is always sorted.
-Based on this, \code{sort,InteractionSet-method} will return a sorted copy of \code{x} with permuted rows in increasing (or decreasing) order.
+Based on this, \code{sort,InteractionSet-method} will return a sorted copy of \code{x} with permuted rows in increasing order.
 
-\code{order,InteractionSet-method} returns an integer vector indicating the permutation to rearrange \code{x} in increasing (or decreasing) order.
+\code{order,InteractionSet-method} returns an integer vector indicating the permutation to rearrange \code{x} in increasing order.
 If multiple objects are supplied to \code{order}, ordering will be computed using anchor indices from successive objects.
-Ordering will be performed using anchor indices from the first object; any rows with the same \code{anchor1} and \code{anchor2} will be split using the second object; and so on.
+For example, ordering is first performed using anchor indices from the first object; 
+    any rows with the same \code{anchor1} and \code{anchor2} will be split using the second object; and so on.
+
+For both of these methods, the sorting can be reversed by setting \code{decreasing=TRUE}.
+This will sort or order for decreasing values of \code{anchor1} and \code{anchor2}, rather than for increasing values.
 
 \code{duplicated,InteractionSet-method} returns a logical vector indicating whether the rows of \code{x} are duplicated.
 Duplicated rows are identified on the basis of identical entries in the \code{anchor1} and \code{anchor2} slots.
@@ -61,7 +65,7 @@ It makes little sense to compare other slots (e.g., in \code{assays}) which may 
 For a set of duplicated rows, the first occurrence in \code{x} is marked as the non-duplicate if \code{fromLast=FALSE}, and the last entry otherwise.
 
 \code{unique,InteractionSet-method} returns an InteractionSet object where all duplicate rows have been removed from \code{x}.
-This is equivalent to \code{x[!duplicated(x),]}, with additional arguments passed to \code{duplicated}.
+This is equivalent to \code{x[!duplicated(x),]}, with any additional arguments passed to \code{duplicated} as specified.
 }
 
 \examples{

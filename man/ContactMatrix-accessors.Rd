@@ -12,6 +12,7 @@
 \alias{show,ContactMatrix-method}
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
+\alias{dimnames<-,ContactMatrix-method}
 \alias{dimnames<-,ContactMatrix,ANY-method}
 \alias{length,ContactMatrix-method}
 
@@ -33,7 +34,7 @@ Methods to get and set fields in an ContactMatrix object.
 
 \S4method{dim}{ContactMatrix}(x)
 \S4method{dimnames}{ContactMatrix}(x)
-\S4method{dimnames,ANY}{ContactMatrix}(x) <- value
+\S4method{dimnames}{ContactMatrix}(x) <- value
 \S4method{length}{ContactMatrix}(x)
 }
 
