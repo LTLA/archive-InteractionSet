@@ -11,6 +11,7 @@
 
 \alias{show,ContactMatrix-method}
 \alias{as.matrix,ContactMatrix-method}
+\alias{t,ContactMatrix-method}
 
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
@@ -34,6 +35,7 @@ Methods to get and set fields in an ContactMatrix object.
 
 \S4method{show}{ContactMatrix}(x)
 \S4method{as.matrix}{ContactMatrix}(x)
+\S4method{t}{ContactMatrix}(x)
 
 \S4method{dim}{ContactMatrix}(x)
 \S4method{dimnames}{ContactMatrix}(x)
@@ -77,6 +79,8 @@ The \code{newRegions} replacement method can take variable length GRanges, but r
 
 The \code{show} method will print out the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
 The \code{as.matrix} method will return the value of the \code{matrix} slot, containing the matrix of interaction data.
+The \code{t} method will transpose the matrix, i.e., switch the rows and columns (and switch the vectors in the \code{anchor1} and \code{anchor2} slots).
+
 The \code{dim} method will return a vector of length 2, containing the dimensions of the \code{matrix} slot.
 The \code{dimnames} method will return a list of length 2, containing the row and column names of \code{matrix} (these can be modified with the \code{dimnames<-} method).
 The \code{length} method will return an integer scalar corresponding to the total number of entries in the \code{matrix} slot.
@@ -86,7 +90,10 @@ The \code{length} method will return an integer scalar corresponding to the tota
 example(ContactMatrix, echo=FALSE) # Generate a nice object.
 show(x)
 
+# Various matrix methods:
 as.matrix(x)
+t(x)
+
 nrow(x)
 ncol(x)
 length(x)
