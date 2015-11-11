@@ -53,9 +53,9 @@ The InteractionSet class inherits from the SummarizedExperiment0 class and has a
     (see \code{\link{SummarizedExperiment0-class}} for more details). 
 It also contains several additional slots:
 \describe{
-\item{\code{anchor1}:}{an integer vector specifying the index of the first interacting region}
-\item{\code{anchor2}:}{an integer vector specifying the index of the second interacting region}
-\item{\code{regions}:}{a sorted GRanges object containing the coordinates of all interacting regions}
+\item{\code{anchor1}:}{An integer vector specifying the index of the first interacting region.}
+\item{\code{anchor2}:}{An integer vector specifying the index of the second interacting region.}
+\item{\code{regions}:}{A sorted GRanges object containing the coordinates of all interacting regions.}
 }
 Each interaction is defined by the corresponding entries in \code{anchor1} and \code{anchor2}, which point to the relevant coordinates in \code{regions} for each locus.
 Values of \code{anchor1} and \code{anchor2} are set such that the former is not smaller than the latter, to avoid redundancy from different permutations.
