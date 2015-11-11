@@ -73,10 +73,12 @@ example(InteractionSet, echo=FALSE)
 
 anchors(x)
 x2 <- sort(x)
+x2
 anchors(x2)
 
 # Can also order them.
 o <- order(x)
+o
 stopifnot(all.equal(x[o], x2))
 
 # Checking duplication.
