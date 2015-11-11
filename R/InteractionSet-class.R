@@ -248,10 +248,14 @@ setMethod("sort", "InteractionSet", function(x, decreasing=FALSE, ...) {
     x[order(x, decreasing=decreasing),]
 })
 
-setMethod("duplicated", "InteractionSet", function(x, incomparables = FALSE, ...) {
+setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) 
+# Stable sort required here: first entry in 'x' is always non-duplicate if fromLast=FALSE,
+# and last entry is non-duplicate if fromLast=TRUE.
+{
     a1 <- anchors(x, id=TRUE, type="first")
     a2 <- anchors(x, id=TRUE, type="second")
-    o <- order(a1, a2) # Stable sort, so first entry in 'x' is always non-duplicate
+    o <- order(a1, a2) 
+    if (fromLast) { o <- rev(o) }
     is.dup <- c(FALSE, diff(a1[o])==0L & diff(a2[o])==0L)
     is.dup[o] <- is.dup
     return(is.dup)
