@@ -10,6 +10,7 @@
 
 \description{
 Methods to sort and order ContactMatrix objects, based on the anchor indices.
+Also, methods to remove duplicate rows or columns in each ContactMatrix.
 }
 
 \usage{

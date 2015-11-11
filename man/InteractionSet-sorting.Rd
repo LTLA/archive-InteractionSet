@@ -10,6 +10,7 @@
 
 \description{
 Methods to sort and order InteractionSet objects, based on the anchor indices.
+Also, methods to remove duplicate interactions based on the anchor indices.
 }
 
 \usage{
