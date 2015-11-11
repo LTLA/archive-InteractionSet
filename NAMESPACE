@@ -11,7 +11,7 @@ exportMethods(
     "anchors<-", "regions<-", "newRegions<-",
     pairdist, intrachr,
     linearize,
-    ContactMatrix 
+    ContactMatrix, inflate, deflate
 )
 
 # Requires several imports.
