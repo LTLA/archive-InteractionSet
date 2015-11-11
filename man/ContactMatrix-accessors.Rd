@@ -10,6 +10,8 @@
 \alias{newRegions<-,ContactMatrix-method}
 
 \alias{show,ContactMatrix-method}
+\alias{as.matrix,ContactMatrix-method}
+
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
 \alias{dimnames<-,ContactMatrix-method}
@@ -31,6 +33,7 @@ Methods to get and set fields in an ContactMatrix object.
 \S4method{newRegions}{ContactMatrix}(x) <- value
 
 \S4method{show}{ContactMatrix}(x)
+\S4method{as.matrix}{ContactMatrix}(x)
 
 \S4method{dim}{ContactMatrix}(x)
 \S4method{dimnames}{ContactMatrix}(x)
@@ -73,15 +76,17 @@ In addition, the input GRanges must be of the same length as the existing object
 The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 
 The \code{show} method will print out the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
+The \code{as.matrix} method will return the value of the \code{matrix} slot, containing the matrix of interaction data.
 The \code{dim} method will return a vector of length 2, containing the dimensions of the \code{matrix} slot.
-The \code{dimnames} method will return a list of length 2, containing the row and column names (these can be modified with the \code{dimnames<-} method).
-The \code{length} method will return an integer scalar corresponding to the total number of entries in \code{matrix}.
-
+The \code{dimnames} method will return a list of length 2, containing the row and column names of \code{matrix} (these can be modified with the \code{dimnames<-} method).
+The \code{length} method will return an integer scalar corresponding to the total number of entries in the \code{matrix} slot.
 }
 
 \examples{
 example(ContactMatrix, echo=FALSE) # Generate a nice object.
 show(x)
+
+as.matrix(x)
 nrow(x)
 ncol(x)
 length(x)
