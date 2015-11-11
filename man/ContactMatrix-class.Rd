@@ -1,7 +1,7 @@
 \name{ContactMatrix class}
 \docType{class}
 
-\alias{ContactMatrx-class}
+\alias{ContactMatrix-class}
 \alias{ContactMatrix}
 \alias{ContactMatrix,ANY,numeric,numeric-method}
 \alias{ContactMatrix,ANY,GRanges,GRanges-method}
@@ -21,7 +21,7 @@ Coordinates of the loci are also contained within this class.
 }
 
 \arguments{
-\item{assays}{
+\item{matrix}{
     A matrix containing interaction data.
 }
 

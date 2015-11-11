@@ -1,20 +1,15 @@
 \name{ContactMatrix accessors}
 \alias{ContactMatrix-access}
 
-\alias{anchors}
 \alias{anchors,ContactMatrix-method}
 \alias{anchors<-}
 \alias{anchors<-,ContactMatrix-method}
 
-\alias{regions}
 \alias{regions,ContactMatrix-method}
-\alias{regions<-}
 \alias{regions<-,ContactMatrix-method}
 
-\alias{newRegions<-}
 \alias{newRegions<-,ContactMatrix-method}
 
-\alias{show}
 \alias{show,ContactMatrix-method}
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
@@ -39,7 +34,7 @@ Methods to get and set fields in an ContactMatrix object.
 
 \S4method{dim}{ContactMatrix}(x)
 \S4method{dimnames}{ContactMatrix}(x)
-\S4method{dimnames}{ContactMatrix}(x) <- value
+\S4method{dimnames,ANY}{ContactMatrix}(x) <- value
 \S4method{length}{ContactMatrix}(x)
 }
 
