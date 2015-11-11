@@ -209,7 +209,3 @@ setMethod("overlapsAny", c("ContactMatrix", "GRanges"),
 ##############################################
 # End
 
-
-# Testing:
-# cm <- ContactMatrix(matrix(runif(16), 4, 4), sample(4), sample(4), GRanges("chr1", IRanges(1:4, 1:4)))
-
