@@ -42,8 +42,7 @@ Methods to get and set fields in an InteractionSet object.
 \item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
 
 \item{value}{
-    For \code{anchors<-,InteractionSet-method}, a list of two integer vectors if \code{type="both"}, and an integer vector otherwise.
-    All vectors must be of length equal to the number of rows in \code{x}.
+    For \code{anchors<-,InteractionSet-method}, a list of two integer vectors, each of length equal to the number of rows in \code{x}.
 
     For \code{regions<-,InteractionSet-method}, a GRanges object of length equal to that of \code{regions(x)}.
     
