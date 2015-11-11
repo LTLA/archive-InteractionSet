@@ -4,6 +4,7 @@
 \alias{order,InteractionSet-method}
 \alias{sort,InteractionSet-method}
 \alias{duplicated,InteractionSet-method}
+\alias{unique,InteractionSet-method}
 
 \title{InteractionSet sorting and ordering}
 
