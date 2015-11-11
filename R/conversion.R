@@ -21,6 +21,8 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
 setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, ...) {
     row.chosen <- .make_to_indices(regions(x), rows, ...)
     col.chosen <- .make_to_indices(regions(x), columns, ...)
+    if (length(fill)==0L) { fill <- assay(x, assay)[,sample] }
+    else { fill <- rep(fill, length.out=nrow(x)) }
      
     # Removing duplicated rows and resorting (we'll put them back in later)
     ro <- order(row.chosen)
@@ -36,7 +38,8 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     dx <- duplicated(x)
     if (any(dx)) { 
         warning("duplicated interactions in 'x' are removed")
-        x <- x[!d,]
+        x <- x[!dx,]
+        fill <- fill[!dx]
     }
 
     # Matching.
@@ -51,8 +54,6 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     nR <- length(row.chosen)
     nC <- length(col.chosen)
     out.mat <- matrix(NA, nR, nC)
-    if (is.null(fill)) { fill <- assays(x)[[assay]][,sample] }
-    else { fill <- rep(fill, length.out=nrow(x)) }
 
     relevantA <- !is.na(ar1) & !is.na(ac2)
     out.mat[(ac2[relevantA] - 1L) * nR + ar1[relevantA]] <- fill[relevantA] 
@@ -68,10 +69,6 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     return(ContactMatrix(out.mat[original.rows,original.cols,drop=FALSE], 
                 row.chosen[original.rows], col.chosen[original.cols], regions(x)))
 })
-
-# inflate(x, 1:10, 1:10)
-    
-
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
