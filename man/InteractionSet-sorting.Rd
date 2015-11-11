@@ -15,12 +15,13 @@ Methods to sort and order InteractionSet objects, based on the anchor indices.
 \S4method{order}{InteractionSet}(..., na.last=TRUE, decreasing=FALSE)
 \S4method{sort}{InteractionSet}(x, decreasing=FALSE, ...)
 \S4method{duplicated}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
+\S4method{unique}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
 }
 
 \arguments{
 \item{...}{
     For \code{sort,InteractionSet-method}, one or more InteractionSet objects with the same number of rows.
-    Otherwise, ignored in \code{order,InteractionSet-method}.
+    Otherwise, ignored in all other methods.
 }
 
 \item{x}{An InteractionSet object.}
@@ -39,7 +40,7 @@ Methods to sort and order InteractionSet objects, based on the anchor indices.
 }
 
 \item{fromLast}{
-    A logical scalar indicating whether the last entry of a repeated set in \code{x} should be marked as the non-duplicate.
+    A logical scalar indicating whether the last entry of a repeated set in \code{x} should be considered as a non-duplicate.
 }
 }
 
@@ -57,6 +58,9 @@ Ordering will be performed using anchor indices from the first object; any rows 
 Duplicated rows are identified on the basis of identical entries in the \code{anchor1} and \code{anchor2} slots.
 It makes little sense to compare other slots (e.g., in \code{assays}) which may be numeric and inherently incomparable.
 For a set of duplicated rows, the first occurrence in \code{x} is marked as the non-duplicate if \code{fromLast=FALSE}, and the last entry otherwise.
+
+\code{unique,InteractionSet-method} returns an InteractionSet object where all duplicate rows have been removed from \code{x}.
+This is equivalent to \code{x[!duplicated(x),]}, with additional arguments passed to \code{duplicated}.
 }
 
 \examples{
@@ -73,6 +77,7 @@ stopifnot(all.equal(x[o], x2))
 # Checking duplication.
 summary(duplicated(x))
 summary(duplicated(rbind(x, x)))
+stopifnot(all.equal(x, unique(rbind(x, x))))
 }
 
 \author{

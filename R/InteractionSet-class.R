@@ -261,6 +261,10 @@ setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromL
     return(is.dup)
 })
 
+setMethod("unique", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) {
+    x[!duplicated(x, incomparables=incomparables, fromLast=fromLast, ...),]
+})
+
 # Not sure how much sense it makes to provide GRanges methods on the InteractionSet,
 # as these'll be operating on 'regions' rather than 'anchors'.
 #setMethod("seqinfo", "InteractionSet", function(x) {
