@@ -74,7 +74,7 @@ inflate(x, "chrA", "chrB")
 inflate(x, "chrA", GRanges("chrB", IRanges(1, 10)))
 
 y <- inflate(x, 1:10, 1:10)
-x2 <- deflate(out)
+x2 <- deflate(y)
 x2
 assay(x2)
 y <- inflate(x, 1:10, 1:10, sample=2)
