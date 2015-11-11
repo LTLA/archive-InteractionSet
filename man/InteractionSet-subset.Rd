@@ -62,6 +62,7 @@ Methods to subset or combine InteractionSet objects.
 \details{
 Subsetting behaves in much the same way as that for the SummarizedExperiment0 class.
 Interactions are treated as rows and will be subsetted as such.
+All subsetting operations will return an InteractionSet with the specified interactions (rows) or samples (columns).
 However, note that the value of \code{regions} will not be modified by subsetting.
 
 \code{cbind} will combines objects with the same interactions but different samples.
