@@ -66,7 +66,7 @@ All subsetting operations will return an InteractionSet with the specified inter
 However, note that the value of \code{regions} will not be modified by subsetting.
 
 \code{cbind} will combines objects with the same interactions but different samples.
-Errors will occur if the interactions are not identical between objects (i.e., same values in the slots for \code{regions}, \code{anchor1} and \code{anchor2}).
+Errors will occur if the interactions are not identical between objects (i.e., must have same values in the slots for \code{regions}, \code{anchor1} and \code{anchor2}).
 Additional restrictions apply on the column and assay names - see \code{\link{cbind,SummarizedExperiment0-method}} for details.
 
 \code{rbind} will combines objects with the same samples but different interactions.
@@ -83,6 +83,16 @@ Each InteractionSet object contains all rows associated with the corresponding l
 
 \examples{
 example(InteractionSet, echo=FALSE)
+
+# Subsetting:    
+x[1,]
+x[1:2,]
+x[,1]
+x[,1:2]
+x[3,3]
+x[3:4,3:4]
+
+# Combining:
 cbind(x, x)
 rbind(x, x)
 
@@ -91,6 +101,7 @@ example(InteractionSet, echo=FALSE)
 try(rbind(x, old.x))
 c(x, old.x)
 
+# Splitting:
 f <- sample(4, nrow(x), replace=TRUE)
 out <- split(x, f)
 out[[1]]
