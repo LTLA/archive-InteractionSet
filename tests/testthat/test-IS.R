@@ -206,6 +206,16 @@ expect_that(sort(x), equals(x[o.x,]))
 o.x2 <- order(anchors(x, type="first"), anchors(x, type="second"), anchors(next.x, type="first"), anchors(next.x, type="second"))
 expect_that(o.x2, is_identical_to(order(x, next.x)))
 
+is.dup <- duplicated(paste0(anchors(x, type="first"), ".", anchors(x, type="second")))
+expect_that(is.dup, is_identical_to(duplicated(x)))
+temp.x <- rbind(x, x)    
+is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, type="second")))
+expect_that(is.dup, is_identical_to(duplicated(temp.x)))
+expect_true(all(tail(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
+is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, type="second")), fromLast=TRUE)
+expect_that(is.dup, is_identical_to(duplicated(temp.x, fromLast=TRUE)))
+expect_true(all(head(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
+
 # Testing the splitting.
 
 flen <- c(5L, 10L, 5L)
