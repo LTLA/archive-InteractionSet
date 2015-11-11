@@ -248,6 +248,15 @@ setMethod("sort", "InteractionSet", function(x, decreasing=FALSE, ...) {
     x[order(x, decreasing=decreasing),]
 })
 
+setMethod("duplicated", "InteractionSet", function(x, incomparables = FALSE, ...) {
+    a1 <- anchors(x, id=TRUE, type="first")
+    a2 <- anchors(x, id=TRUE, type="second")
+    o <- order(a1, a2) # Stable sort, so first entry in 'x' is always non-duplicate
+    is.dup <- c(FALSE, diff(a1[o])==0L & diff(a2[o])==0L)
+    is.dup[o] <- is.dup
+    return(is.dup)
+})
+
 # Not sure how much sense it makes to provide GRanges methods on the InteractionSet,
 # as these'll be operating on 'regions' rather than 'anchors'.
 #setMethod("seqinfo", "InteractionSet", function(x) {
