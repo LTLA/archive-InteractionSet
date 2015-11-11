@@ -1,4 +1,4 @@
-\name{Interaction overlaps}
+\name{InteractionSet overlaps}
 
 \alias{findOverlaps}
 \alias{findOverlaps,InteractionSet,GRanges-method}
@@ -31,7 +31,7 @@
 \title{Find overlaps between interactions in one or two dimensions}
 
 \description{
-Find overlaps between interactions and linear intervals, between interactions and pairs of intervals, and between interactions and other interactions.
+Find overlaps between interactions and linear intervals, between interactions and pairs of intervals, and between interactions and other interactions in an InteractionSet object.
 }
 
 \usage{

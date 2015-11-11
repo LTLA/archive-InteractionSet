@@ -1,4 +1,4 @@
-\name{Interaction overlaps}
+\name{ContactMatrix overlaps}
 
 \alias{overlapsAny,ContactMatrix,GRanges-method}
 
