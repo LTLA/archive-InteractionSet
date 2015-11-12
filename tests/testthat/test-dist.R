@@ -23,7 +23,7 @@ a1[swap] <- temp
 is.intra <- intrachr(x)
 expect_that(is.intra, is_identical_to(as.logical(seqnames(a1)==seqnames(a2))))
 expect_that(is.intra, is_identical_to(pairdist(x, type="intra")))
-expect_that(pairdist(x), is_identical_to(ifelse(is.intra, as.integer((start(a1)+end(a1)-start(a2)-end(a2))/2L), as.integer(NA)))) # Don't use 'mid', it does its own rounding.
+expect_that(pairdist(x), is_identical_to(ifelse(is.intra, as.integer(abs(start(a1)+end(a1)-start(a2)-end(a2))/2L), as.integer(NA)))) # Don't use 'mid', it does its own rounding.
 expect_that(pairdist(x,type="gap"), is_identical_to(ifelse(is.intra, pmax(start(a1), start(a2)) - pmin(end(a1), end(a2)) -1L, as.integer(NA)))) 
 expect_that(pairdist(x,type="span"), is_identical_to(ifelse(is.intra, pmax(end(a1), end(a2)) - pmin(start(a1), start(a2)) +1L, as.integer(NA)))) 
 expect_that(pairdist(x, type="diag"), is_identical_to(ifelse(is.intra, anchors(x, type="first", id=TRUE) - anchors(x, type="second", id=TRUE), as.integer(NA))))

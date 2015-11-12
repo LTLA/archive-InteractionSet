@@ -24,7 +24,7 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
     } else if (type=="span") {
         output[is.same] <- pmax(all.ae, all.te) - pmin(all.as, all.ts) + 1L
     } else if (type=="mid") {
-        output[is.same] <- as.integer((all.as + all.ae - all.ts - all.te)/2L)
+        output[is.same] <- as.integer(abs(all.as + all.ae - all.ts - all.te)/2L) # Need 'abs', in case later range has earlier midpoint (e.g., if nested).
     } else if (type=="diag") {
         output[is.same] <- ai1 - ai2
     }
