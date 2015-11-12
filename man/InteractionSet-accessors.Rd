@@ -71,6 +71,10 @@ An additional line is added indicating the number of regions in the \code{region
 
 For access and setting of all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
 This includes \code{assays}, \code{colData}, \code{mcols} or \code{metadata}, which can all be applied to InteractionSet objects.
+
+Note that there are several options for metadata - experiment-wide metadata, which goes into \code{metadata(x)<-};
+    region-specific metadata (e.g., adjacent genes, promoter/enhancer identity, GC content), which goes into \code{elementMetadat(regions(x))<-};
+    and interaction-specific metadata (e.g., interaction distance, interaction type), which goes directly into \code{mcols(x)<-}.
 }
 
 \examples{
