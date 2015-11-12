@@ -41,7 +41,7 @@ setMethod("show", signature("ContactMatrix"), function(object) {
 ##############################################
 # Constructor:
 
-.new_ContactMatrix <- function(matrix, anchor1, anchor2, regions) {
+.new_ContactMatrix <- function(matrix, anchor1, anchor2, regions, metadata) {
     anchor1 <- as.integer(anchor1)
     anchor2 <- as.integer(anchor2)
     
@@ -49,7 +49,8 @@ setMethod("show", signature("ContactMatrix"), function(object) {
     if (is.character(msg)) { stop(msg) }
     out <- .resort_regions(anchor1, anchor2, regions, enforce.order=FALSE)
 
-    new("ContactMatrix", matrix=matrix, anchor1=out$anchor1, anchor2=out$anchor2, regions=out$regions)
+    new("ContactMatrix", matrix=matrix, anchor1=out$anchor1, anchor2=out$anchor2, 
+        regions=out$regions, metadata=metadata)
 }
 
 setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, ...) { standardGeneric("ContactMatrix") })

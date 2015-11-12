@@ -16,8 +16,18 @@ x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions)
 
 expect_output(show(x), sprintf("class: ContactMatrix 
 dim: %i %i 
-regions: %i", Nr, Nc, N), 
+regions: %i
+metadata(0):", Nr, Nc, N), 
 fixed=TRUE)
+
+temp.x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions, metadata=list("whee"=1))
+expect_output(show(temp.x), sprintf("class: ContactMatrix 
+dim: %i %i 
+regions: %i
+metadata(1): whee", Nr, Nc, N), 
+fixed=TRUE)
+metadata(temp.x)$whee <- NULL
+expect_identical(temp.x, x)
 
 # Testing all of our new slots:
 
