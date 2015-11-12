@@ -228,6 +228,8 @@ expect_true(all(head(is.dup, length(x)))) # if ordering is stable; only the firs
 expect_equal(x, unique(temp.x, fromLast=TRUE))
 expect_false(any(duplicated(unique(temp.x))))
 
+expect_identical(duplicated(x[0,]), logical(0))
+
 # Testing the splitting.
 
 flen <- c(5L, 10L, 5L)
