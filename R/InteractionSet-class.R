@@ -63,11 +63,8 @@ setMethod("InteractionSet", c("missing", "missing"),
 # Subsetting
 
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
-    a1 <- x@anchor1[i]
-    a2 <- x@anchor2[i]
+    if (!missing(i)) { x@interactions <- x@interactions[i] }
     ans <- callNextMethod()
-    ans@anchor1 <- a1
-    ans@anchor2 <- a2
     return(ans)
 })
 
@@ -81,51 +78,30 @@ setMethod("subset", "InteractionSet", function(x, i, j) {
 setMethod("cbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
     ans <- args[[1]]
-    unequal.element.meta <- FALSE
-
     for (x in args[-1]) {
-        if (!identical(regions(x), regions(ans))) { stop("regions must be identical in 'cbind'") }
-        if (!identical(anchors(x, id=TRUE), anchors(ans, id=TRUE))) { 
-            stop("anchors must be identical in 'cbind'") } 
-        if (!identical(elementMetadata(x), elementMetadata(ans))) { unequal.element.meta <- TRUE }
+        if (!identical(interactions(x), interactions(ans))) { 
+            # Possible to cbind for different metadata here, but I doubt that gets much use.
+            stop("interactions must be identical in 'cbind'") 
+        }
     }
-    if (unequal.element.meta) { warning("'elementMetadata' of first object used in 'cbind'") }
     
     # Need to dig into SummarizedExperiment, as callNextMethod fails (undefined dispatch with ...?)
-    SummarizedExperiment:::.cbind.SummarizedExperiment(args)
+    out <- SummarizedExperiment:::.cbind.SummarizedExperiment(args)
+    return(out)
 })
 
 setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
-    ans <- args[[1]]
-    all1 <- anchors(args[[1]], type="first", id=TRUE)
-    all2 <- anchors(args[[1]], type="second", id=TRUE)
-
-    for (x in args[-1]) { 
-        if (!identical(regions(x), regions(ans))) { stop("regions must be identical in 'rbind'") }
-        all1 <- c(all1, anchors(x, type="first", id=TRUE))
-        all2 <- c(all2, anchors(x, type="second", id=TRUE))
-    }
-
-    args[[1]]@anchor1 <- all1
-    args[[1]]@anchor2 <- all2
+    args[[1]]@interactions <- do.call(rbind, lapply(args, FUN=interactions))
     SummarizedExperiment:::.rbind.SummarizedExperiment(args)
 })
 
 # "c" is slightly different from "rbind", in that it allows different regions to be combined.
 setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
     incoming <- list(x, ...)
-    all.regions <- lapply(incoming, FUN=regions)
-    collated <- do.call(.collate_GRanges, all.regions)
-
-    for (i in seq_along(incoming)) {
-        cur.anchors <- anchors(incoming[[i]], id=TRUE)
-        incoming[[i]]@regions <- collated$ranges
-        anchors(incoming[[i]]) <- list(collated$indices[[i]][cur.anchors$first],
-                                       collated$indices[[i]][cur.anchors$second])
-    }
-
-    do.call(rbind, incoming)
+    final <- do.call(rbind, incoming)
+    final@interactions <- do.call(c, lapply(incoming, interactions))
+    return(final)
 })
 
 ###############################################################

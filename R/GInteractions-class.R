@@ -39,8 +39,11 @@ setValidity("GInteractions", function(object) {
     msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
     if (is.character(msg)) { return(msg) }
 
-    if (nrow(object@elementMetadata)!=length(object@anchor1)) { 
-        return("'elementMetadata' nrow must be equal to number of interactions")
+    if (length(object)!=length(object@anchor1)) { 
+        return("object length must be equal to number of interactions")
+    }
+    if (nrow(object@elementMetadata)!=length(object)) { 
+        return("'mcols' nrow must be equal to number of interactions")
     }
     if (!all(object@anchor1 >= object@anchor2)) { 
         return('first anchors cannot be less than the second anchor')
@@ -70,6 +73,8 @@ setMethod("show", signature("GInteractions"), function(object) {
     fmt <- "metadata column names(%d): %s\n"
     scat(fmt, mcolnames)
 })
+
+setMethod("nrow", signature("GInteractions"), function(x) { length(x) })
 
 ###############################################################
 # Constructors
@@ -181,11 +186,11 @@ setMethod("GInteractions", c("missing", "missing"),
 # Subsetting
 
 setMethod("[", c("GInteractions", "ANY"), function(x, i, j, ..., drop=TRUE) {
-    a1 <- x@anchor1[i]
-    a2 <- x@anchor2[i]
+    if (!missing(i)) {
+        x@anchor1 <- x@anchor1[i]
+        x@anchor2 <- x@anchor2[i]
+    }
     ans <- callNextMethod()
-    ans@anchor1 <- a1
-    ans@anchor2 <- a2
     return(ans)
 })
 
@@ -210,10 +215,9 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
         em <- c(em, mcols(x))
     }
 
-    ans@anchor1 <- unlist(all1)
-    ans@anchor2 <- unlist(all2)
-    elementMetadata(ans) <- do.call(rbind, em)
-    return(ans)
+    final <- GInteractions(unlist(all1), unlist(all2), regions=regions(ans), metadata=metadata(ans))
+    elementMetadata(final) <- do.call(rbind, em)
+    return(final)
 })
 
 # "c" is slightly different from "rbind", in that it allows different regions to be combined.
