@@ -9,8 +9,10 @@ exportClasses(
 exportMethods(
     GInteractions,
     anchors, regions, 
-    InteractionSet, interactions,
     "anchors<-", "regions<-", "newRegions<-",
+    InteractionSet, 
+    interactions,
+    "interactions<-",
     pairdist, intrachr,
     linearize,
     ContactMatrix, inflate, deflate

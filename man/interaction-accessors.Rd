@@ -128,14 +128,14 @@ anchors(gi, id=TRUE, type="second")
 
 # Modifying anchor indices:
 nregs <- length(regions(gi))
-anchors(gi) <- list(sample(nregs, nrow(gi), replace=TRUE),
-                   sample(nregs, nrow(gi), replace=TRUE))
+anchors(gi) <- list(sample(nregs, length(gi), replace=TRUE),
+                   sample(nregs, length(gi), replace=TRUE))
 anchors(gi, id=TRUE, type="first")
 anchors(gi, id=TRUE, type="second")
 
 # Alternative with Hits:
-hits <- Hits(sample(nregs, nrow(gi), replace=TRUE),
-             sample(nregs, nrow(gi), replace=TRUE),
+hits <- Hits(sample(nregs, length(gi), replace=TRUE),
+             sample(nregs, length(gi), replace=TRUE),
              nregs, nregs)
 anchors(gi) <- as.data.frame(hits)[,1:2]
 
@@ -147,13 +147,15 @@ new.ranges <- c(regions(gi), resize(regions(gi), fix="center", width=50))
 try(regions(gi) <- new.ranges) # Fails
 newRegions(gi) <- new.ranges # Succeeds
 
+#################
 # Same can be done for an InteractionSet object:
+
 example(InteractionSet, echo=FALSE)
 
 anchors(iset)
 regions(iset)
-regions(iset)$score <- regions(gi)
-newRanges(iset) <- new.ranges
+regions(iset)$score <- regions(gi)$score
+newRegions(iset) <- new.ranges
 
 # Standard SE methods also available:
 colData(iset)
@@ -161,8 +163,8 @@ metadata(iset)
 mcols(iset)
 
 # Note the differences in metadata storage:
-metadata(iset) <- "metadata for SE0"
-metadata(interactions(iset)) <- "metadata for GI"
+metadata(iset)$name <- "metadata for SE0"
+metadata(interactions(iset))$name <- "metadata for GI"
 }
 
 \author{
@@ -170,6 +172,8 @@ Aaron Lun
 }
 
 \seealso{
+\code{\link{GInteractions-class}},
 \code{\link{InteractionSet-class}},
+\code{\link{Vector-class}}
 \code{\link{SummarizedExperiment0-class}}
 }

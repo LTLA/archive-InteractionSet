@@ -25,7 +25,7 @@ setValidity("InteractionSet", function(object) {
 
 setMethod("show", signature("InteractionSet"), function(object) {
     callNextMethod()
-    cat(sprintf("regions: %i\n", length(object@regions)))
+    cat(sprintf("regions: %i\n", length(regions(object@interactions))))
 })
 
 ###############################################################
