@@ -7,13 +7,15 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
     if (is.numeric(i)) { 
         i <- as.integer(i)
         if (any(!is.finite(i)) || any(i<=0L) || any(i >= nregs)) { 
-            stop("indices must be positive integers") 
+            stop("indices must be positive integers no greater than 'length(regions(x))'") 
         }
         return(i)
     } else if (is.character(i)) { 
         return(which(seqnames(regs) %in% i))
     } else if (is(i, "GRanges")) {
         return(which(overlapsAny(regs, i, ...)))
+    } else {
+        stop("invalid value for row/column selection")
     }
 }
 
@@ -31,8 +33,8 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     col.chosen <- col.chosen[co]
     rnd <- !duplicated(row.chosen)
     cnd <- !duplicated(col.chosen)
-    row.chosen2 <- row.chosen[rnd]   
-    col.chosen2 <- col.chosen[cnd]
+    row.chosen <- row.chosen[rnd]   
+    col.chosen <- col.chosen[cnd]
 
     # Duplicated interactions can't be handled.
     dx <- duplicated(x)
@@ -73,10 +75,9 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
 setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
-    if (unique) { x <- unique(x) }
     all.values <- as.vector(as.matrix(x))
-    row.index <- rep(seq_len(nrow(x)), ncol(x))
-    col.index <- rep(seq_len(ncol(x)), each=nrow(x))
+    row.index <- rep(anchors(x, type="row", id=TRUE), ncol(x))
+    col.index <- rep(anchors(x, type="column", id=TRUE), each=nrow(x))
 
     is.valid <- !is.na(all.values)
     row.index <- row.index[is.valid]
@@ -85,6 +86,9 @@ setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
 
     out <- .enforce_order(row.index, col.index)
     dim(all.values) <- c(length(all.values), 1L)
-    return(InteractionSet(all.values, out$anchor1, out$anchor2, regions(x), ...))
+    final <- InteractionSet(all.values, out$anchor1, out$anchor2, regions(x), ...)
+
+    if (unique) { final <- unique(final) }
+    return(final)
 })
 
