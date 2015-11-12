@@ -214,9 +214,11 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
         em <- c(em, mcols(x))
     }
 
-    final <- GInteractions(unlist(all1), unlist(all2), regions=regions(ans), metadata=metadata(ans))
-    elementMetadata(final) <- do.call(rbind, em)
-    return(final)
+    ans@anchor1 <- unlist(all1)
+    ans@anchor2 <- unlist(all2)
+    ans@regions <- regions(ans)
+    ans@elementMetadata <- do.call(rbind, em)
+    return(ans)
 })
 
 # "c" is slightly different from "rbind", in that it allows different regions to be combined.
@@ -224,15 +226,20 @@ setMethod("c", "GInteractions", function(x, ..., recursive = FALSE) {
     incoming <- list(x, ...)
     all.regions <- lapply(incoming, FUN=regions)
     collated <- do.call(.collate_GRanges, all.regions)
+    all1 <- all2 <- em <- list()
 
     for (i in seq_along(incoming)) {
-        cur.anchors <- anchors(incoming[[i]], id=TRUE)
-        incoming[[i]]@regions <- collated$ranges
-        anchors(incoming[[i]]) <- list(collated$indices[[i]][cur.anchors$first],
-                                       collated$indices[[i]][cur.anchors$second])
+        current <- incoming[[i]]
+        all1[[i]] <- collated$indices[[i]][anchors(current, type="first", id=TRUE)]
+        all2[[i]] <- collated$indices[[i]][anchors(current, type="second", id=TRUE)]
+        em <- c(em, mcols(current))
     }
 
-    do.call(rbind, incoming)
+    x@anchor1 <- unlist(all1)
+    x@anchor2 <- unlist(all2)
+    x@regions <- collated$ranges
+    x@elementMetadata <- do.call(rbind, em)
+    return(x)
 })
 
 ###############################################################
