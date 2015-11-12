@@ -1,6 +1,6 @@
 Package: InteractionSet
-Version: 0.1.6
-Date: 2015/11/11
+Version: 0.2.0
+Date: 2015/11/12
 Title: InteractionSet object for holding interaction data
 Author: Aaron Lun <alun@wehi.edu.au>
 Maintainer: Aaron Lun <alun@wehi.edu.au>
