@@ -7,7 +7,9 @@ exportClasses(
 )
 
 exportMethods(
-    anchors, regions, InteractionSet,
+    GInteractions,
+    anchors, regions, 
+    InteractionSet, interactions,
     "anchors<-", "regions<-", "newRegions<-",
     pairdist, intrachr,
     linearize,

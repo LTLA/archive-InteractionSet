@@ -13,18 +13,13 @@ setClass("InteractionSet",
 )
 
 setValidity("InteractionSet", function(object) {
-    if (nrow(object@assays)!=length(object@anchor1)) {
+    if (nrow(object@assays)!=length(object@interactions)) {
         return("'assay' nrow differs from length of anchor vectors")
     } 
-    if (ncol(object@assays)!=nrow(object@colData)) {
-        return("'assay' ncol differs from 'colData' nrow")
-    }
-
     msg <- validObject(object@interactions)
     if (is.character(msg)) { 
         return(msg)
     }
-
     return(TRUE)
 })
 
