@@ -84,6 +84,9 @@ The \code{t} method will transpose the matrix, i.e., switch the rows and columns
 The \code{dim} method will return a vector of length 2, containing the dimensions of the \code{matrix} slot.
 The \code{dimnames} method will return a list of length 2, containing the row and column names of \code{matrix} (these can be modified with the \code{dimnames<-} method).
 The \code{length} method will return an integer scalar corresponding to the total number of entries in the \code{matrix} slot.
+
+As the ContactMatrix class inherits from the \code{\link{Annotated}} class, additional metadata can be stored in the \code{metadata} slot.
+This can be accessed or modified with \code{\link{metadata,Annotated-method}}.
 }
 
 \examples{
@@ -120,6 +123,10 @@ regions(x)$score <- runif(length(regions(x)))
 new.ranges <- c(regions(x), resize(regions(x), fix="center", width=50))
 try(regions(x) <- new.ranges) # Fails
 newRegions(x) <- new.ranges # Succeeds
+
+# Setting metadata
+metadata(x)$name <- "I am a contact matrix"
+metadata(x)
 }
 
 \author{

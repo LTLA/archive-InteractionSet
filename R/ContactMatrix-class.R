@@ -1,7 +1,8 @@
 ##############################################
 # Defines the ContactMatrix class.
 
-setClass("ContactMatrix", 
+setClass("ContactMatrix",
+    contains="Annotated", 
     slots=list(
         matrix="matrix", 
         anchor1="integer",
@@ -30,6 +31,11 @@ setMethod("show", signature("ContactMatrix"), function(object) {
     cat("class:", class(object), "\n")
     cat("dim:", dim(object@matrix), "\n")
     cat(sprintf("regions: %i\n", length(object@regions)))
+    
+    expt <- names(metadata(object))
+    if (is.null(expt))
+        expt <- character(length(metadata(object)))
+    scat("metadata(%d): %s\n", expt)
 })
 
 ##############################################

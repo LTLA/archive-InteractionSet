@@ -58,7 +58,6 @@ scat <- function(fmt, vals=character(), exdent=2, ...) {
     cat(strwrap(txt, exdent=exdent, ...), sep="\n")
 }
 
-
 setMethod("show", signature("GInteractions"), function(object) {
     cat("class:", class(object), "\n")
     cat("pairs:", length(object@anchor1), "\n")

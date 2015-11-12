@@ -15,9 +15,9 @@ Coordinates of the loci are also contained within this class.
 }
 
 \usage{
-\S4method{ContactMatrix}{ANY,numeric,numeric}(matrix, anchor1, anchor2, regions)
+\S4method{ContactMatrix}{ANY,numeric,numeric}(matrix, anchor1, anchor2, regions, metadata=list())
 
-\S4method{ContactMatrix}{ANY,GRanges,GRanges}(matrix, anchor1, anchor2, regions)
+\S4method{ContactMatrix}{ANY,GRanges,GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
 }
 
 \arguments{
@@ -37,10 +37,14 @@ Coordinates of the loci are also contained within this class.
     A GRanges object containing the coordinates of the interacting regions.
     This argument is optional for \code{InteractionSet,ANY,GRanges,GRanges-method}.
 } 
+
+\item{metadata}{
+    A list containing experiment-wide metadata -  see \code{?\link[S4Vectors]{Annotated}} for more details.
+}
 }
 
 \details{
-The ContactMatrix class contains several slots:
+The ContactMatrix class inherits from the \code{\link[S4Vectors]{Annotated}} class, with several additional slots:
 \describe{
 \item{\code{matrix}:}{A matrix.}
 \item{\code{anchor1}:}{An integer vector specifying the index of the first interacting region.}
@@ -93,6 +97,7 @@ Aaron Lun
 \seealso{
 \code{\link{ContactMatrix-access}},
 \code{\link{ContactMatrix-subset}},
-\code{\link{ContactMatrix-sort}}
+\code{\link{ContactMatrix-sort}},
+\code{\link{Annotated}}
 }
 
