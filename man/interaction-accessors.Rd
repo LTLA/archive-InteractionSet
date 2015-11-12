@@ -1,4 +1,4 @@
-\name{Accessor functions}
+\name{Interaction accessors}
 \alias{InteractionSet-access}
 \alias{GInteractions-access}
 
@@ -24,10 +24,10 @@
 \alias{show,InteractionSet-method}
 \alias{show,GInteractions-method}
 
-\title{InteractionSet accessors}
+\title{Interaction accessors}
 
 \description{
-Methods to get and set fields in an InteractionSet object.
+Methods to get and set fields in an InteractionSet or GInteractions object.
 } 
 
 \usage{

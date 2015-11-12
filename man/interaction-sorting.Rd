@@ -1,4 +1,4 @@
-\name{InteractionSet sorting}
+\name{Interaction sorting}
 
 \alias{InteractionSet-sort}
 \alias{order,InteractionSet-method}
@@ -6,27 +6,41 @@
 \alias{duplicated,InteractionSet-method}
 \alias{unique,InteractionSet-method}
 
-\title{InteractionSet sorting and ordering}
+\alias{GInteractions-sort}
+\alias{order,GInteractions-method}
+\alias{sort,GInteractions-method}
+\alias{duplicated,GInteractions-method}
+\alias{unique,GInteractions-method}
+
+\title{Interaction sorting and ordering}
 
 \description{
-Methods to sort and order InteractionSet objects, based on the anchor indices.
+Methods to sort and order GInteractions or InteractionSet objects, based on the anchor indices.
 Also, methods to remove duplicate interactions based on the anchor indices.
 }
 
 \usage{
+\S4method{order}{GInteractions}(..., na.last=TRUE, decreasing=FALSE)
 \S4method{order}{InteractionSet}(..., na.last=TRUE, decreasing=FALSE)
+
+\S4method{sort}{GInteractions}(x, decreasing=FALSE, ...)
 \S4method{sort}{InteractionSet}(x, decreasing=FALSE, ...)
+
+\S4method{duplicated}{GInteractions}(x, incomparables=FALSE, fromLast=FALSE, ...)
 \S4method{duplicated}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
+
+\S4method{unique}{GInteractions}(x, incomparables=FALSE, fromLast=FALSE, ...)
 \S4method{unique}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
 }
 
 \arguments{
 \item{...}{
-    For \code{sort,InteractionSet-method}, one or more InteractionSet objects with the same number of rows.
+    For \code{order}, one or more InteractionSet or GInteractions objects with the same number of rows.
+    
     Otherwise, ignored in all other methods.
 }
 
-\item{x}{An InteractionSet object.}
+\item{x}{An InteractionSet or GInteractions object.}
 
 \item{na.last}{
     A logical scalar indicating whether \code{NA} values should be ordered last.
@@ -47,12 +61,12 @@ Also, methods to remove duplicate interactions based on the anchor indices.
 }
 
 \details{
-Sorting is performed based on the anchor indices of the InteractionSet object.
+Sorting is performed based on the anchor indices of the GInteraction object.
 Rows are ordered for increasing values of the \code{anchor1} slot - if these are equal, ordering is performed with values of the \code{anchor2} slot.
 This equates to ordering by the coordinates directly, as the GRanges in the \code{regions} slot is always sorted.
-Based on this, \code{sort,InteractionSet-method} will return a sorted copy of \code{x} with permuted rows in increasing order.
+Based on this, \code{sort} will return a sorted copy of \code{x} with permuted rows in increasing order.
 
-\code{order,InteractionSet-method} returns an integer vector indicating the permutation to rearrange \code{x} in increasing order.
+The \code{order} method returns an integer vector indicating the permutation to rearrange \code{x} in increasing order.
 If multiple objects are supplied to \code{order}, ordering will be computed using anchor indices from successive objects.
 For example, ordering is first performed using anchor indices from the first object; 
     any rows with the same \code{anchor1} and \code{anchor2} will be split using the second object; and so on.
@@ -60,32 +74,48 @@ For example, ordering is first performed using anchor indices from the first obj
 For both of these methods, the sorting can be reversed by setting \code{decreasing=TRUE}.
 This will sort or order for decreasing values of \code{anchor1} and \code{anchor2}, rather than for increasing values.
 
-\code{duplicated,InteractionSet-method} returns a logical vector indicating whether the rows of \code{x} are duplicated.
+The \code{duplicated} method returns a logical vector indicating whether the rows of \code{x} are duplicated.
 Duplicated rows are identified on the basis of identical entries in the \code{anchor1} and \code{anchor2} slots.
 It makes little sense to compare other slots (e.g., in \code{assays}) which may be numeric and inherently incomparable.
 For a set of duplicated rows, the first occurrence in \code{x} is marked as the non-duplicate if \code{fromLast=FALSE}, and the last entry otherwise.
 
-\code{unique,InteractionSet-method} returns an InteractionSet object where all duplicate rows have been removed from \code{x}.
+\code{unique} returns a GInteractions object where all duplicate rows have been removed from \code{x}.
 This is equivalent to \code{x[!duplicated(x),]}, with any additional arguments passed to \code{duplicated} as specified.
+
+For all InteractionSet methods, the corresponding method is called on the GInteractions object in the \code{interactions} slot of the InteractionSet object.
+Return values for each InteractionSet method is the same as those for the corresponding GInteractions method 
+    - except for \code{sort} and \code{unique}, which return a row-permuted or row-subsetted InteractionSet, respectively, instead of a GInteractions object.
+Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking.
 }
 
 \examples{
-example(InteractionSet, echo=FALSE)
+example(GInteractions, echo=FALSE)
 
-anchors(x)
-x2 <- sort(x)
-x2
-anchors(x2)
+anchors(gi)
+gi2 <- sort(gi)
+gi2
+anchors(gi2)
 
 # Can also order them.
-o <- order(x)
+o <- order(gi)
 o
-stopifnot(all.equal(x[o], x2))
+stopifnot(all.equal(gi[o], gi2))
 
 # Checking duplication.
-summary(duplicated(x))
-summary(duplicated(rbind(x, x)))
-stopifnot(all.equal(x, unique(rbind(x, x))))
+summary(duplicated(gi))
+summary(duplicated(rbind(gi, gi)))
+stopifnot(all.equal(gi, unique(rbind(gi, gi))))
+
+#################
+# Same can be done for an InteractionSet object:
+
+example(InteractionSet, echo=FALSE)
+
+anchors(iset)
+anchors(sort(iset))
+order(iset)
+summary(duplicated(iset))
+unique(iset)
 }
 
 \author{
@@ -93,6 +123,7 @@ Aaron Lun
 }
 
 \seealso{
+\code{\link{GInteractions-class}}
 \code{\link{InteractionSet-class}}
 }
 
