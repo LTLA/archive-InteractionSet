@@ -85,22 +85,21 @@ setMethod("cbind", "InteractionSet", function(..., deparse.level=1) {
         }
     }
     
-    # Need to dig into SummarizedExperiment, as callNextMethod fails (undefined dispatch with ...?)
-    out <- SummarizedExperiment:::.cbind.SummarizedExperiment(args)
-    return(out)
+    base <- do.call(cbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
+    new("InteractionSet", base, interactions=interactions(ans))
 })
 
 setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
-    args[[1]]@interactions <- do.call(rbind, lapply(args, FUN=interactions))
-    SummarizedExperiment:::.rbind.SummarizedExperiment(args)
+    base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
+    new("InteractionSet", base, interactions=do.call(rbind, lapply(args, FUN=interactions)))
 })
 
 # "c" is slightly different from "rbind", in that it allows different regions to be combined.
 setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
-    incoming <- list(x, ...)
-    incoming[[1]]@interactions <- do.call(c, lapply(incoming, interactions))
-    SummarizedExperiment:::.rbind.SummarizedExperiment(incoming)
+    args <- list(x, ...)
+    base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
+    new("InteractionSet", base, interactions=do.call(c, lapply(args, FUN=interactions)))
 })
 
 ###############################################################
