@@ -98,7 +98,7 @@ setReplaceMethod("newRegions", "ContactMatrix", newRegion.fun.gen(FALSE))
 # 'anchors<-' is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
 # nor is there any need to enforce 'anchor1 >= anchor2' in "ContactMatrix" objects.
 
-setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
+setGeneric("anchors<-", function(x, value) { standardGeneric("anchors<-") })
 
 setReplaceMethod("anchors", "GInteractions", function(x, value) {
     if (length(value)!=2L) { 
@@ -138,8 +138,11 @@ setReplaceMethod("interactions", "InteractionSet", function(x, value) {
     return(x)
 }) 
 
-setMethod("anchors", "InteractionSet", function(x, ...) { anchors(x@interactions, ...) })
-setMethod("regions", "InteractionSet", function(x, ...) { regions(x@interactions, ...) })
+setMethod("anchors", "InteractionSet", function(x, type="both", id=FALSE) { 
+    anchors(x@interactions, type=type, id=id) 
+})
+
+setMethod("regions", "InteractionSet", function(x) { regions(x@interactions) })
 
 setReplaceMethod("anchors", "InteractionSet", function(x, value) { 
     anchors(x@interactions) <- value 
