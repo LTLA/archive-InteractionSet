@@ -14,7 +14,7 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
 \usage{
 \S4method{inflate}{InteractionSet}(x, rows, columns, assay=1L, sample=1L, fill=NULL, ...)
 
-\S4method{deflate}{ContactMatrix}(x, ...)
+\S4method{deflate}{ContactMatrix}(x, unique=TRUE, ...)
 }
 
 \arguments{
@@ -46,6 +46,10 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
     If specified, this overrides extraction of assay values.
 }
 
+\item{unique}{
+    A  logical scalar indicating whether duplicated interactions should be removed from \code{x} prior to deflation.
+}
+
 \item{...}{
     For \code{inflate,InteractionSet-method}, additional arguments to pass to \code{\link[GenomicRanges]{overlapsAny}} when \code{rows} or \code{columns} is a GRanges.
 
@@ -61,6 +65,7 @@ If duplicated interactions are present in \code{x}, only the first interaction w
 
 The \code{deflate} method will return an InteractionSet where each non-\code{NA} entry in the ContactMatrix is converted into a pairwise interaction.
 The values of all matrix entries are stored as a one-sample assay.
+Duplicate interactions are not included by default, but can be returned by setting \code{unique=FALSE}.
 Additional arguments can be used to specify the \code{colData} and \code{metadata}, which are stored in the ContactMatrix itself.
 }
 
@@ -77,12 +82,20 @@ y <- inflate(x, 1:10, 1:10)
 x2 <- deflate(y)
 x2
 assay(x2)
+
+# Testing with different fillings:
 y <- inflate(x, 1:10, 1:10, sample=2)
 x2 <- deflate(y)
 assay(x2)
+
 y <- inflate(x, 1:10, 1:10, fill=rowSums(assay(x)))
 x2 <- deflate(y)
 assay(x2)
+
+# Effect of 'unique'
+y <- inflate(x, c(8, 1:10), 1:10)
+deflate(y)
+deflate(y, unique=FALSE)
 }
 
 \author{

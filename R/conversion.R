@@ -72,7 +72,8 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
-setMethod("deflate", "ContactMatrix", function(x, ...) {
+setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
+    if (unique) { x <- unique(x) }
     all.values <- as.vector(as.matrix(x))
     row.index <- rep(seq_len(nrow(x)), ncol(x))
     col.index <- rep(seq_len(ncol(x)), each=nrow(x))
