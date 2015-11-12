@@ -24,6 +24,11 @@
 \alias{show,InteractionSet-method}
 \alias{show,GInteractions-method}
 
+\alias{interactions}
+\alias{interactions,InteractionSet-method}
+\alias{interactions<-}
+\alias{interactions<-,InteractionSet-method}
+
 \title{Interaction accessors}
 
 \description{

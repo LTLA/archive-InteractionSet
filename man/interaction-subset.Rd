@@ -167,7 +167,6 @@ c(iset, new.iset)
 # Splitting:
 out <- split(iset, f)
 out[[1]]
-
 }
 
 \author{

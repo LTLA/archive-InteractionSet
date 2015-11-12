@@ -20,7 +20,6 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 \S4method{GInteractions}{GRanges,GRanges}(anchor1, anchor2, regions, metadata=list())
 
 \S4method{GInteractions}{missing,missing}(anchor1, anchor2, regions, metadata=list())
-
 }
 
 \arguments{
