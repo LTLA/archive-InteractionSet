@@ -1,5 +1,3 @@
-require(InteractionSet); require(testthat)
-
 # This tests the conversion functions of an InteractionSet object.
 
 set.seed(6000)
@@ -14,7 +12,7 @@ all.anchor2 <- sample(N, Np)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
 offs <- matrix(rnorm(Np*Nlibs), ncol=Nlibs)
-x <- InteractionSet(list(counts, offs), all.anchor1, all.anchor2, all.regions)
+x <- InteractionSet(list(counts, offs), GInteractions(all.anchor1, all.anchor2, all.regions))
 
 ##########################################
 # Standard construction with integers:

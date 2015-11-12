@@ -13,7 +13,7 @@ all.anchor1 <- sample(N, Np, replace=TRUE)
 all.anchor2 <- sample(N, Np, replace=TRUE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
-x <- InteractionSet(counts, all.anchor1, all.anchor2, all.regions)
+x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 o <- order(all.regions)
 new.regions <- all.regions[o]

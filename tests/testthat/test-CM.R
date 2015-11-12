@@ -1,4 +1,4 @@
-# Tests the construction and manipulation of InteractionSet objects.
+# Tests the construction and manipulation of ContactMatrix objects.
 
 set.seed(4000)
 N <- 30

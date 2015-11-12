@@ -11,7 +11,7 @@ all.anchor1 <- sample(N, Np)
 all.anchor2 <- sample(N, Np)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
-x <- InteractionSet(counts, all.anchor1, all.anchor2, all.regions)
+x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 expect_output(show(x), "class: InteractionSet 
 dim: 20 4 
@@ -48,27 +48,27 @@ expect_that(anchors(x, type="second"), is_identical_to(new.regions[new.anchor2])
 expect_that(anchors(x), is_identical_to(GRangesList(first=new.regions[new.anchor1], 
         second=new.regions[new.anchor2])))
 
-# Testing alternative construction methods:
+# Testing alternative construction methods for the GInteractions object:
 
-x2 <- InteractionSet(counts, all.regions[all.anchor1], all.regions[all.anchor2])
+x2 <- InteractionSet(counts, GInteractions(all.regions[all.anchor1], all.regions[all.anchor2]))
 was.used <- sort(unique(all.regions[union(all.anchor1, all.anchor2)])) # Only includes the regions actually used.
 expect_that(regions(x2), is_identical_to(was.used))
 expect_that(anchors(x2), is_identical_to(anchors(x)))
 
-x3 <- InteractionSet(counts, all.regions[all.anchor1], all.regions[all.anchor2], was.used)
+x3 <- InteractionSet(counts, GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], was.used))
 expect_that(anchors(x3, id=TRUE), is_identical_to(anchors(x2, id=TRUE)))
 expect_that(regions(x3), is_identical_to(regions(x2)))
 
 # Testing with crappy inputs:
 
-expect_that(InteractionSet(matrix(0, 4, 0), 1:4, 1:4, all.regions), is_a("InteractionSet")) # No columns.
-expect_that(InteractionSet(matrix(0, 0, 4), integer(0), numeric(0), GRanges()), is_a("InteractionSet")) # No rows.
-expect_that(InteractionSet(matrix(0, 0, 4), GRanges(), GRanges()), is_a("InteractionSet")) # No rows.
+expect_that(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1:4, all.regions)), is_a("InteractionSet")) # No columns.
+expect_that(InteractionSet(matrix(0, 0, 4), GInteractions(integer(0), numeric(0), GRanges())), is_a("InteractionSet")) # No rows.
+expect_that(InteractionSet(matrix(0, 0, 4), GInteractions(GRanges(), GRanges())), is_a("InteractionSet")) # No rows.
 
-expect_error(InteractionSet(matrix(0, 4, 0), 1:4, 1, all.regions), "first and second anchor vectors have different lengths")
-expect_error(InteractionSet(matrix(0, 4, 0), 0:3, 1:4, all.regions), "all anchor indices must be positive integers")
-expect_error(InteractionSet(matrix(0, 4, 0), c(1,2,3,NA), 1:4, all.regions), "all anchor indices must be finite integers")
-expect_error(InteractionSet(matrix(0, 3, 0), 1:4, 1:4, all.regions), "'assays' nrow differs from 'mcols' nrow")
+expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1, all.regions)), "first and second anchor vectors have different lengths")
+expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(0:3, 1:4, all.regions)), "all anchor indices must be positive integers")
+expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(c(1,2,3,NA), 1:4, all.regions)), "all anchor indices must be finite integers")
+expect_error(InteractionSet(matrix(0, 3, 0), GInteractions(1:4, 1:4, all.regions)), "'assays' nrow differs from 'mcols' nrow")
 
 expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
 expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
@@ -173,7 +173,7 @@ expect_error(rbind(xsub, xsub2[,1:2]), "objects must have the same number of sam
 xsub <- x[,1]
 xsub2 <- x[,2:4]
 expect_that(cbind(xsub, xsub2), equals(x))
-expect_error(cbind(xsub, xsub2[1:10,]), "anchors must be identical")
+expect_error(cbind(xsub, xsub2[1:10,]), "interactions must be identical in 'cbind'")
 
 expect_that(nrow(rbind(x[0,], x[0,])), is_identical_to(0L)) # Behaviour with empties.
 expect_that(ncol(rbind(x[0,], x[0,])), is_identical_to(ncol(x)))
@@ -193,7 +193,7 @@ next.anchor1 <- sample(N, Np)
 next.anchor2 <- sample(N, Np)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
-next.x <- InteractionSet(counts, next.anchor1, next.anchor2, next.regions)
+next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 
 expect_error(rbind(x, next.x), "regions must be identical in 'rbind'") 
 c.x <- c(x, next.x)

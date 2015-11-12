@@ -13,7 +13,7 @@ all.anchor1 <- sample(N, Np, replace=TRUE)
 all.anchor2 <- sample(N, Np, replace=TRUE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
-x <- InteractionSet(counts, all.anchor1, all.anchor2, all.regions)
+x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 #######################################################
 # Linear overlaps with GRanges.
@@ -221,7 +221,7 @@ N2 <- length(next.regions)
 next.anchor1 <- sample(N2, Np, replace=TRUE)
 next.anchor2 <- sample(N2, Np, replace=TRUE)
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
-x2 <- InteractionSet(counts, next.anchor1, next.anchor2, next.regions)
+x2 <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 pairing <- anchors(x2)
 
 for (param in seq_len(4)) {
