@@ -53,10 +53,14 @@ setMethod("show", signature("ContactMatrix"), function(object) {
 }
 
 setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, ...) { standardGeneric("ContactMatrix") })
-setMethod("ContactMatrix", c("ANY", "numeric", "numeric"), .new_ContactMatrix)
+setMethod("ContactMatrix", c("ANY", "numeric", "numeric"), 
+    function(matrix, anchor1, anchor2, regions, metadata=list()) { 
+        .new_ContactMatrix(matrix, anchor1, anchor2, regions, metadata)
+    }
+)
 
 setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"), 
-    function(matrix, anchor1, anchor2, regions) { 
+    function(matrix, anchor1, anchor2, regions, metadata=list()) { 
 
         if (missing(regions)) { 
             collated <- .collate_GRanges(anchor1, anchor2)
@@ -71,7 +75,7 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"),
             }
         }
         
-        .new_ContactMatrix(matrix, anchor1, anchor2, regions)
+        .new_ContactMatrix(matrix, anchor1, anchor2, regions, metadata)
     }
 )
 
