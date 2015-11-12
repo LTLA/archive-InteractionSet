@@ -282,4 +282,32 @@ expect_equal(overlapsAny(x[0], x2), logical(0))
 expect_equal(overlapsAny(x, x2[0]), logical(Nq2))
 
 #######################################################
+# overlapsAny for ContactMatrix objects
+
+set.seed(304)
+Nr <- 100
+Nc <- 200
+all.anchor1 <- sample(N, Nr, replace=TRUE)
+all.anchor2 <- sample(N, Nc, replace=TRUE)
+counts <- matrix(rpois(Nr*Nc, lambda=10), Nr, Nc)
+x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions)
+
+Nq <- 6
+query.starts <- round(runif(Nq, 1, 100))
+query.ends <- query.starts + round(runif(Nq, 5, 20))
+query.regions <- GRanges(rep(c("chrA", "chrB"), Nq/2), IRanges(query.starts, query.ends))
+
+olap <- overlapsAny(x, query.regions)
+expect_identical(olap, list(row=overlapsAny(anchors(x, type="row"), query.regions),
+                            column=overlapsAny(anchors(x, type="column"), query.regions)))
+
+olap <- overlapsAny(x, query.regions, type="within")
+expect_identical(olap, list(row=overlapsAny(anchors(x, type="row"), query.regions, type="within"),
+                            column=overlapsAny(anchors(x, type="column"), query.regions, type="within")))
+
+expect_equal(overlapsAny(x[0,], query.regions), list(row=logical(0), column=overlapsAny(anchors(x, type="column"), query.regions)))
+expect_equal(overlapsAny(x[,0], query.regions), list(row=overlapsAny(anchors(x, type="row"), query.regions), column=logical(0)))
+expect_equal(overlapsAny(x[0,0], query.regions), list(row=logical(0), column=logical(0)))
+
+#######################################################
 # End

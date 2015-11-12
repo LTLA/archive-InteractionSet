@@ -34,6 +34,7 @@ expect_that(pairdist(x[0,]), is_identical_to(integer(0)))
 expect_that(pairdist(x[0,], type="intra"), is_identical_to(logical(0)))
 expect_that(pairdist(x[!is.intra,]), is_identical_to(rep(as.integer(NA), sum(!is.intra))))
 
+####################################################
 # Testing distance calculation for a ContactMatrix.
 
 set.seed(101)
