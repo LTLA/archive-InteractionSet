@@ -192,3 +192,11 @@ dedupped <- duplicated(unique(temp.x))
 expect_false(any(dedupped$row))
 expect_false(any(dedupped$column))
 
+# Testing the tranposition
+
+tx <- t(x)
+expect_identical(anchors(x, type="row"), anchors(tx, type="column"))
+expect_identical(anchors(x, type="column"), anchors(tx, type="row"))
+expect_identical(t(x[0,]), tx[,0])
+expect_identical(t(x[,0]), tx[0,])
+
