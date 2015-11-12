@@ -1,24 +1,28 @@
 \name{Interaction distances}
 
 \alias{pairdist}
+\alias{pairdist,GInteractions-method}
 \alias{pairdist,InteractionSet-method}
 \alias{intrachr}
+\alias{intrachr,GInteractions-method}
 \alias{intrachr,InteractionSet-method}
 
 \title{Get the linear distance for each interaction}
 
 \description{
-Compute the distance between interacting regions on the linear genome, for each pairwise interaction contained in an InteractionSet object.
+Compute the distance between interacting regions on the linear genome, for each pairwise interaction contained in a GInteractions or InteractionSet object.
 }
 
 \usage{
+\S4method{pairdist}{GInteractions}(x, type="mid")
 \S4method{pairdist}{InteractionSet}(x, type="mid")
 
+\S4method{intrachr}{GInteractions}(x)
 \S4method{intrachr}{InteractionSet}(x)
 }
 
 \arguments{
-\item{x}{An InteractionSet object.}
+\item{x}{A GInteractions or InteractionSet object.}
 
 \item{type}{
     A character string specifying the type of distance to compute.
@@ -52,17 +56,27 @@ An integer vector is returned, with values computed according to the specified v
 Interchromosomal interactions are marked with \code{NA}.
 Alternatively, if \code{type="intra"}, a logical vector is returned indicating whether the interaction occurs between two regions on the same chromosome.
 \code{intrachr(x)} is an alias for \code{pairdist(x, type="intra")}.
+
+The return values of the assorted methods are the same for both GInteractions and InteractionSet objects.
+Methods for the latter operate on the GInteractions object in the \code{interactions} slot.
 }
 
 \examples{
+example(GInteractions, echo=FALSE)
+
+pairdist(gi)
+pairdist(gi, type="gap")
+pairdist(gi, type="span")
+pairdist(gi, type="diag")
+intrachr(gi)
+
 example(InteractionSet, echo=FALSE)
 
-pairdist(x)
-pairdist(x, type="gap")
-pairdist(x, type="span")
-pairdist(x, type="diag")
-
-intrachr(x)
+pairdist(iset)
+pairdist(iset, type="gap")
+pairdist(iset, type="span")
+pairdist(iset, type="diag")
+intrachr(iset)
 }
 
 \author{
@@ -70,6 +84,7 @@ Aaron Lun
 }
 
 \seealso{
+\code{\link{GInteractions-class}},
 \code{\link{InteractionSet-class}}
 }
 
