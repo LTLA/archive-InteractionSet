@@ -24,7 +24,7 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 }
 
 \arguments{
-\item{anchor1,anchor2}{
+\item{anchor1, anchor2}{
     For \code{GInteractions,ANY,numeric,numeric-method}, an integer vector containing indices to \code{regions}.
     
     For \code{GInteractions,ANY,GRanges,GRanges-method}, a GRanges object specifying the interacting loci.
@@ -54,11 +54,11 @@ It also contains several additional slots:
 Each interaction is defined by the corresponding entries in the \code{anchor1} and \code{anchor2} slots, which point to the relevant coordinates in \code{regions} for each locus.
 Values of \code{anchor1} and \code{anchor2} are set such that the former is not smaller than the latter, to avoid redundancy from different permutations.
 
-GInteractions objects can be constructed by specifying integer vectors in \code{GInteractions,ANY,numeric,numeric-method} to define pairwise interactions.
+GInteractions objects can be constructed by specifying integer vectors in \code{GInteractions,numeric,numeric-method} to define pairwise interactions.
 For entry \code{x}, the corresponding interaction is defined between \code{regions[anchor1[x]]} and \code{regions[anchor2[x]]}.
 Obviously, coordinates of all of the interacting loci must be specified in the \code{regions} argument.
 
-Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to \code{GInteractions,ANY,GRanges,GRanges-method}.
+Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to \code{GInteractions,GRanges,GRanges-method}.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
 If \code{regions} is supplied, exact matching will be performed to identify the corresponding entries in \code{anchor1} and \code{anchor2}.
 Missing values are not tolerated and will cause an error.
@@ -66,7 +66,7 @@ Missing values are not tolerated and will cause an error.
 Both methods will return an GInteractions object containing all of the specified information.
 Values may be swapped between the two anchor vectors in the returned object, to ensure that \code{anchor1} is not less than \code{anchor2}.
 Sorting of \code{regions} is also performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
-\code{GInteractions,missing,missing-method} will return an empty GInteractions object.
+If both anchors are missing, the constructor will return an empty GInteractions object.
 }
 
 \examples{
