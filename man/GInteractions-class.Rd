@@ -93,7 +93,8 @@ elementMetadata(temp.gi)$score <- runif(Np)
 }
 
 \author{
-Aaron Lun
+Aaron Lun,
+based on suggestions from Malcolm Perry and Liz Ing-Simmons.
 }
 
 \seealso{
