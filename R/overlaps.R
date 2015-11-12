@@ -356,7 +356,9 @@ for (siglist in list(
         c(query="GRanges", subject="InteractionSet"),
         c(query="InteractionSet", subject="GRangesList"),
         c(query="GRangesList", subject="InteractionSet"),
-        c(query="InteractionSet", subject="InteractionSet")
+        c(query="InteractionSet", subject="InteractionSet"),
+        c(query="InteractionSet", subject="GInteractions"),
+        c(query="GInteractions", subject="InteractionSet")
     )) {
     first.IS <- siglist[["query"]]=="InteractionSet"
     second.IS <- siglist[["subject"]]=="InteractionSet"
