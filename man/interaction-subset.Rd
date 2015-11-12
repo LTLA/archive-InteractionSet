@@ -1,5 +1,5 @@
 \name{Interaction subsetting}
-\alias{Interaction-subset}
+\alias{interaction-subset}
 
 \alias{[,InteractionSet,ANY-method}
 \alias{[,InteractionSet,ANY,ANY-method}

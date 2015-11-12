@@ -1,6 +1,7 @@
 \name{Convert classes}
 
 \alias{inflate}
+\alias{inflate,GInteractions-method}
 \alias{inflate,InteractionSet-method}
 \alias{deflate}
 \alias{deflate,ContactMatrix-method}
@@ -12,6 +13,8 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
 }
 
 \usage{
+\S4method{inflate}{GInteractions}(x, rows, columns, fill, ...)
+
 \S4method{inflate}{InteractionSet}(x, rows, columns, assay=1L, sample=1L, fill=NULL, ...)
 
 \S4method{deflate}{ContactMatrix}(x, unique=TRUE, ...)
@@ -19,7 +22,7 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
 
 \arguments{
 \item{x}{
-    An InteractionSet object for \code{inflate}, or a ContactMatrix object for \code{deflate}.
+    A GInteractions or InteractionSet object for \code{inflate}, or a ContactMatrix object for \code{deflate}.
 }
 
 \item{rows, columns}{
@@ -42,8 +45,8 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
 }
 
 \item{fill}{
-    A numeric vector of length equal to \code{nrow(x)}, with alternative values to fill the ContactMatrix.
-    If specified, this overrides extraction of assay values.
+    A numeric vector of length equal to \code{nrow(x)}, containing values with which to fill the ContactMatrix.
+    If specified, this overrides extraction of assay values for \code{inflate,InteractionSet-method}.
 }
 
 \item{unique}{
@@ -51,17 +54,22 @@ Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an
 }
 
 \item{...}{
-    For \code{inflate,InteractionSet-method}, additional arguments to pass to \code{\link[GenomicRanges]{overlapsAny}} when \code{rows} or \code{columns} is a GRanges.
+    For \code{inflate}, additional arguments to pass to \code{\link[GenomicRanges]{overlapsAny}} when \code{rows} or \code{columns} is a GRanges.
 
-    For \code{deflate,ContactMatrix-method}, additional arguments to pass to the InteractionSet constructor.
+    For \code{deflate}, additional arguments to pass to the InteractionSet constructor.
 }
 }
 
 \details{
 The \code{inflate} method will return a ContactMatrix where the rows and columns correspond to specified regions of interest in \code{rows} and \code{columns}.
-Values in the matrix are filled in based on the assay values in the InteractionSet (or \code{fill}, if specified).
+For the GInteractions method, values in the matrix are filled based on user-supplied values in \code{fill}.
+Each entry of \code{fill} corresponds to an interaction in \code{x} is used to set the matrix value at the matching row/column.
 Some entries of the matrix will correspond to pairwise interactions that are not present in the InteractionSet - these are filled with \code{NA} values.
 If duplicated interactions are present in \code{x}, only the first interaction will be used.
+ 
+For the InteractionSet method, values in the matrix are filled in based on the assay values.
+For more complex \code{x}, values from different assays and samples can be extracted using the \code{assay} and \code{sample} arguments.
+Note that if \code{fill} is specified, it will override any assay extraction.
 
 The \code{deflate} method will return an InteractionSet where each non-\code{NA} entry in the ContactMatrix is converted into a pairwise interaction.
 The values of all matrix entries are stored as a one-sample assay.
@@ -72,28 +80,31 @@ Additional arguments can be used to specify the \code{colData} and \code{metadat
 \examples{
 example(InteractionSet, echo=FALSE)
 
-inflate(x, 1:10, 1:10)
-inflate(x, 1:10, 1:5+10)
-inflate(x, "chrA", 1:5+10)
-inflate(x, "chrA", "chrB")
-inflate(x, "chrA", GRanges("chrB", IRanges(1, 10)))
+inflate(iset, 1:10, 1:10)
+inflate(iset, 1:10, 1:5+10)
+inflate(iset, "chrA", 1:5+10)
+inflate(iset, "chrA", "chrB")
+inflate(iset, "chrA", GRanges("chrB", IRanges(1, 10)))
 
-y <- inflate(x, 1:10, 1:10)
-x2 <- deflate(y)
-x2
-assay(x2)
+y <- inflate(iset, 1:10, 1:10)
+iset2 <- deflate(y)
+iset2
+assay(iset2)
 
 # Testing with different fillings:
-y <- inflate(x, 1:10, 1:10, sample=2)
-x2 <- deflate(y)
-assay(x2)
+y <- inflate(iset, 1:10, 1:10, sample=2)
+iset2 <- deflate(y)
+assay(iset2)
 
-y <- inflate(x, 1:10, 1:10, fill=rowSums(assay(x)))
-x2 <- deflate(y)
-assay(x2)
+y <- inflate(iset, 1:10, 1:10, fill=rowSums(assay(iset)))
+iset2 <- deflate(y)
+assay(iset2)
+
+y2 <- inflate(interactions(iset), 1:10, 1:10, rowSums(assay(iset)))
+identical(y, y2) # should be TRUE
 
 # Effect of 'unique'
-y <- inflate(x, c(8, 1:10), 1:10)
+y <- inflate(iset, c(8, 1:10), 1:10)
 deflate(y)
 deflate(y, unique=FALSE)
 }
@@ -104,5 +115,6 @@ Aaron Lun
 
 \seealso{
 \code{\link{InteractionSet-class}},
+\code{\link{GInteractions-class}},
 \code{\link{ContactMatrix-class}}
 }

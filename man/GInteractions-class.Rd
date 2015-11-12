@@ -97,8 +97,8 @@ Aaron Lun
 }
 
 \seealso{
-\code{\link{GInteractions-access}},
-\code{\link{GInteractions-subset}},
-\code{\link{GInteractions-sort}}
+\code{\link{interaction-access}},
+\code{\link{interaction-subset}},
+\code{\link{interaction-sort}}
 }
 

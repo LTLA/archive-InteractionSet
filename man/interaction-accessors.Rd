@@ -1,6 +1,5 @@
 \name{Interaction accessors}
-\alias{InteractionSet-access}
-\alias{GInteractions-access}
+\alias{interaction-access}
 
 \alias{anchors}
 \alias{anchors,InteractionSet-method}

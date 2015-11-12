@@ -48,14 +48,14 @@ If \code{ref} is a numeric scalar, it is assumed to refer to an entry in \code{r
 example(InteractionSet, echo=FALSE)
 
 # With integers
-out <- linearize(x, 1)
-linearize(x, 10)
-linearize(x, 20)
+out <- linearize(iset, 1)
+linearize(iset, 10)
+linearize(iset, 20)
 
 # With ranges
-linearize(x, regions(x)[1], type="equal")
-linearize(x, regions(x)[10], type="equal")
-linearize(x, regions(x)[20], type="equal")
+linearize(iset, regions(iset)[1], type="equal")
+linearize(iset, regions(iset)[10], type="equal")
+linearize(iset, regions(iset)[20], type="equal")
 }
 
 

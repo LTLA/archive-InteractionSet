@@ -1,12 +1,11 @@
 \name{Interaction sorting}
+\alias{interaction-sort}
 
-\alias{InteractionSet-sort}
 \alias{order,InteractionSet-method}
 \alias{sort,InteractionSet-method}
 \alias{duplicated,InteractionSet-method}
 \alias{unique,InteractionSet-method}
 
-\alias{GInteractions-sort}
 \alias{order,GInteractions-method}
 \alias{sort,GInteractions-method}
 \alias{duplicated,GInteractions-method}

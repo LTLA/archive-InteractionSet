@@ -71,8 +71,8 @@ Aaron Lun
 }
 
 \seealso{
-\code{\link{InteractionSet-access}},
-\code{\link{InteractionSet-subset}},
-\code{\link{InteractionSet-sort}}
+\code{\link{interaction-access}},
+\code{\link{interaction-subset}},
+\code{\link{interaction-sort}}
 }
 
