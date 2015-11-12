@@ -19,7 +19,7 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
     }
 }
 
-setMethod("inflate", "GInteractions", function(x, rows, columns, fill) {
+setMethod("inflate", "GInteractions", function(x, rows, columns, fill, ...) {
     row.chosen <- .make_to_indices(regions(x), rows, ...)
     col.chosen <- .make_to_indices(regions(x), columns, ...)
     fill <- rep(fill, length.out=nrow(x))
@@ -72,7 +72,7 @@ setMethod("inflate", "GInteractions", function(x, rows, columns, fill) {
  
 setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, ...) {
     if (length(fill)==0L) { fill <- assay(x, assay)[,sample] }
-    inflate(interactions(x), rows, columns, ...)
+    inflate(interactions(x), rows, columns, fill=fill, ...)
 })
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
@@ -89,7 +89,7 @@ setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
 
     out <- .enforce_order(row.index, col.index)
     dim(all.values) <- c(length(all.values), 1L)
-    final <- InteractionSet(all.values, out$anchor1, out$anchor2, regions(x), ...)
+    final <- InteractionSet(all.values, GInteractions(out$anchor1, out$anchor2, regions(x)), ...)
 
     if (unique) { final <- unique(final) }
     return(final)
