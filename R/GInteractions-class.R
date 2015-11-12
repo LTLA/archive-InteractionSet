@@ -48,11 +48,27 @@ setValidity("GInteractions", function(object) {
     return(TRUE)
 })
 
+scat <- function(fmt, vals=character(), exdent=2, ...) {
+    vals <- ifelse(nzchar(vals), vals, "''")
+    lbls <- paste(S4Vectors:::selectSome(vals), collapse=" ")
+    txt <- sprintf(fmt, length(vals), lbls)
+    cat(strwrap(txt, exdent=exdent, ...), sep="\n")
+}
+
+
 setMethod("show", signature("GInteractions"), function(object) {
     cat("class:", class(object), "\n")
     cat("pairs:", length(object@anchor1), "\n")
     cat(sprintf("regions: %i\n", length(object@regions)))
-    # Need to add elementMetadata, metadata return values.
+
+    expt <- names(metadata(object))
+    if (is.null(expt))
+        expt <- character(length(metadata(object)))
+    scat("metadata(%d): %s\n", expt)
+
+    mcolnames <- names(mcols(object))
+    fmt <- "metadata column names(%d): %s\n"
+    scat(fmt, mcolnames)
 })
 
 ###############################################################
