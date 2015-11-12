@@ -70,6 +70,9 @@ expect_error(InteractionSet(matrix(0, 4, 0), 0:3, 1:4, all.regions), "all anchor
 expect_error(InteractionSet(matrix(0, 4, 0), c(1,2,3,NA), 1:4, all.regions), "all anchor indices must be finite integers")
 expect_error(InteractionSet(matrix(0, 3, 0), 1:4, 1:4, all.regions), "'assays' nrow differs from 'mcols' nrow")
 
+expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
+expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
+
 # Testing setters.
 
 set.seed(1001)
@@ -85,6 +88,8 @@ fresh.anchor2 <- sample(N, Np)
 anchors(x) <- list(fresh.anchor1, fresh.anchor2)
 expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(pmax(fresh.anchor1, fresh.anchor2)))
 expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(pmin(fresh.anchor1, fresh.anchor2)))
+expect_error(anchors(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
+expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "first and second anchor vectors have different lengths")
 anchors(x) <- list(new.anchor1, new.anchor2) # Restoring.
 
 lib.sizes <- 1:4*1000L
@@ -155,6 +160,9 @@ expect_that(assay(xsub), is_identical_to(assay(x)[rchosen,cchosen]))
 expect_that(regions(xsub), is_identical_to(regions(x)))
 expect_that(anchors(xsub, type="first"), is_identical_to(new.regions[new.anchor1][rchosen]))
 expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor2][rchosen]))
+
+expect_that(nrow(x[0,]), is_identical_to(0L))
+expect_that(ncol(x[,0]), is_identical_to(0L))
 
 # Testing the combining.
 
