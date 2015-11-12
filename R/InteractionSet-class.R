@@ -99,9 +99,8 @@ setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
 # "c" is slightly different from "rbind", in that it allows different regions to be combined.
 setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
     incoming <- list(x, ...)
-    final <- do.call(rbind, incoming)
-    final@interactions <- do.call(c, lapply(incoming, interactions))
-    return(final)
+    incoming[[1]]@interactions <- do.call(c, lapply(incoming, interactions))
+    SummarizedExperiment:::.rbind.SummarizedExperiment(incoming)
 })
 
 ###############################################################
