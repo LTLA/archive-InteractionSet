@@ -1,5 +1,5 @@
 ###############################################################
-# This defines the findOverlaps method for InteractionSet objects.
+# This defines the findOverlaps method for GInteractions objects.
 
 .get_used <- function(iset) {
     all1 <- anchors(iset, type="first", id=TRUE)
@@ -55,7 +55,7 @@
     return(out)
 }
 
-setMethod("findOverlaps", c(query="InteractionSet", subject="GRanges"), 
+setMethod("findOverlaps", c(query="GInteractions", subject="GRanges"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
@@ -71,7 +71,7 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="GRanges"),
     }
 )
 
-setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
+setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
@@ -114,7 +114,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="InteractionSet"),
     return(out)
 }
 
-setMethod("findOverlaps", c(query="InteractionSet", subject="GRangesList"), 
+setMethod("findOverlaps", c(query="GInteractions", subject="GRangesList"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
@@ -130,7 +130,7 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="GRangesList"),
     }
 )
 
-setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
+setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
@@ -191,7 +191,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="InteractionSet"),
     return(out)
 }
 
-setMethod("findOverlaps", c(query="InteractionSet", subject="InteractionSet"),
+setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
@@ -208,7 +208,7 @@ setMethod("findOverlaps", c(query="InteractionSet", subject="InteractionSet"),
 ###############################################################
 # This defines the countOverlaps method.
 
-setMethod("countOverlaps", c(query="InteractionSet", subject="GRanges"), 
+setMethod("countOverlaps", c(query="GInteractions", subject="GRanges"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -221,7 +221,7 @@ setMethod("countOverlaps", c(query="InteractionSet", subject="GRanges"),
     }
 )
 
-setMethod("countOverlaps", c(query="GRanges", subject="InteractionSet"),
+setMethod("countOverlaps", c(query="GRanges", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -234,7 +234,7 @@ setMethod("countOverlaps", c(query="GRanges", subject="InteractionSet"),
     }
 )
 
-setMethod("countOverlaps", c(query="InteractionSet", subject="GRangesList"),
+setMethod("countOverlaps", c(query="GInteractions", subject="GRangesList"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -246,7 +246,7 @@ setMethod("countOverlaps", c(query="InteractionSet", subject="GRangesList"),
     }
 )
 
-setMethod("countOverlaps", c(query="GRangesList", subject="InteractionSet"),
+setMethod("countOverlaps", c(query="GRangesList", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -258,7 +258,7 @@ setMethod("countOverlaps", c(query="GRangesList", subject="InteractionSet"),
     }
 )
 
-setMethod("countOverlaps", c(query="InteractionSet", subject="InteractionSet"),
+setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -274,11 +274,11 @@ setMethod("countOverlaps", c(query="InteractionSet", subject="InteractionSet"),
 # This defines the overlapsAny method.
 
 for (siglist in list(
-        c(query="InteractionSet", subject="GRanges"), 
-        c(query="GRanges", subject="InteractionSet"),
-        c(query="InteractionSet", subject="GRangesList"),
-        c(query="GRangesList", subject="InteractionSet"),
-        c(query="InteractionSet", subject="InteractionSet")
+        c(query="GInteractions", subject="GRanges"), 
+        c(query="GRanges", subject="GInteractions"),
+        c(query="GInteractions", subject="GRangesList"),
+        c(query="GRangesList", subject="GInteractions"),
+        c(query="GInteractions", subject="GInteractions")
     )) { 
     setMethod("overlapsAny", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
@@ -294,10 +294,10 @@ for (siglist in list(
 # This defines the subsetByOverlaps method.
 
 for (siglist in list(
-        c(query="InteractionSet", subject="GRanges"), 
-        c(query="GRanges", subject="InteractionSet"),
-        c(query="InteractionSet", subject="GRangesList"),
-        c(query="InteractionSet", subject="InteractionSet")
+        c(query="GInteractions", subject="GRanges"), 
+        c(query="GRanges", subject="GInteractions"),
+        c(query="GInteractions", subject="GRangesList"),
+        c(query="GInteractions", subject="GInteractions")
     )) { 
     setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
@@ -308,7 +308,7 @@ for (siglist in list(
     })
 }
 
-setMethod("subsetByOverlaps", c(query="GRangesList", subject="InteractionSet"), 
+setMethod("subsetByOverlaps", c(query="GRangesList", subject="GInteractions"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
@@ -320,6 +320,80 @@ setMethod("subsetByOverlaps", c(query="GRangesList", subject="InteractionSet"),
         return(query)
     }
 )
+
+###############################################################
+# Defining corresponding functions for InteractionSet objects.
+    
+olap.fun.gen <- function(first, second, fun, other.args) {
+    if (first && second) {
+        internals <- "query=interactions(query), subject=interactions(subject)"
+    } else if (first) { 
+        internals <- "query=interactions(query), subject=subject"
+    } else {
+        internals <- "query=query, subject=interactions(subject)"
+    }
+    
+    all.others <- names(other.args)
+    if ("..."  %in% all.others) {  # Just in case.
+        ellipsis <- TRUE
+        all.others <- setdiff(all.others, "...") 
+    } else { 
+        ellipsis <- FALSE 
+    }
+    
+    combined <- paste(paste(all.others, "=", all.others), collapse=", ")
+    if (ellipsis) { combined <- paste(combined, ", ...") }
+    full.call <- sprintf("%s(%s, %s)", fun, internals, combined)
+                                           
+    out <- function() { }
+    formals(out) <- c(alist(query=, subject=), other.args)
+    body(out) <- parse(text=full.call)
+    return(out)
+}
+
+for (siglist in list(
+        c(query="InteractionSet", subject="GRanges"), 
+        c(query="GRanges", subject="InteractionSet"),
+        c(query="InteractionSet", subject="GRangesList"),
+        c(query="GRangesList", subject="InteractionSet"),
+        c(query="InteractionSet", subject="InteractionSet")
+    )) {
+    first.IS <- siglist[["query"]]=="InteractionSet"
+    second.IS <- siglist[["subject"]]=="InteractionSet"
+    setMethod("overlapsAny", siglist, olap.fun.gen(first.IS, second.IS, "overlapsAny", 
+             alist(maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             algorithm=c("nclist", "intervaltree"),
+             ignore.strand=TRUE)))
+    setMethod("countOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "countOverlaps", 
+             alist(maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             algorithm=c("nclist", "intervaltree"),
+             ignore.strand=TRUE)))
+    setMethod("findOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "findOverlaps", 
+             alist(maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
+             algorithm=c("nclist", "intervaltree"),
+             ignore.strand=TRUE)))
+
+    if (first.IS) {
+        # Special treatment here, otherwise it'll return a GInteractions.
+        setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
+            type=c("any", "start", "end", "within", "equal"),
+            algorithm=c("nclist", "intervaltree"),
+            ignore.strand=TRUE) {
+            query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap,
+                              type=type, algorithm=algorithm, ignore.strand=ignore.strand),]
+        })
+    } else {
+        setMethod("subsetByOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "subsetByOverlaps", 
+            alist(maxgap=0L, minoverlap=1L, 
+            type=c("any", "start", "end", "within", "equal"),
+            algorithm=c("nclist", "intervaltree"),
+            ignore.strand=TRUE)))
+    }
+}
 
 ###############################################################
 # End

@@ -19,12 +19,10 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
     }
 }
 
-
-setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, ...) {
+setMethod("inflate", "GInteractions", function(x, rows, columns, fill) {
     row.chosen <- .make_to_indices(regions(x), rows, ...)
     col.chosen <- .make_to_indices(regions(x), columns, ...)
-    if (length(fill)==0L) { fill <- assay(x, assay)[,sample] }
-    else { fill <- rep(fill, length.out=nrow(x)) }
+    fill <- rep(fill, length.out=nrow(x))
      
     # Removing duplicated rows and resorting (we'll put them back in later)
     ro <- order(row.chosen)
@@ -70,6 +68,11 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
 
     return(ContactMatrix(out.mat[original.rows,original.cols,drop=FALSE], 
                 row.chosen[original.rows], col.chosen[original.cols], regions(x)))
+})
+ 
+setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, ...) {
+    if (length(fill)==0L) { fill <- assay(x, assay)[,sample] }
+    inflate(interactions(x), rows, columns, ...)
 })
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })

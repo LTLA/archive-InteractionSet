@@ -3,53 +3,28 @@
 # This allows us to avoid re-defining various standard functions.
 
 setClass("InteractionSet", 
-     contains="SummarizedExperiment0",
-     representation(
-         anchor1="integer",
-         anchor2="integer",
-         regions="GRanges"
-     ),
-     prototype(
-         anchor1=integer(0),
-         anchor2=integer(0),
-         regions=GRanges()
-     )
+    contains="SummarizedExperiment0",
+    representation(
+        interactions="GInteractions"
+    ),
+    prototype(
+        interactions=GInteractions()
+    )
 )
 
-.check_inputs <- function(anchor1, anchor2, regions, same.length=TRUE) {
-    if (!all(is.finite(anchor1)) || !all(is.finite(anchor2))) { 
-        return("all anchor indices must be finite integers")
-    }
-    if (!all(anchor1 >= 1L) || !all(anchor2 >= 1L)) {
-        return('all anchor indices must be positive integers')
-    } 
-    nregs <- length(regions)
-    if ( !all(anchor1 <= nregs) || !all(anchor2 <= nregs)) {
-        return("all anchor indices must refer to entries in 'regions'")
-    } 
-    if (same.length && length(anchor1)!=length(anchor2)) { 
-        return("first and second anchor vectors have different lengths")
-    }
-    return(TRUE)
-}
-
 setValidity("InteractionSet", function(object) {
-    if (is.unsorted(object@regions)) { # Don't move into .check_inputs, as resorting comes after checking validity in various methods.
-        return("'regions' should be sorted")
-    }
-    msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
-    if (is.character(msg)) { return(msg) }
-
     if (nrow(object@assays)!=length(object@anchor1)) {
         return("'assay' nrow differs from length of anchor vectors")
     } 
-
     if (ncol(object@assays)!=nrow(object@colData)) {
         return("'assay' ncol differs from 'colData' nrow")
     }
-    if (!all(object@anchor1 >= object@anchor2)) { 
-        return('first anchors cannot be less than the second anchor')
+
+    msg <- validObject(object@interactions)
+    if (is.character(msg)) { 
+        return(msg)
     }
+
     return(TRUE)
 })
 
@@ -61,109 +36,31 @@ setMethod("show", signature("InteractionSet"), function(object) {
 ###############################################################
 # Constructors
 
-.enforce_order <- function(anchor1, anchor2) {
-    swap <- anchor2 > anchor1
-    if (any(swap)) { 
-        temp <- anchor1[swap]
-        anchor1[swap] <- anchor2[swap]
-        anchor2[swap] <- temp
-    }
-    return(list(anchor1=anchor1, anchor2=anchor2))   
-}
-
-.resort_regions <- function(anchor1, anchor2, regions, enforce.order=TRUE) {
-    if (is.unsorted(regions)) { 
-        o <- order(regions)
-        new.pos <- seq_along(o)
-        new.pos[o] <- new.pos
-        anchor1 <- new.pos[anchor1]
-        anchor2 <- new.pos[anchor2]
-        regions <- regions[o]
-    }
-    if (enforce.order) { 
-        out <- .enforce_order(anchor1, anchor2)
-        anchor1 <- out$anchor1
-        anchor2 <- out$anchor2
-    }
-    return(list(anchor1=anchor1, anchor2=anchor2, regions=regions)) 
-}
-
-.new_InteractionSet <- function(assays, anchor1, anchor2, regions, colData, metadata) {
-    elementMetadata <- new("DataFrame", nrows=length(anchor1))
+.new_InteractionSet <- function(assays, interactions, colData, metadata) {
+    elementMetadata <- new("DataFrame", nrows=length(interactions))
     if (!is(assays, "Assays")) { 
         assays <- Assays(assays)
     }
     if (ncol(colData)==0L) { colData <- new("DataFrame", nrows=ncol(assays)) } # If empty, we fill it.
 
-    # Checking odds and ends.
-    anchor1 <- as.integer(anchor1)
-    anchor2 <- as.integer(anchor2)
-    msg <- .check_inputs(anchor1, anchor2, regions)
-    if (is.character(msg)) { stop(msg) }
-
-    out <- .resort_regions(anchor1, anchor2, regions)
-    anchor1 <- out$anchor1
-    anchor2 <- out$anchor2
-    regions <- out$regions
-
     new("InteractionSet", 
-        anchor1=anchor1,
-        anchor2=anchor2,
-        regions=regions,
+        interactions=interactions,
         colData=colData,
         assays=assays,
         elementMetadata=elementMetadata,
         metadata=as.list(metadata))
 }
 
-setGeneric("InteractionSet", function(assays, anchor1, anchor2, ...) { standardGeneric("InteractionSet") })
-setMethod("InteractionSet", c("ANY", "numeric", "numeric"),
-    function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
-        .new_InteractionSet(assays, anchor1=anchor1, anchor2=anchor2, 
-            regions=regions, colData=colData, metadata=metadata)
+setGeneric("InteractionSet", function(assays, interactions, ...) { standardGeneric("InteractionSet") })
+setMethod("InteractionSet", c("ANY", "GInteractions"),
+    function(assays, interactions, colData=DataFrame(), metadata=list()) {
+        .new_InteractionSet(assays, interactions, colData=colData, metadata=metadata)
    }
 )
 
-.collate_GRanges <- function(...) {
-    incoming <- list(...)
-    obj.dex <- rep(factor(seq_along(incoming)), lengths(incoming))
-    combined <- do.call(c, incoming)
-    refdex <- seq_along(combined)
-    
-    # Sorting and re-indexing.
-    o <- order(combined)
-    new.pos <- seq_along(combined)
-    new.pos[o] <- new.pos
-    refdex <- new.pos[refdex]
-    combined <- combined[o]
-
-    # Removing duplicates and re-indexing.
-    is.first <- !duplicated(combined)
-    new.pos <- cumsum(is.first)
-    combined <- combined[is.first]
-    refdex <- new.pos[refdex]    
-    return(list(indices=split(refdex, obj.dex), ranges=combined))
-}
-
-setMethod("InteractionSet", c("ANY", "GRanges", "GRanges"), 
-    function(assays, anchor1, anchor2, regions, colData=DataFrame(), metadata=list()) {
-
-        # Making unique regions to save space (metadata is ignored)
-        if (missing(regions)) {
-            collated <- .collate_GRanges(anchor1, anchor2)
-            regions <- collated$ranges
-            anchor1 <- collated$indices[[1]]
-            anchor2 <- collated$indices[[2]]
-        } else {
-            anchor1 <- match(anchor1, regions)
-            anchor2 <- match(anchor2, regions)
-            if (any(is.na(anchor1)) || any(is.na(anchor2))) {
-                stop("anchor regions missing in specified 'regions'")
-            }
-        }
-
-       .new_InteractionSet(assays, anchor1=anchor1, anchor2=anchor2, 
-            regions=regions, colData=colData, metadata=metadata)
+setMethod("InteractionSet", c("missing", "missing"),
+    function(assays, interactions, colData=DataFrame(), metadata=list()) {
+        .new_InteractionSet(list(), GInteractions(), colData=colData, metadata=metadata)
    }
 )
 

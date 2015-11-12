@@ -31,13 +31,17 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
     return(output)
 }
 
-setMethod("pairdist", "InteractionSet", function(x, type="mid") 
+setMethod("pairdist", "GInteractions", function(x, type="mid") 
 # Outputs an integer vector specifying the distance between the interacting bins,
 # depending on the type of distance specified.
 {
     ai1 <- anchors(x, type="first", id=TRUE)
     ai2 <- anchors(x, type="second", id=TRUE)
     .get_dist_output(regions(x), ai1, ai2, type)
+})
+
+setMethod("pairdist", "InteractionSet", function(x, type="mid") { 
+    pairdist(interactions(x), type=type) 
 })
 
 setMethod("pairdist", "ContactMatrix", function(x, type="mid") 
@@ -53,6 +57,7 @@ setMethod("pairdist", "ContactMatrix", function(x, type="mid")
 })
 
 setGeneric("intrachr", function(x) { standardGeneric("intrachr") })
+setMethod("intrachr", "GInteractions", function(x) { pairdist(x, type="intra") })
 setMethod("intrachr", "InteractionSet", function(x) { pairdist(x, type="intra") })
 setMethod("intrachr", "ContactMatrix", function(x) { pairdist(x, type="intra") })
 

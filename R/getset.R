@@ -5,8 +5,8 @@ setGeneric("anchors", function(x, ...) { standardGeneric("anchors") })
 setGeneric("regions", function(x, ...) { standardGeneric("regions") })
 
 # A generating function, to capture differences in 'type' for 'anchors' call.
-anchor.fun.gen <- function(is.IS) { 
-    if (is.IS) { 
+anchor.fun.gen <- function(is.GI) { 
+    if (is.GI) { 
         type.arg <- c("both", "first", "second") 
     } else {
         type.arg <- c("both", "row", "column") 
@@ -41,10 +41,10 @@ anchor.fun.gen <- function(is.IS) {
 }
 
 # Defining the methods:
-setMethod("anchors", "InteractionSet", anchor.fun.gen(TRUE))
+setMethod("anchors", "GInteractions", anchor.fun.gen(TRUE))
 setMethod("anchors", "ContactMatrix", anchor.fun.gen(FALSE))
 
-for (siglist in list("InteractionSet", "ContactMatrix")) {
+for (siglist in list("GInteractions", "ContactMatrix")) {
     setMethod("regions", siglist, function(x) { x@regions })
 }
 
@@ -67,7 +67,7 @@ region.fun.gen <- function(enforce.order) {
     }
 }
 
-setReplaceMethod("regions", "InteractionSet", region.fun.gen(TRUE))
+setReplaceMethod("regions", "GInteractions", region.fun.gen(TRUE))
 setReplaceMethod("regions", "ContactMatrix", region.fun.gen(FALSE))
 
 # Also allow setting of regions of different length.
@@ -91,17 +91,16 @@ newRegion.fun.gen <- function(enforce.order) {
     }
 }
 
-setReplaceMethod("newRegions", "InteractionSet", newRegion.fun.gen(TRUE))
+setReplaceMethod("newRegions", "GInteractions", newRegion.fun.gen(TRUE))
 setReplaceMethod("newRegions", "ContactMatrix", newRegion.fun.gen(FALSE))
 
 ###############################################################
-
 # 'anchors<-' is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
 # nor is there any need to enforce 'anchor1 >= anchor2' in "ContactMatrix" objects.
 
 setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 
-setReplaceMethod("anchors", "InteractionSet", function(x, value) {
+setReplaceMethod("anchors", "GInteractions", function(x, value) {
     if (length(value)!=2L) { 
         stop("'value' must be a list of 2 numeric vectors")
     }
@@ -124,6 +123,36 @@ setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
     x@anchor1 <- as.integer(value[[1]])
     x@anchor2 <- as.integer(value[[2]])
     validObject(x)
+    return(x)
+})
+
+###############################################################
+# Methods on InteractionSet that operate on GInteractions.
+
+setGeneric("interactions", function(x, ...) { standardGeneric("interactions") })
+setMethod("interactions", "InteractionSet", function(x) { return(x@interactions) })
+
+setGeneric("interactions<-", function(x, value) { standardGeneric("interactions<-") })
+setReplaceMethod("interactions", "InteractionSet", function(x, value) { 
+    x@interactions <- value
+    return(x)
+}) 
+
+setMethod("anchors", "InteractionSet", function(x, ...) { anchors(x@interactions, ...) })
+setMethod("regions", "InteractionSet", function(x, ...) { regions(x@interactions, ...) })
+
+setReplaceMethod("anchors", "InteractionSet", function(x, value) { 
+    anchors(x@interactions) <- value 
+    return(x)
+})
+
+setReplaceMethod("regions", "InteractionSet", function(x, value) { 
+    regions(x@interactions) <- value
+    return(x)
+})
+
+setReplaceMethod("newRegions", "InteractionSet", function(x, value) { 
+    newRegions(x@interactions) <- value
     return(x)
 })
 
