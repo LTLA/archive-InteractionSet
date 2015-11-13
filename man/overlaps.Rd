@@ -107,7 +107,7 @@ Find overlaps between interactions and linear intervals, between interactions an
 }
 }
 
-\section{Details: GInteractions}{
+\section{Details for GInteractions}{
 For all methods taking a GRanges and an GInteractions, 
     an overlap will be defined between a GRanges interval and an GInteractions interaction if either interacting region of the latter overlaps that interval.
 
@@ -134,7 +134,7 @@ Note that, unlike the \code{findOverlaps} method for \code{GRanges} objects, str
 This is due to the typical use of GInteractions objects to represent interactions between unstranded genomic regions rather than stranded transcripts.
 }
 
-\section{Details: InteractionSet}{
+\section{Details for InteractionSet}{
 The behaviour of each method for InteractionSet objects is largely the same as that described for GInteractions objects.
 For a given InteractionSet object \code{x}, the corresponding method is called on the GInteractions object in the \code{interactions} slot of \code{x}.
 The return value is identical to that from calling the method on \code{interactions(x)}, except for \code{subsetByOverlaps} for InteractionSet queries

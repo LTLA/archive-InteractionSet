@@ -9,7 +9,7 @@
 \title{Convert between classes}
 
 \description{
-Inflate an InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an InteractionSet.
+Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a ContactMatrix to an InteractionSet.
 }
 
 \usage{
@@ -67,9 +67,9 @@ Each entry of \code{fill} corresponds to an interaction in \code{x} is used to s
 Some entries of the matrix will correspond to pairwise interactions that are not present in the InteractionSet - these are filled with \code{NA} values.
 If duplicated interactions are present in \code{x}, only the first interaction will be used.
  
-For the InteractionSet method, values in the matrix are filled in based on the assay values.
+For the InteractionSet \code{inflate} method, values in the matrix are filled in based on the assay values by default.
 For more complex \code{x}, values from different assays and samples can be extracted using the \code{assay} and \code{sample} arguments.
-Note that if \code{fill} is specified, it will override any assay extraction.
+Note that if \code{fill} is specified, it will override any extraction of values from the assays.
 
 The \code{deflate} method will return an InteractionSet where each non-\code{NA} entry in the ContactMatrix is converted into a pairwise interaction.
 The values of all matrix entries are stored as a one-sample assay.
