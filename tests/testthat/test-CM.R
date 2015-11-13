@@ -105,6 +105,13 @@ newRegions(x.dump) <- new.ranges
 expect_identical(anchors(x.dump), anchors(x))
 expect_error(newRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
 
+x.dump <- x
+new.mat <- matrix(sample(N, Nr*Nc, replace=TRUE), Nr, Nc)
+as.matrix(x.dump) <- new.mat
+expect_identical(new.mat, as.matrix(x.dump))
+as.matrix(x.dump) <- 1:Nr
+expect_equal(as.matrix(x.dump), matrix(1:Nr, Nr, Nc))
+
 # Testing the subsetting.
 
 rchosen <- 1:5
@@ -144,6 +151,30 @@ expect_that(anchors(xsub, type="column"), is_identical_to(new.regions[new.anchor
 
 expect_that(nrow(x[0,]), is_identical_to(0L))
 expect_that(ncol(x[,0]), is_identical_to(0L))
+
+# Testing subset assignments
+
+temp.x <- x
+temp.x[rchosen+5,] <- x[rchosen,]
+new.index <- seq_len(nrow(x))
+new.index[rchosen+5] <- rchosen
+expect_equal(as.matrix(temp.x), as.matrix(x)[new.index,])
+expect_equal(anchors(temp.x, type="row"), anchors(x, type="row")[new.index,])
+expect_equal(anchors(temp.x, type="column"), anchors(x, type="column"))
+
+temp.x <- x
+temp.x[,cchosen-9,] <- x[,cchosen]
+new.index <- seq_len(ncol(x))
+new.index[cchosen-9] <- cchosen
+expect_equal(as.matrix(temp.x), as.matrix(x)[,new.index])
+expect_equal(anchors(temp.x, type="row"), anchors(x, type="row"))
+expect_equal(anchors(temp.x, type="column"), anchors(x, type="column")[new.index,])
+
+temp.x <- x
+temp.x[0,] <- x[0,]
+expect_identical(temp.x, x)
+temp.x[,0] <- x[,0]
+expect_identical(temp.x, x)
 
 # Testing the combining.
 
