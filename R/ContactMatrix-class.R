@@ -124,7 +124,7 @@ setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRU
     return(x)
 }) 
 
-setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, i, j, value) {
+setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, i, j, ..., value) {
     if (!missing(i)) { 
         x@anchor1[i] <- value@anchor1
     }

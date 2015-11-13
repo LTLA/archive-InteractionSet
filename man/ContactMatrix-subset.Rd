@@ -19,7 +19,7 @@ Methods to subset or combine ContactMatrix objects.
 ### Subsetting
 
 \S4method{[}{ContactMatrix,ANY,ANY}(x, i, j, ..., drop=TRUE)
-\S4method{[}{ContactMatrix,ANY,ANY}(x, i, j, ..., drop=TRUE) <- value
+\S4method{[}{ContactMatrix,ANY,ANY,ContactMatrix}(x, i, j, ...) <- value
 \S4method{subset}{ContactMatrix}(x, i, j)
 
 ### Combining
