@@ -73,7 +73,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 }
 }
 
-\section{Details: GInteractions}{
+\section{Details for GInteractions}{
 The return value of \code{anchors} varies depending on \code{type} and \code{id}.
 If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
     for \code{type=="first"} or \code{"second"}, respectively.
@@ -96,7 +96,7 @@ The \code{show} method will print out the class, the number of pairwise interact
 The number and names of the various metadata fields will also be printed.
 }
 
-\section{Details: InteractionSet}{
+\section{Details for InteractionSet}{
 Almost all InteractionSet methods operate by calling the equivalent method for the GInteractions object, and returning the resulting value.
 The only exception is \code{interactions}, which returns the GInteractions object in the \code{interactions} slot of the InteractionSet object.
 This slot can also be set by supplying a valid GInteractions object in \code{interactions<-}.
@@ -111,7 +111,7 @@ Note that getting or setting of \code{mcols} or \code{metadata} will use the fie
 If the latter is desired, these functions should be applied after extracting the GInteractions object with \code{interactions(x)}.
 }
 
-\section{Handling metadata}{
+\section{Handling different metadata}{
 Note that there are several options for metadata - experiment-wide metadata, which goes into \code{metadata(x)<-};
     region-specific metadata (e.g., adjacent genes, promoter/enhancer identity, GC content), which goes into \code{elementMetadata(regions(x))<-};
     and interaction-specific metadata (e.g., interaction distance, interaction type), which goes directly into \code{mcols(x)<-}.

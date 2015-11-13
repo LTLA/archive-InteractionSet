@@ -86,7 +86,7 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \item{recursive}{An integer scalar, ignored.}
 }
 
-\section{Details: GInteractions}{
+\section{Details for GInteractions}{
 Subsetting operations will return a GInteractions object containing the specified interactions.
 Values of the \code{anchor1} and \code{anchor2} slots will be appropriately subsetted in the returned object, along with any metadata in \code{mcols}.
 However, note that the value of \code{regions} will not be modified by subsetting.
@@ -101,7 +101,7 @@ Note that in both methods, the column names in \code{mcols} must be identical ac
 Each GInteractions object contains all rows associated with the corresponding level of \code{f}. 
 }
 
-\section{Details: InteractionSet}{
+\section{Details for InteractionSet}{
 Subsetting behaves in much the same way as that for the SummarizedExperiment0 class.
 Interactions are treated as rows and will be subsetted as such.
 All subsetting operations will return an InteractionSet with the specified interactions (rows) or samples (columns).
