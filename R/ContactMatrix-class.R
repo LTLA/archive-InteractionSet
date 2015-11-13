@@ -104,6 +104,12 @@ setMethod("as.matrix", "ContactMatrix", function(x) {
     return(x@matrix)
 }) 
 
+setGeneric("as.matrix<-", function(x, ..., value) { standardGeneric("as.matrix<-") });
+setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
+    x@matrix[] <- value
+    return(x)
+}) 
+
 ##############################################
 # Subsetting
 
@@ -117,6 +123,17 @@ setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRU
     x@matrix <- x@matrix[i,j,drop=FALSE]
     return(x)
 }) 
+
+setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, i, j, value) {
+    if (!missing(i)) { 
+        x@anchor1[i] <- value@anchor1
+    }
+    if (!missing(j)) { 
+        x@anchor2[j] <- value@anchor2
+    }
+    x@matrix[i,j] <- value@matrix
+    return(x)
+})
 
 setMethod("subset", "ContactMatrix", function(x, i, j) {
     x[i,j]

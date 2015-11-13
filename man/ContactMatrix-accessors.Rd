@@ -13,6 +13,9 @@
 \alias{as.matrix,ContactMatrix-method}
 \alias{t,ContactMatrix-method}
 
+\alias{as.matrix<-}
+\alias{as.matrix<-,ContactMatrix-method}
+
 \alias{dim,ContactMatrix-method}
 \alias{dimnames,ContactMatrix-method}
 \alias{dimnames<-,ContactMatrix-method}
@@ -35,6 +38,7 @@ Methods to get and set fields in an ContactMatrix object.
 
 \S4method{show}{ContactMatrix}(x)
 \S4method{as.matrix}{ContactMatrix}(x)
+\S4method{as.matrix}{ContactMatrix}(x) <- value
 \S4method{t}{ContactMatrix}(x)
 
 \S4method{dim}{ContactMatrix}(x)
@@ -51,29 +55,32 @@ Methods to get and set fields in an ContactMatrix object.
 \item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
 
 \item{value}{
-    For \code{anchors<-,ContactMatrix-method}, a list of two integer vectors.
+    For \code{anchors<-}, a list of two integer vectors.
     The first and second vectors must have length equal to the number of rows and columns of \code{x}, respectively.
 
-    For \code{regions<-,ContactMatrix-method}, a GRanges object of length equal to that of \code{regions(x)}.
+    For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
     
-    For \code{newRegions<-,ContactMatrix-method}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
+    For \code{newRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
 
-    For \code{dimnames<-,ContactMatrix-method}, a list of two character vectors corresponding to the row and column names, respectively.
+    For \code{as.matrix<-}, any value or vector that can be used to replace the existing matrix entries.
+    
+    For \code{dimnames<-}, a list of two character vectors corresponding to the row and column names, respectively.
+    These can also be passed separately via \code{rownames<-} and \code{colnames<-}.
 }
 }
 
 \details{
-The return value of \code{anchors,ContactMatrix-method} varies depending on \code{type} and \code{id}.
+The return value of \code{anchors} varies depending on \code{type} and \code{id}.
 If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
     for \code{type=="row"} or \code{"column"}, respectively.
 If \code{type="both"}, a GRangesList will be returned with two entries - \code{row} and \code{column}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
     
 However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly 
     (a list of length two is returned for \code{type="both"}, containing both of the vectors).
-Replacement in \code{anchors<-,ContactMatrix-method} can only be performed using a list of two integer vectors in \code{value}.
+Replacement in \code{anchors<-} can only be performed using a list of two integer vectors in \code{value}.
    
-For \code{regions,ContactMatrix-method}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
-For \code{regions<-,ContactMatrix-method}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
+For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
+For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
 The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 

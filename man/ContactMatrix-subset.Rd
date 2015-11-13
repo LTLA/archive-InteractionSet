@@ -3,6 +3,7 @@
 
 \alias{[,ContactMatrix,ANY-method}
 \alias{[,ContactMatrix,ANY,ANY-method}
+\alias{[<-,ContactMatrix,ANY,ANY,ContactMatrix-method}
 \alias{subset,ContactMatrix-method}
 
 \alias{cbind,ContactMatrix-method}
@@ -18,6 +19,7 @@ Methods to subset or combine ContactMatrix objects.
 ### Subsetting
 
 \S4method{[}{ContactMatrix,ANY,ANY}(x, i, j, ..., drop=TRUE)
+\S4method{[}{ContactMatrix,ANY,ANY}(x, i, j, ..., drop=TRUE) <- value
 \S4method{subset}{ContactMatrix}(x, i, j)
 
 ### Combining
@@ -38,6 +40,10 @@ Methods to subset or combine ContactMatrix objects.
 
 \item{drop}{
     A logical scalar, ignored by \code{[,ContactMatrix,ANY,ANY-method}.
+}
+
+\item{value}{
+    A ContactMatrix object with dimensions equal to the length of the two subscripts (or the corresponding dimensions of \code{x}, if either subscript is missing.
 }
 
 \item{deparse.level}{An integer scalar; see \code{?base::\link[base]{cbind}} for a description of this argument.}
@@ -62,6 +68,10 @@ example(ContactMatrix, echo=FALSE)
 x[1:5,]
 x[,10:15]
 x[1:5,10:15]
+
+x2 <- x
+x2[1:5,] <- x[6:10,]
+as.matrix(x2[,1]) <- 20
 
 # Combining
 cbind(x, x)

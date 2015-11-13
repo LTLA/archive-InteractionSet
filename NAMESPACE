@@ -15,7 +15,9 @@ exportMethods(
     "interactions<-",
     pairdist, intrachr,
     linearize,
-    ContactMatrix, inflate, deflate
+    ContactMatrix, 
+    "as.matrix<-",
+    inflate, deflate
 )
 
 # Requires several imports.
