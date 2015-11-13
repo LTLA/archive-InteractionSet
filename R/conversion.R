@@ -6,7 +6,7 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
     nregs <- length(regs)
     if (is.numeric(i)) { 
         i <- as.integer(i)
-        if (any(!is.finite(i)) || any(i<=0L) || any(i >= nregs)) { 
+        if (any(!is.finite(i)) || any(i<=0L) || any(i > nregs)) { 
             stop("indices must be positive integers no greater than 'length(regions(x))'") 
         }
         return(i)
