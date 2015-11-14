@@ -61,7 +61,7 @@ scat <- function(fmt, vals=character(), exdent=2, ...) {
 setMethod("show", signature("GInteractions"), function(object) {
     cat("class:", class(object), "\n")
     cat("pairs:", length(object@anchor1), "\n")
-    cat(sprintf("regions: %i\n", length(object@regions)))
+    cat("regions:", length(object@regions), "\n")
 
     expt <- names(metadata(object))
     if (is.null(expt))
@@ -72,8 +72,6 @@ setMethod("show", signature("GInteractions"), function(object) {
     fmt <- "metadata column names(%d): %s\n"
     scat(fmt, mcolnames)
 })
-
-setMethod("nrow", signature("GInteractions"), function(x) { length(x) })
 
 ###############################################################
 # Constructors
@@ -179,6 +177,22 @@ setMethod("GInteractions", c("GRanges", "GRanges"),
 setMethod("GInteractions", c("missing", "missing"),
     function(anchor1, anchor2, regions=GRanges(), metadata=list()) {
         .new_GInteractions(integer(0), integer(0), regions, metadata)
+})
+
+###############################################################
+# Some getters and setters
+
+setMethod("nrow", signature("GInteractions"), function(x) { 
+    length(x) 
+})
+
+setMethod("$", "GInteractions", function(x, name) {
+    return(x@elementMetadata[[name]])
+})
+
+setReplaceMethod("$", "GInteractions", function(x, name, value) {
+    x@elementMetadata[[name]] <- value
+    return(x)
 })
 
 ###############################################################

@@ -89,7 +89,7 @@ gi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2],
 # Putting in metadata, elementMetadata
 temp.gi <- gi
 metadata(temp.gi)$name <- "My GI object"
-elementMetadata(temp.gi)$score <- runif(Np)
+mcols(temp.gi)$score <- runif(Np)
 }
 
 \author{

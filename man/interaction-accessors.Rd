@@ -32,6 +32,9 @@
 \alias{interactions<-}
 \alias{interactions<-,InteractionSet-method}
 
+\alias{$,GInteractions-method}
+\alias{$<-,GInteractions-method}
+
 \title{Interaction accessors}
 
 \description{
@@ -57,6 +60,9 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{show}{GInteractions}(x)
 \S4method{show}{InteractionSet}(x)
 
+\S4method{$}{InteractionSet}(x, name)
+\S4method{$}{InteractionSet}(x, name) <- value
+
 \S4method{interactions}{InteractionSet}(x)
 \S4method{interactions}{InteractionSet}(x) <- value
 }
@@ -67,6 +73,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \item{type}{a string specifying which anchors are to be extracted or replaced.}
 
 \item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
+
+\item{name}{a string indicating the field of \code{mcols} to be accessed or modified for a GInteractions object.}
 
 \item{value}{
     For \code{anchors<-}, a list of two integer vectors if \code{type="both"}, each of length equal to the number of rows in \code{x}.
@@ -123,9 +131,15 @@ If the latter is desired, these functions should be applied after extracting the
 
 \section{Handling different metadata}{
 Note that there are several options for metadata - experiment-wide metadata, which goes into \code{metadata(x)<-};
-    region-specific metadata (e.g., adjacent genes, promoter/enhancer identity, GC content), which goes into \code{elementMetadata(regions(x))<-};
+    region-specific metadata (e.g., adjacent genes, promoter/enhancer identity, GC content), which goes into \code{mcols(regions(x))<-};
     and interaction-specific metadata (e.g., interaction distance, interaction type), which goes directly into \code{mcols(x)<-}.
 This is applicable to both GInteractions and InteractionSet objects.
+In addition, library-specific data (e.g., library size) should be placed into \code{colData(x)<-} for InteractionSet objects.
+
+Users should take care with the differences in the \code{$} and \code{$<-} operators between classes.
+For GInteractions objects, this will access or modify fields in the \code{mcols} slot, i.e., for interaction-specific metadata.
+For InteractionSet objects, this will access or modify fields in the \code{colData} slot, i.e., for library-specific data.
+The differences in behaviour are due to the concept of libraries in the InteractionSet, which is lacking in the GInteractions class.
 }
 
 \examples{
@@ -152,12 +166,6 @@ anchors(gi, type="both") <- mod
 anchors(gi, type="first") <- mod[[1]]
 anchors(gi, type="first") <- mod[[2]]
 
-# Alternative with Hits:
-hits <- Hits(sample(nregs, length(gi), replace=TRUE),
-             sample(nregs, length(gi), replace=TRUE),
-             nregs, nregs)
-anchors(gi) <- as.data.frame(hits)[,1:2]
-
 # Accessing or modifying regions:
 regions(gi)
 regions(gi)$score <- runif(length(regions(gi)))
@@ -169,6 +177,10 @@ replaceRegions(gi) <- new.ranges # Succeeds
 length(regions(gi))
 appendRegions(gi) <- GRanges("chrA", IRanges(5:10+1000, 1100+5:10), score=runif(6))
 length(regions(gi))
+
+# Accessing or modifying metadata.
+gi$score <- runif(nrow(gi))
+mcols(gi)
 
 #################
 # Same can be done for an InteractionSet object:
@@ -188,6 +200,10 @@ mcols(iset)
 # Note the differences in metadata storage:
 metadata(iset)$name <- "metadata for SE0"
 metadata(interactions(iset))$name <- "metadata for GI"
+
+iset$lib.size <- runif(ncol(iset))*1e6
+colData(iset)
+mcols(iset) # untouched
 }
 
 \author{
