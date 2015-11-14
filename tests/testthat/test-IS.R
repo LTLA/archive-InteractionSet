@@ -110,9 +110,13 @@ x.dump <- x
 mod.ranges <- resize(regions(x), fix="center", width=50)
 new.ranges <- c(regions(x), mod.ranges) 
 expect_error(regions(x.dump) <- new.ranges, "assigned value must be of the same length")
-newRegions(x.dump) <- new.ranges
+replaceRegions(x.dump) <- new.ranges
 expect_identical(anchors(x.dump), anchors(x))
-expect_error(newRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
+expect_identical(sort(new.ranges), regions(x.dump))
+expect_error(replaceRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
+x.dump2 <- x
+appendRegions(x.dump2) <- mod.ranges
+expect_identical(regions(x.dump), regions(x.dump2))
 
 # Testing the subsetting.
 

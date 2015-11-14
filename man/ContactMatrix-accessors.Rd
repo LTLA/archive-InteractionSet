@@ -7,7 +7,8 @@
 \alias{regions,ContactMatrix-method}
 \alias{regions<-,ContactMatrix-method}
 
-\alias{newRegions<-,ContactMatrix-method}
+\alias{replaceRegions<-,ContactMatrix-method}
+\alias{appendRegions<-,ContactMatrix-method}
 
 \alias{show,ContactMatrix-method}
 \alias{as.matrix,ContactMatrix-method}
@@ -34,7 +35,8 @@ Methods to get and set fields in an ContactMatrix object.
 
 \S4method{regions}{ContactMatrix}(x)
 \S4method{regions}{ContactMatrix}(x) <- value
-\S4method{newRegions}{ContactMatrix}(x) <- value
+\S4method{replaceRegions}{ContactMatrix}(x) <- value
+\S4method{appendRegions}{ContactMatrix}(x) <- value
 
 \S4method{show}{ContactMatrix}(x)
 \S4method{as.matrix}{ContactMatrix}(x)
@@ -59,8 +61,8 @@ Methods to get and set fields in an ContactMatrix object.
     The first and second vectors must have length equal to the number of rows and columns of \code{x}, respectively.
 
     For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
-    
     For \code{newRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
+    For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
     For \code{as.matrix<-}, any value or vector that can be used to replace the existing matrix entries.
     
@@ -83,6 +85,7 @@ For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \c
 For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
 The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
+The \code{appendRegions} replacement method appends extra intervals to the existing \code{regions} slot of \code{x}.
 
 The \code{show} method will print out the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
 The \code{as.matrix} method will return the value of the \code{matrix} slot, containing the matrix of interaction data.
@@ -129,7 +132,11 @@ regions(x)$score <- runif(length(regions(x)))
 
 new.ranges <- c(regions(x), resize(regions(x), fix="center", width=50))
 try(regions(x) <- new.ranges) # Fails
-newRegions(x) <- new.ranges # Succeeds
+replaceRegions(x) <- new.ranges # Succeeds
+
+length(regions(x))
+appendRegions(x) <- GRanges("chrA", IRanges(5:10+1000, 1100+5:10), score=runif(6))
+length(regions(x))
 
 # Setting metadata
 metadata(x)$name <- "I am a contact matrix"

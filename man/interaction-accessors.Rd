@@ -15,9 +15,13 @@
 \alias{regions<-,InteractionSet-method}
 \alias{regions<-,GInteractions-method}
 
-\alias{newRegions<-}
-\alias{newRegions<-,InteractionSet-method}
-\alias{newRegions<-,GInteractions-method}
+\alias{replaceRegions<-}
+\alias{replaceRegions<-,InteractionSet-method}
+\alias{replaceRegions<-,GInteractions-method}
+
+\alias{appendRegions<-}
+\alias{appendRegions<-,InteractionSet-method}
+\alias{appendRegions<-,GInteractions-method}
 
 \alias{show}
 \alias{show,InteractionSet-method}
@@ -45,8 +49,10 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{regions}{GInteractions}(x) <- value
 \S4method{regions}{InteractionSet}(x) <- value
 
-\S4method{newRegions}{GInteractions}(x) <- value
-\S4method{newRegions}{InteractionSet}(x) <- value
+\S4method{replaceRegions}{GInteractions}(x) <- value
+\S4method{replaceRegions}{InteractionSet}(x) <- value
+\S4method{appendRegions}{GInteractions}(x) <- value
+\S4method{appendRegions}{InteractionSet}(x) <- value
 
 \S4method{show}{GInteractions}(x)
 \S4method{show}{InteractionSet}(x)
@@ -67,8 +73,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
     For all other \code{type}, an integer vector of length equal to the number of rows in \code{x}.
 
     For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
-    
-    For \code{newRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
+    For \code{replaceRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
+    For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
     For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.
 }
@@ -90,7 +96,8 @@ Swapping is performed automatically to ensure that the entries in the \code{anch
 For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
 For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
-The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
+The \code{replaceRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
+The \code{appendRegions} replacement method appends extra intervals to the existing \code{regions} slot of \code{x}.
 
 For access and setting of all other slots, see \code{\link{Vector-class}} for details on the appropriate methods.
 This includes \code{mcols} or \code{metadata}, to store interactions-specific or experiment-wide metadata, respectively.
@@ -157,7 +164,11 @@ regions(gi)$score <- runif(length(regions(gi)))
 
 new.ranges <- c(regions(gi), resize(regions(gi), fix="center", width=50))
 try(regions(gi) <- new.ranges) # Fails
-newRegions(gi) <- new.ranges # Succeeds
+replaceRegions(gi) <- new.ranges # Succeeds
+
+length(regions(gi))
+appendRegions(gi) <- GRanges("chrA", IRanges(5:10+1000, 1100+5:10), score=runif(6))
+length(regions(gi))
 
 #################
 # Same can be done for an InteractionSet object:
@@ -167,7 +178,7 @@ example(InteractionSet, echo=FALSE)
 anchors(iset)
 regions(iset)
 regions(iset)$score <- regions(gi)$score
-newRegions(iset) <- new.ranges
+replaceRegions(iset) <- new.ranges
 
 # Standard SE methods also available:
 colData(iset)

@@ -74,9 +74,9 @@ setReplaceMethod("regions", "ContactMatrix", region.fun.gen(FALSE))
 
 # Also allow setting of regions of different length.
 
-setGeneric("newRegions<-", function(x, value) { standardGeneric("newRegions<-") })
+setGeneric("replaceRegions<-", function(x, value) { standardGeneric("replaceRegions<-") })
 
-newRegion.fun.gen <- function(enforce.order) {
+replaceRegions.fun.gen <- function(enforce.order) {
     function(x, value) {
         converter <- match(regions(x), value)
         new.a1 <- converter[x@anchor1]
@@ -93,8 +93,25 @@ newRegion.fun.gen <- function(enforce.order) {
     }
 }
 
-setReplaceMethod("newRegions", "GInteractions", newRegion.fun.gen(TRUE))
-setReplaceMethod("newRegions", "ContactMatrix", newRegion.fun.gen(FALSE))
+setReplaceMethod("replaceRegions", "GInteractions", replaceRegions.fun.gen(TRUE))
+setReplaceMethod("replaceRegions", "ContactMatrix", replaceRegions.fun.gen(FALSE))
+
+# Append regions.
+
+setGeneric("appendRegions<-", function(x, value) { standardGeneric("appendRegions<-") })
+
+appendRegions.fun.gen <- function(enforce.order) {
+    function(x, value) {
+        out <- .resort_regions(x@anchor1, x@anchor2, c(x@regions, value), enforce.order=enforce.order)
+        x@anchor1 <- out$anchor1
+        x@anchor2 <- out$anchor2
+        x@regions <- out$regions
+        return(x)
+    }
+}
+
+setReplaceMethod("appendRegions", "GInteractions", appendRegions.fun.gen(TRUE))
+setReplaceMethod("appendRegions", "ContactMatrix", appendRegions.fun.gen(FALSE))
 
 ###############################################################
 # 'anchors<-' is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
@@ -176,8 +193,13 @@ setReplaceMethod("regions", "InteractionSet", function(x, value) {
     return(x)
 })
 
-setReplaceMethod("newRegions", "InteractionSet", function(x, value) { 
-    newRegions(x@interactions) <- value
+setReplaceMethod("replaceRegions", "InteractionSet", function(x, value) { 
+    replaceRegions(x@interactions) <- value
+    return(x)
+})
+
+setReplaceMethod("appendRegions", "InteractionSet", function(x, value) { 
+    appendRegions(x@interactions) <- value
     return(x)
 })
 

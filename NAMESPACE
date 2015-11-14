@@ -9,7 +9,7 @@ exportClasses(
 exportMethods(
     GInteractions,
     anchors, regions, 
-    "anchors<-", "regions<-", "newRegions<-",
+    "anchors<-", "regions<-", "replaceRegions<-",  "appendRegions<-",
     InteractionSet, 
     interactions,
     "interactions<-",
