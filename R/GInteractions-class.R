@@ -60,8 +60,7 @@ scat <- function(fmt, vals=character(), exdent=2, ...) {
 
 setMethod("show", signature("GInteractions"), function(object) {
     cat("class:", class(object), "\n")
-    cat("pairs:", length(object@anchor1), "\n")
-    cat("regions:", length(object@regions), "\n")
+    cat("length:", length(object@anchor1), "\n")
 
     expt <- names(metadata(object))
     if (is.null(expt))
@@ -71,6 +70,8 @@ setMethod("show", signature("GInteractions"), function(object) {
     mcolnames <- names(mcols(object))
     fmt <- "metadata column names(%d): %s\n"
     scat(fmt, mcolnames)
+    
+    cat("regions:", length(object@regions), "\n")
 })
 
 ###############################################################
