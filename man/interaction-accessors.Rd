@@ -32,8 +32,12 @@
 \alias{interactions<-}
 \alias{interactions<-,InteractionSet-method}
 
+\alias{nrow,GInteractions-method}
 \alias{$,GInteractions-method}
 \alias{$<-,GInteractions-method}
+
+\alias{mcols,InteractionSet-method}
+\alias{mcols<-,InteractionSet-method}
 
 \title{Interaction accessors}
 
@@ -57,6 +61,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{appendRegions}{GInteractions}(x) <- value
 \S4method{appendRegions}{InteractionSet}(x) <- value
 
+\S4method{nrow}{GInteractions}(x)
 \S4method{show}{GInteractions}(x)
 \S4method{show}{InteractionSet}(x)
 
@@ -65,6 +70,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 
 \S4method{interactions}{InteractionSet}(x)
 \S4method{interactions}{InteractionSet}(x) <- value
+\S4method{mcols}{InteractionSet}(x, use.names=FALSE)
+\S4method{mcols}{InteractionSet}(x) <- value
 }
 
 \arguments{
@@ -85,6 +92,12 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
     For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
     For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.
+    
+    For \code{mcols<-}, a DataFrame with number of rows equal to that in \code{x}.
+}
+
+\item{use.names}{
+    A logical scalar, see \code{?\link[S4Vectors]{mcols}} for more details.
 }
 }
 
@@ -109,6 +122,7 @@ The \code{appendRegions} replacement method appends extra intervals to the exist
 
 For access and setting of all other slots, see \code{\link{Vector-class}} for details on the appropriate methods.
 This includes \code{mcols} or \code{metadata}, to store interactions-specific or experiment-wide metadata, respectively.
+The \code{nrow} method is an alias for \code{length}, and will return the number of interactions stored in \code{x}.
 
 The \code{show} method will print out the class, the number of pairwise interactions, and the total number of regions in the GInteractions object.
 The number and names of the various metadata fields will also be printed.
@@ -136,10 +150,15 @@ Note that there are several options for metadata - experiment-wide metadata, whi
 This is applicable to both GInteractions and InteractionSet objects.
 In addition, library-specific data (e.g., library size) should be placed into \code{colData(x)<-} for InteractionSet objects.
 
-Users should take care with the differences in the \code{$} and \code{$<-} operators between classes.
+Users should take care with the differences in the \code{$} and \code{$<-} operators between these two classes.
 For GInteractions objects, this will access or modify fields in the \code{mcols} slot, i.e., for interaction-specific metadata.
 For InteractionSet objects, this will access or modify fields in the \code{colData} slot, i.e., for library-specific data.
 The differences in behaviour are due to the concept of libraries in the InteractionSet, which is lacking in the GInteractions class.
+
+For InteractionSet objects, the \code{mcols} getter and setter functions operate on the GInteractions object stored in \code{interactions} slot,
+    rather than accessing the \code{elementMetadata} slot of the SummarizedExperiment0 base class.
+This makes no difference for practical usage in the vast majority of cases, 
+    except that any metadata stored in this manner is carried over when the GInteractions object is extracted with \code{interactions(x)}.
 }
 
 \examples{
@@ -203,7 +222,11 @@ metadata(interactions(iset))$name <- "metadata for GI"
 
 iset$lib.size <- runif(ncol(iset))*1e6
 colData(iset)
-mcols(iset) # untouched
+mcols(iset) # untouched by "$" operator
+
+mcols(iset)$whee <- runif(nrow(iset))
+mcols(iset)
+mcols(interactions(iset)) # preserved
 }
 
 \author{

@@ -204,4 +204,30 @@ setReplaceMethod("appendRegions", "InteractionSet", function(x, value) {
 })
 
 ###############################################################
+# Defining some other getters and setters.
+
+
+setMethod("nrow", signature("GInteractions"), function(x) { 
+    length(x) 
+})
+
+setMethod("$", "GInteractions", function(x, name) {
+    return(x@elementMetadata[[name]])
+})
+
+setReplaceMethod("$", "GInteractions", function(x, name, value) {
+    x@elementMetadata[[name]] <- value
+    return(x)
+})
+
+setMethod("mcols", "InteractionSet", function(x, use.names=FALSE) {
+    mcols(interactions(x), use.names=use.names)
+})
+
+setReplaceMethod("mcols", "InteractionSet", function(x, ..., value) {
+    mcols(interactions(x), ...) <- value
+    return(x)
+})
+
+###############################################################
 # End
