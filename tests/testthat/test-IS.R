@@ -119,6 +119,7 @@ colnames: NULL
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
+expect_equal(xsub, x[rchosen])
 
 expect_that(assay(xsub), is_identical_to(assay(x)[rchosen,]))
 expect_that(regions(xsub), is_identical_to(regions(x)))
@@ -164,6 +165,29 @@ expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor
 expect_that(nrow(x[0,]), is_identical_to(0L))
 expect_that(ncol(x[,0]), is_identical_to(0L))
 
+# Testing subset assignment.
+
+temp.x <- x
+temp.x[1:5+10,] <- x[1:5,]
+new.index <- seq_len(nrow(x))
+new.index[1:5+10] <- 1:5
+expect_equal(assay(temp.x), assay(x)[new.index,])
+expect_identical(anchors(temp.x, type="first"), anchors(x, type="first")[new.index,])
+expect_identical(anchors(temp.x, type="second"), anchors(x, type="second")[new.index,])
+
+temp.x <- x
+temp.x[,1:2] <- x[,2:3]
+new.index <- seq_len(ncol(x))
+new.index[1:2] <- 2:3
+expect_equal(assay(temp.x), assay(x)[,new.index])
+expect_equal(anchors(temp.x), anchors(x))
+
+temp.x <- x
+temp.x[0,] <- x[0,]
+expect_identical(temp.x, x)
+temp.x[,0] <- x[,0]
+expect_identical(temp.x, x)
+
 # Testing the combining.
 
 xsub <- x[1:5,]
@@ -196,14 +220,14 @@ counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
 next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 
 expect_error(rbind(x, next.x), "regions must be identical in 'rbind'") 
-c.x <- c(x, next.x)
+c.x <- combine(x, next.x)
 expect_that(c(anchors(x, type="first"), anchors(next.x, type="first")), is_identical_to(anchors(c.x, type="first")))
 expect_that(c(anchors(x, type="second"), anchors(next.x, type="second")), is_identical_to(anchors(c.x, type="second")))
 expect_that(unique(sort(c(regions(x), regions(next.x)))), is_identical_to(regions(c.x)))
 
-expect_that(nrow(c(x[0,], next.x[0,])), is_identical_to(0L)) # Behaviour with empties.
-expect_that(ncol(c(x[0,], next.x[0,])), is_identical_to(ncol(x)))
-expect_that(nrow(c(x, next.x[0,])), is_identical_to(nrow(x))) # Not fully equal, as regions have changed.
+expect_that(nrow(combine(x[0,], next.x[0,])), is_identical_to(0L)) # Behaviour with empties.
+expect_that(ncol(combine(x[0,], next.x[0,])), is_identical_to(ncol(x)))
+expect_that(nrow(combine(x, next.x[0,])), is_identical_to(nrow(x))) # Not fully equal, as regions have changed.
 
 # Testing the sorting.
 
