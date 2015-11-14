@@ -189,8 +189,18 @@ setMethod("[", c("GInteractions", "ANY"), function(x, i, j, ..., drop=TRUE) {
         x@anchor1 <- x@anchor1[i]
         x@anchor2 <- x@anchor2[i]
     }
-    ans <- callNextMethod()
-    return(ans)
+    callNextMethod()
+})
+
+setReplaceMethod("[", c(x="GInteractions", i="ANY", value="GInteractions"), function(x, i, j, ..., value) {
+    if (!identical(regions(value), regions(x))) {
+        stop("replacement and original 'regions' must be identical")
+    }
+    if (!missing(i)) {
+        x@anchor1[i] <- value@anchor1
+        x@anchor2[i] <- value@anchor2
+    }
+    callNextMethod(x=x, i=i, j=j, ..., value=value) # Need to explicitly specify 'value', for some reason
 })
 
 setMethod("subset", "GInteractions", function(x, i) {
@@ -221,9 +231,13 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     return(ans)
 })
 
-# "c" is slightly different from "rbind", in that it allows different regions to be combined.
-setMethod("c", "GInteractions", function(x, ..., recursive = FALSE) {
-    incoming <- list(x, ...)
+setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym
+    rbind(x, ...)                   
+})
+
+# "combine" is slightly different from "rbind", in that it allows different regions to be combined.
+setMethod("combine", c("GInteractions", "GInteractions"), function(x, y, ...) {
+    incoming <- list(x, y, ...)
     all.regions <- lapply(incoming, FUN=regions)
     collated <- do.call(.collate_GRanges, all.regions)
     all1 <- all2 <- em <- list()

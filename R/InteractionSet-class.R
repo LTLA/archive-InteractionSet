@@ -68,6 +68,12 @@ setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TR
     return(ans)
 })
 
+setMethod("[<-", c("InteractionSet", "ANY", "ANY", "InteractionSet"), function(x, i, j, ..., value) {
+    if (!missing(i)) { x@interactions[i] <- value@interactions }
+    ans <- callNextMethod()
+    return(ans)
+})
+
 setMethod("subset", "InteractionSet", function(x, i, j) {
     x[i, j]
 })
@@ -95,11 +101,15 @@ setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
     new("InteractionSet", base, interactions=do.call(rbind, lapply(args, FUN=interactions)))
 })
 
-# "c" is slightly different from "rbind", in that it allows different regions to be combined.
 setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
-    args <- list(x, ...)
+    rbind(x, ...)
+})
+
+# "combine" is slightly different from "rbind", in that it allows different regions to be combined.
+setMethod("combine", c("InteractionSet", "InteractionSet"), function(x, y, ...) {
+    args <- list(x, y, ...)
     base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
-    new("InteractionSet", base, interactions=do.call(c, lapply(args, FUN=interactions)))
+    new("InteractionSet", base, interactions=do.call(combine, lapply(args, FUN=interactions)))
 })
 
 ###############################################################
