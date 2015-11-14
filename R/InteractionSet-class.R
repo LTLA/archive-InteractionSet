@@ -64,14 +64,12 @@ setMethod("InteractionSet", c("missing", "missing"),
 
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) { x@interactions <- x@interactions[i] }
-    ans <- callNextMethod()
-    return(ans)
+    callNextMethod()
 })
 
 setMethod("[<-", c("InteractionSet", "ANY", "ANY", "InteractionSet"), function(x, i, j, ..., value) {
     if (!missing(i)) { x@interactions[i] <- value@interactions }
-    ans <- callNextMethod()
-    return(ans)
+    callNextMethod(x=x, i=i, j=j, ..., value=value)
 })
 
 setMethod("subset", "InteractionSet", function(x, i, j) {

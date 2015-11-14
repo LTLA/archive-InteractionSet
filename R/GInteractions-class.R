@@ -184,7 +184,7 @@ setMethod("GInteractions", c("missing", "missing"),
 ###############################################################
 # Subsetting
 
-setMethod("[", c("GInteractions", "ANY"), function(x, i, j, ..., drop=TRUE) {
+setMethod("[", c("GInteractions", "ANY", "missing"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) {
         x@anchor1 <- x@anchor1[i]
         x@anchor2 <- x@anchor2[i]
@@ -192,7 +192,7 @@ setMethod("[", c("GInteractions", "ANY"), function(x, i, j, ..., drop=TRUE) {
     callNextMethod()
 })
 
-setReplaceMethod("[", c(x="GInteractions", i="ANY", value="GInteractions"), function(x, i, j, ..., value) {
+setReplaceMethod("[", c("GInteractions", "ANY", "missing", "GInteractions"), function(x, i, j, ..., value) {
     if (!identical(regions(value), regions(x))) {
         stop("replacement and original 'regions' must be identical")
     }
