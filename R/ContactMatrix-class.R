@@ -125,6 +125,9 @@ setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRU
 }) 
 
 setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, i, j, ..., value) {
+    if (!identical(regions(value), regions(x))) { 
+        stop("replacement and original 'regions' must be identical")
+    }
     if (!missing(i)) { 
         x@anchor1[i] <- value@anchor1
     }
