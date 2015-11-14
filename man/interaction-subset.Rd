@@ -32,11 +32,11 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 ### Subsetting
 
 \S4method{[}{GInteractions,ANY,missing}(x, i, j, ..., drop=TRUE)
-\S4method{[}{GInteractions,ANY,missing,GInteractions}(x, i, j, ...) <- value
+\S4method{[}{GInteractions,ANY,missing,GInteractions}(x, i, j) <- value
 \S4method{subset}{GInteractions}(x, i)
 
 \S4method{[}{InteractionSet,ANY,ANY}(x, i, j, ..., drop=TRUE)
-\S4method{[}{InteractionSet,ANY,ANY,InteractionSet}(x, i, j, ...) <- value
+\S4method{[}{InteractionSet,ANY,ANY,InteractionSet}(x, i, j) <- value
 \S4method{subset}{InteractionSet}(x, i, j)
 
 ### Combining
