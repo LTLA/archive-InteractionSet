@@ -60,8 +60,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{show}{GInteractions}(x)
 \S4method{show}{InteractionSet}(x)
 
-\S4method{$}{InteractionSet}(x, name)
-\S4method{$}{InteractionSet}(x, name) <- value
+\S4method{$}{GInteractions}(x, name)
+\S4method{$}{GInteractions}(x, name) <- value
 
 \S4method{interactions}{InteractionSet}(x)
 \S4method{interactions}{InteractionSet}(x) <- value
@@ -77,8 +77,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \item{name}{a string indicating the field of \code{mcols} to be accessed or modified for a GInteractions object.}
 
 \item{value}{
-    For \code{anchors<-}, a list of two integer vectors if \code{type="both"}, each of length equal to the number of rows in \code{x}.
-    For all other \code{type}, an integer vector of length equal to the number of rows in \code{x}.
+    For \code{anchors<-} and \code{type="first"} or \code{"second"}, an integer vector of length equal to the number of rows in \code{x}.
+    For \code{type="both"}, a list of two such vectors must be supplied.
 
     For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
     For \code{replaceRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
