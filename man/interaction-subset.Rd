@@ -3,19 +3,23 @@
 
 \alias{[,InteractionSet,ANY-method}
 \alias{[,InteractionSet,ANY,ANY-method}
+\alias{[<-,InteractionSet,ANY,ANY,InteractionSet-method}
 \alias{subset,InteractionSet-method}
 
 \alias{[,GInteractions,ANY-method}
+\alias{[,GInteractions,ANY,missing-method}
+\alias{[<-,GInteractions,ANY,missing,GInteractions-method}
 \alias{subset,GInteractions-method}
 
 \alias{cbind,InteractionSet-method}
 \alias{rbind,InteractionSet-method}
 \alias{c,InteractionSet-method}
+\alias{combine,InteractionSet,InteractionSet-method}
 \alias{split,InteractionSet-method}
 
-\alias{cbind,GInteractions-method}
 \alias{rbind,GInteractions-method}
 \alias{c,GInteractions-method}
+\alias{combine,GInteractions,GInteractions-method}
 \alias{split,GInteractions-method}
 
 \title{Interaction subsetting and combining}
@@ -27,20 +31,24 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \usage{
 ### Subsetting
 
-\S4method{[}{GInteractions,ANY}(x, i, j, ..., drop=TRUE)
+\S4method{[}{GInteractions,ANY,missing}(x, i, j, ..., drop=TRUE)
+\S4method{[}{GInteractions,ANY,missing,GInteractions}(x, i, j, ...) <- value
 \S4method{subset}{GInteractions}(x, i)
 
 \S4method{[}{InteractionSet,ANY,ANY}(x, i, j, ..., drop=TRUE)
+\S4method{[}{InteractionSet,ANY,ANY,InteractionSet}(x, i, j, ...) <- value
 \S4method{subset}{InteractionSet}(x, i, j)
 
 ### Combining
 
 \S4method{rbind}{GInteractions}(..., deparse.level=1)
 \S4method{c}{GInteractions}(x, ..., recursive=FALSE)
+\S4method{combine}{GInteractions,GInteractions}(x, y, ...)
 
 \S4method{cbind}{InteractionSet}(..., deparse.level=1)
 \S4method{rbind}{InteractionSet}(..., deparse.level=1)
 \S4method{c}{InteractionSet}(x, ..., recursive=FALSE)
+\S4method{combine}{InteractionSet,InteractionSet}(x, y, ...)
 
 ### Splitting
 
@@ -61,12 +69,18 @@ Methods to subset or combine InteractionSet or GInteractions objects.
     \code{j} is ignored as there is no concept of samples in this class.
 }
 
+\item{value}{
+    A GInteractions or InteractionSet object with length or number of rows equal to length of \code{i} (or that of \code{x}, if \code{i} is not specified).
+    For InteractionSet objects, the number of columns must be equal to the length of \code{j} (or number of columns in \code{x}, if \code{j} is not specified).
+}
+
 \item{...}{  
-    For \code{rbind,GInteractions-method} and \code{c,GInteractions-method}, \code{...} contains GInteractions objects to be combined.
+    For \code{rbind}, \code{c} and \code{combine}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise, depending on the method. 
+    All objects must be of the same class.
 
-    For \code{cbind} and the other \code{rbind} and \code{c} methods, \code{...} contains InteractionSet objects to be combined.
+    For \code{cbind}, \code{...} contains InteractionSet objects to be combined column-wise.
 
-    For both \code{c} methods, any objects are additional to that already specified in \code{x}.
+    For all \code{c} and \code{combine} methods, any objects are additional to that already specified in \code{x}.
 
     Otherwise, this argument is ignored during subsetting.
 }
@@ -84,6 +98,8 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \item{deparse.level}{An integer scalar; see \code{?base::\link[base]{cbind}} for a description of this argument.}
 
 \item{recursive}{An integer scalar, ignored.}
+
+\item{y}{An object of the same class as \code{x}.}
 }
 
 \section{Details for GInteractions}{
@@ -91,10 +107,10 @@ Subsetting operations will return a GInteractions object containing the specifie
 Values of the \code{anchor1} and \code{anchor2} slots will be appropriately subsetted in the returned object, along with any metadata in \code{mcols}.
 However, note that the value of \code{regions} will not be modified by subsetting.
 
-Both \code{rbind} and \code{c} will concatenate GInteractions objects.
-However, \code{rbind} requires that the \code{regions} of all supplied objects are the same.
-\code{c} does not have this requirement - instead, a new GRanges is constructed containing the (sorted) union of all \code{regions} across the input objects.
-This is more flexible but is more computationally intensive, hence the distinction from \code{rbind}.
+\code{rbind}, \code{c} and \code{combine} will concatenate GInteractions objects.
+\code{rbind} and \code{c} are synonyms, and require that the \code{regions} slot of all supplied objects are the same.
+\code{combine} does not have this requirement - instead, a new GRanges is constructed containing the (sorted) union of all \code{regions} across the input objects.
+This is more flexible but is more computationally intensive.
 Note that in both methods, the column names in \code{mcols} must be identical across all supplied objects.
 
 \code{split} produces a list of GInteractions objects, where each entry of the list corresponds to a level of \code{f}.
@@ -111,9 +127,9 @@ Again, note that the value of \code{regions} will not be modified by subsetting.
 Errors will occur if the interactions are not identical between objects (i.e., must have same values in the \code{interactions} slots).
 Additional restrictions apply on the column and assay names - see \code{\link{cbind,SummarizedExperiment0-method}} for details.
 
-\code{rbind} will combines objects with the same samples but different interactions.
+\code{rbind} (or equivalently, \code{c}) will combine objects with the same samples but different interactions.
 In this case, the interactions need not be identical, but the value of \code{regions(x)} must be the same across objects.
-\code{c} does the same as \code{rbind}, but does not require identical \code{regions}, as described for the GInteractions object.
+\code{combine} does the same as \code{rbind}, but does not require identical \code{regions}, as described for the GInteractions class.
 Again, additional restrictions apply - see \code{\link{rbind,SummarizedExperiment0-method}} for details.
 
 \code{split} produces a list of InteractionSet objects, where each entry of the list corresponds to a level of \code{f}.
@@ -129,13 +145,17 @@ gi[1:2,]
 gi[3]
 gi[3:4]
 
+temp.gi <- gi
+temp.gi[3:4] <- gi[1:2]
+
 # Combining:
 rbind(gi, gi)
+c(gi, gi)
 
 new.gi <- gi
 regions(new.gi) <- resize(regions(new.gi), width=20, fix="start")
 try(rbind(gi, new.gi))
-c(gi, new.gi)
+combine(gi, new.gi)
 
 # Splitting:
 f <- sample(4, nrow(gi), replace=TRUE)
@@ -158,11 +178,12 @@ iset[3:4,3:4]
 # Combining:
 cbind(iset, iset)
 rbind(iset, iset)
+c(iset, iset)
 
 new.iset <- iset
 regions(new.iset) <- resize(regions(new.iset), width=20, fix="start")
 try(rbind(iset, new.iset))
-c(iset, new.iset)
+combine(iset, new.iset)
 
 # Splitting:
 out <- split(iset, f)

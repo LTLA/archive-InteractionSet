@@ -22,5 +22,5 @@ exportMethods(
 
 # Requires several imports.
 import(GenomicRanges, SummarizedExperiment, methods,
-     S4Vectors, IRanges, GenomeInfoDb)
+     S4Vectors, IRanges, GenomeInfoDb, BiocGenerics)
 
