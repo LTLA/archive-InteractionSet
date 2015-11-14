@@ -95,7 +95,14 @@ expect_that(anchors(x, id=TRUE, type="column"), is_identical_to(fresh.anchor2))
 expect_error(anchors(x) <- list(fresh.anchor1, fresh.anchor2, fresh.anchor1), "must be a list of 2 numeric vectors")
 expect_error(anchors(x) <- list(fresh.anchor2, fresh.anchor2), "nrow must be equal to length of 'anchor1'")
 expect_error(anchors(x) <- list(fresh.anchor1, fresh.anchor1), "ncol must be equal to length of 'anchor2'")
-anchors(x) <- list(new.anchor1, new.anchor2) # Restoring.
+
+mod.x <- x
+anchors(x, type="row") <- new.anchor1 # Restoring; checking that these calls also work.
+expect_identical(anchors(x, id=TRUE, type="row"), new.anchor1)
+anchors(x, type="column") <- new.anchor2
+expect_identical(anchors(x, id=TRUE, type="column"), new.anchor2)
+anchors(mod.x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
+expect_identical(x, mod.x)
 
 x.dump <- x
 mod.ranges <- resize(regions(x), fix="center", width=50)
@@ -159,16 +166,16 @@ temp.x[rchosen+5,] <- x[rchosen,]
 new.index <- seq_len(nrow(x))
 new.index[rchosen+5] <- rchosen
 expect_equal(as.matrix(temp.x), as.matrix(x)[new.index,])
-expect_equal(anchors(temp.x, type="row"), anchors(x, type="row")[new.index,])
-expect_equal(anchors(temp.x, type="column"), anchors(x, type="column"))
+expect_identical(anchors(temp.x, type="row"), anchors(x, type="row")[new.index,])
+expect_identical(anchors(temp.x, type="column"), anchors(x, type="column"))
 
 temp.x <- x
 temp.x[,cchosen-9,] <- x[,cchosen]
 new.index <- seq_len(ncol(x))
 new.index[cchosen-9] <- cchosen
 expect_equal(as.matrix(temp.x), as.matrix(x)[,new.index])
-expect_equal(anchors(temp.x, type="row"), anchors(x, type="row"))
-expect_equal(anchors(temp.x, type="column"), anchors(x, type="column")[new.index,])
+expect_identical(anchors(temp.x, type="row"), anchors(x, type="row"))
+expect_identical(anchors(temp.x, type="column"), anchors(x, type="column")[new.index,])
 
 temp.x <- x
 temp.x[0,] <- x[0,]

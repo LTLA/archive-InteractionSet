@@ -37,8 +37,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \usage{
 \S4method{anchors}{GInteractions}(x, type="both", id=FALSE)
 \S4method{anchors}{InteractionSet}(x, type="both", id=FALSE)
-\S4method{anchors}{GInteractions}(x) <- value
-\S4method{anchors}{InteractionSet}(x) <- value
+\S4method{anchors}{GInteractions}(x, type="both") <- value
+\S4method{anchors}{InteractionSet}(x, type="both") <- value
 
 \S4method{regions}{GInteractions}(x)
 \S4method{regions}{InteractionSet}(x)
@@ -63,7 +63,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
 
 \item{value}{
-    For \code{anchors<-}, a list of two integer vectors, each of length equal to the number of rows in \code{x}.
+    For \code{anchors<-}, a list of two integer vectors if \code{type="both"}, each of length equal to the number of rows in \code{x}.
+    For all other \code{type}, an integer vector of length equal to the number of rows in \code{x}.
 
     For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
     
@@ -78,11 +79,13 @@ The return value of \code{anchors} varies depending on \code{type} and \code{id}
 If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
     for \code{type=="first"} or \code{"second"}, respectively.
 If \code{type="both"}, a GRangesList will be returned with two entries - \code{first} and \code{second}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
-    
 However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly 
     (a list of length two is returned for \code{type="both"}, containing both of the vectors).
-Replacement in \code{anchors<-} can only be performed using a list of two integer vectors in \code{value}.
-Swapping is performed automatically to ensure that the entries in the \code{anchor1} slot are not less than those in \code{anchor2} in the modified object.
+
+Replacement in \code{anchors<-} can only be performed using anchor indices.
+If \code{type="both"}, a list of two integer vectors is required in \code{value}, specifying the indices of the interacting regions in \code{regions(x)}.
+If \code{type="first"} or \code{"second"}, an integer vector is required to replace the existing values in the \code{anchor1} or \code{anchor2} slot, respectively.
+Swapping is performed automatically to ensure that the entries in the \code{anchor1} slot are not less than those in \code{anchor2} in the final GInteractions object.
    
 For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
 For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
@@ -132,10 +135,15 @@ anchors(gi, id=TRUE, type="second")
 
 # Modifying anchor indices:
 nregs <- length(regions(gi))
-anchors(gi) <- list(sample(nregs, length(gi), replace=TRUE),
-                   sample(nregs, length(gi), replace=TRUE))
+mod <- list(sample(nregs, length(gi), replace=TRUE),
+            sample(nregs, length(gi), replace=TRUE))
+anchors(gi) <- mod
 anchors(gi, id=TRUE, type="first")
 anchors(gi, id=TRUE, type="second")
+
+anchors(gi, type="both") <- mod
+anchors(gi, type="first") <- mod[[1]]
+anchors(gi, type="first") <- mod[[2]]
 
 # Alternative with Hits:
 hits <- Hits(sample(nregs, length(gi), replace=TRUE),

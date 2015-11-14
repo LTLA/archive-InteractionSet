@@ -5,11 +5,13 @@ setGeneric("anchors", function(x, ...) { standardGeneric("anchors") })
 setGeneric("regions", function(x, ...) { standardGeneric("regions") })
 
 # A generating function, to capture differences in 'type' for 'anchors' call.
+GI.args <- c("both", "first", "second") 
+CM.args <- c("both", "row", "column") 
 anchor.fun.gen <- function(is.GI) { 
     if (is.GI) { 
-        type.arg <- c("both", "first", "second") 
+        type.arg <- GI.args
     } else {
-        type.arg <- c("both", "row", "column") 
+        type.arg <- CM.args
     }
     out.names <- type.arg[2:3]
     type1 <- out.names[1]
@@ -98,17 +100,26 @@ setReplaceMethod("newRegions", "ContactMatrix", newRegion.fun.gen(FALSE))
 # 'anchors<-' is necessarily different between classes, as there is no requirement for equal length 'anchor1' and 'anchor2'
 # nor is there any need to enforce 'anchor1 >= anchor2' in "ContactMatrix" objects.
 
-setGeneric("anchors<-", function(x, value) { standardGeneric("anchors<-") })
+setGeneric("anchors<-", function(x, ..., value) { standardGeneric("anchors<-") })
 
-setReplaceMethod("anchors", "GInteractions", function(x, value) {
-    if (length(value)!=2L) { 
-        stop("'value' must be a list of 2 numeric vectors")
+setReplaceMethod("anchors", "GInteractions", function(x, type="both", ..., value) {
+    type <- match.arg(type, GI.args)
+    if (type=="both") { 
+        if (length(value)!=2L) { 
+            stop("'value' must be a list of 2 numeric vectors")
+        }
+        first <- as.integer(value[[1]])
+        second <- as.integer(value[[2]])
+    } else if (type=="first") {
+        first <- as.integer(value)
+        second <- x@anchor2
+    } else if (type=="second") {
+        first <- x@anchor1
+        second <- as.integer(value)
     }
-    first <- as.integer(value[[1]])
-    second <- as.integer(value[[2]])
+
     msg <- .check_inputs(first, second, regions(x)) # Need check here, otherwise .enforce_order might fail.
     if (is.character(msg)) { stop(msg) }
-
     out <- .enforce_order(first, second)
     x@anchor1 <- out$anchor1
     x@anchor2 <- out$anchor2
@@ -116,12 +127,23 @@ setReplaceMethod("anchors", "GInteractions", function(x, value) {
     return(x)
 })
 
-setReplaceMethod("anchors", "ContactMatrix", function(x, value) {
-    if (length(value)!=2L) { 
-        stop("'value' must be a list of 2 numeric vectors")
+setReplaceMethod("anchors", "ContactMatrix", function(x, type="both", ..., value) {
+    type <- match.arg(type, CM.args)
+    if (type=="both") { 
+        if (length(value)!=2L) { 
+            stop("'value' must be a list of 2 numeric vectors")
+        }
+        rowI <- as.integer(value[[1]])
+        colI <- as.integer(value[[2]])
+    } else if (type=="row") {
+        rowI <- as.integer(value)
+        colI <- x@anchor2
+    } else if (type=="column") {
+        rowI <- x@anchor1
+        colI <- as.integer(value)
     }
-    x@anchor1 <- as.integer(value[[1]])
-    x@anchor2 <- as.integer(value[[2]])
+    x@anchor1 <- rowI
+    x@anchor2 <- colI
     validObject(x)
     return(x)
 })
@@ -144,8 +166,8 @@ setMethod("anchors", "InteractionSet", function(x, type="both", id=FALSE) {
 
 setMethod("regions", "InteractionSet", function(x) { regions(x@interactions) })
 
-setReplaceMethod("anchors", "InteractionSet", function(x, value) { 
-    anchors(x@interactions) <- value 
+setReplaceMethod("anchors", "InteractionSet", function(x, type="both", ..., value) { 
+    anchors(x@interactions, type=type, ...) <- value 
     return(x)
 })
 

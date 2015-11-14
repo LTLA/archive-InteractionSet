@@ -90,7 +90,16 @@ expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(pmax(fresh.anchor
 expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(pmin(fresh.anchor1, fresh.anchor2)))
 expect_error(anchors(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
 expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "first and second anchor vectors have different lengths")
-anchors(x) <- list(new.anchor1, new.anchor2) # Restoring.
+
+mod.x <- x
+anchors(mod.x, type="first") <- new.anchor1 # Checking that this also works
+expect_identical(anchors(mod.x, id=TRUE, type="first"), pmax(new.anchor1, pmin(fresh.anchor1, fresh.anchor2)))
+mod.x <- x
+anchors(mod.x, type="second") <- new.anchor2
+expect_identical(anchors(mod.x, id=TRUE, type="second"), pmin(pmax(fresh.anchor1, fresh.anchor2), new.anchor2))
+anchors(x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
+expect_identical(anchors(x, id=TRUE, type="first"), pmax(new.anchor1, new.anchor2))
+expect_identical(anchors(x, id=TRUE, type="second"), pmin(new.anchor1, new.anchor2))
 
 lib.sizes <- 1:4*1000L
 x$totals <- lib.sizes
@@ -180,13 +189,13 @@ temp.x[,1:2] <- x[,2:3]
 new.index <- seq_len(ncol(x))
 new.index[1:2] <- 2:3
 expect_equal(assay(temp.x), assay(x)[,new.index])
-expect_equal(anchors(temp.x), anchors(x))
+expect_identical(anchors(temp.x), anchors(x))
 
 temp.x <- x
 temp.x[0,] <- x[0,]
-expect_identical(temp.x, x)
+expect_equal(temp.x, x)
 temp.x[,0] <- x[,0]
-expect_identical(temp.x, x)
+expect_equal(temp.x, x)
 
 # Testing the combining.
 
