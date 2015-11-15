@@ -51,6 +51,10 @@ setValidity("GInteractions", function(object) {
     return(TRUE)
 })
 
+setMethod("parallelSlotNames", "GInteractions", function(x) {
+    c("anchor1", "anchor2", callNextMethod())         
+})
+
 scat <- function(fmt, vals=character(), exdent=2, ...) {
     vals <- ifelse(nzchar(vals), vals, "''")
     lbls <- paste(S4Vectors:::selectSome(vals), collapse=" ")
@@ -197,32 +201,6 @@ setReplaceMethod("$", "GInteractions", function(x, name, value) {
 })
 
 ###############################################################
-# Subsetting
-
-setMethod("[", c("GInteractions", "ANY", "missing"), function(x, i, j, ..., drop=TRUE) {
-    if (!missing(i)) {
-        x@anchor1 <- x@anchor1[i]
-        x@anchor2 <- x@anchor2[i]
-    }
-    callNextMethod()
-})
-
-setReplaceMethod("[", c("GInteractions", "ANY", "missing", "GInteractions"), function(x, i, j, ..., value) {
-    if (!identical(regions(value), regions(x))) {
-        stop("replacement and original 'regions' must be identical")
-    }
-    if (!missing(i)) {
-        x@anchor1[i] <- value@anchor1
-        x@anchor2[i] <- value@anchor2
-    }
-    callNextMethod(x=x, i=i, j=j, ..., value=value) # Need to explicitly specify 'value', for some reason
-})
-
-setMethod("subset", "GInteractions", function(x, i) {
-    x[i]
-})
-
-###############################################################
 # Combining
 
 setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
@@ -246,7 +224,7 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     return(ans)
 })
 
-setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym
+setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym for 'rbind'.
     rbind(x, ...)                   
 })
 
@@ -279,10 +257,6 @@ setMethod("order", "GInteractions", function(..., na.last=TRUE, decreasing=FALSE
     do.call(order, c(all.ids, list(na.last=na.last, decreasing=decreasing)))
 })
 
-setMethod("sort", "GInteractions", function(x, decreasing=FALSE, ...) {
-    x[order(x, decreasing=decreasing),]
-})
-
 setMethod("duplicated", "GInteractions", function(x, incomparables=FALSE, fromLast=FALSE, ...) 
 # Stable sort required here: first entry in 'x' is always non-duplicate if fromLast=FALSE,
 # and last entry is non-duplicate if fromLast=TRUE.
@@ -297,10 +271,6 @@ setMethod("duplicated", "GInteractions", function(x, incomparables=FALSE, fromLa
     return(is.dup)
 })
 
-setMethod("unique", "GInteractions", function(x, incomparables=FALSE, fromLast=FALSE, ...) {
-    x[!duplicated(x, incomparables=incomparables, fromLast=fromLast, ...),]
-})
-
 # Not sure how much sense it makes to provide GRanges methods on the GInteractions,
 # as these'll be operating on 'regions' rather than 'anchors'.
 #setMethod("seqinfo", "GInteractions", function(x) {
@@ -312,10 +282,6 @@ setMethod("unique", "GInteractions", function(x, incomparables=FALSE, fromLast=F
 #    validObject(x)
 #    return(x)
 #})
-
-setMethod("split", "GInteractions", function(x, f, drop=FALSE, ...) {
-    splitAsList(x, f, drop=drop)
-})
 
 ###############################################################
 # End
