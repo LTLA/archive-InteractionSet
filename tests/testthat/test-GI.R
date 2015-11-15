@@ -53,6 +53,9 @@ expect_identical(regions(x3), regions(x2))
 
 # Testing with crappy inputs:
 
+empty <- GInteractions(integer(0), numeric(0), GRanges())
+expect_identical(length(empty), 0L)
+expect_identical(length(anchors(empty, type="first")), 0L)
 empty <- GInteractions(GRanges(), GRanges())
 expect_identical(length(empty), 0L)
 expect_identical(length(anchors(empty, type="first")), 0L)
@@ -238,6 +241,7 @@ expect_true(all(head(is.dup, length(x)))) # if ordering is stable; only the firs
 expect_equal(x, unique(temp.x, fromLast=TRUE))
 expect_false(any(duplicated(unique(temp.x))))
 
+expect_identical(order(x[0,]), integer(0))
 expect_identical(duplicated(x[0,]), logical(0))
 
 # Testing the splitting.

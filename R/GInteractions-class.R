@@ -39,15 +39,12 @@ setValidity("GInteractions", function(object) {
     msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
     if (is.character(msg)) { return(msg) }
 
-    if (length(object)!=length(object@anchor1)) { 
-        return("object length must be equal to number of interactions")
-    }
-    if (nrow(object@elementMetadata)!=length(object)) { 
-        return("'mcols' nrow must be equal to number of interactions")
-    }
     if (!all(object@anchor1 >= object@anchor2)) { 
         return('first anchors cannot be less than the second anchor')
     }
+    
+    ### Length of anchors versus object is automatically checked by 'parallelSlotNames.'
+
     return(TRUE)
 })
 
