@@ -185,22 +185,6 @@ setMethod("GInteractions", c("missing", "missing"),
 })
 
 ###############################################################
-# Some getters and setters
-
-setMethod("nrow", signature("GInteractions"), function(x) { 
-    length(x) 
-})
-
-setMethod("$", "GInteractions", function(x, name) {
-    return(x@elementMetadata[[name]])
-})
-
-setReplaceMethod("$", "GInteractions", function(x, name, value) {
-    x@elementMetadata[[name]] <- value
-    return(x)
-})
-
-###############################################################
 # Combining
 
 setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
