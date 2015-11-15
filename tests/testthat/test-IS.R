@@ -97,6 +97,16 @@ appendRegions(x.dump) <- mod.ranges
 appendRegions(ref.dump) <- mod.ranges
 expect_identical(regions(x.dump), regions(ref.dump))
 
+x.dump <- x
+interactions(x.dump) <- rev(interactions(x))
+expect_identical(interactions(x.dump), rev(interactions(x)))
+expect_identical(interactions(rev(x.dump)), interactions(x))
+
+new.scores <- 1:Np*10 + 50
+mcols(x.dump)$fire <- new.scores
+expect_identical(mcols(x.dump)$fire, new.scores)
+expect_identical(interactions(x.dump)$fire, new.scores)
+
 # Testing the subsetting.
 
 rchosen <- 1:10
