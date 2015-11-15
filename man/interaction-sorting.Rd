@@ -20,22 +20,20 @@ Also, methods to remove duplicate interactions based on the anchor indices.
 
 \usage{
 \S4method{order}{GInteractions}(..., na.last=TRUE, decreasing=FALSE)
-\S4method{order}{InteractionSet}(..., na.last=TRUE, decreasing=FALSE)
 
 \S4method{sort}{GInteractions}(x, decreasing=FALSE, ...)
-\S4method{sort}{InteractionSet}(x, decreasing=FALSE, ...)
 
 \S4method{duplicated}{GInteractions}(x, incomparables=FALSE, fromLast=FALSE, ...)
-\S4method{duplicated}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
 
 \S4method{unique}{GInteractions}(x, incomparables=FALSE, fromLast=FALSE, ...)
-\S4method{unique}{InteractionSet}(x, incomparables=FALSE, fromLast=FALSE, ...)
+
+## Each of the above methods has an identical equivalent for
+## InteractionSet objects (not shown for brevity).
 }
 
 \arguments{
 \item{...}{
     For \code{order}, one or more InteractionSet or GInteractions objects with the same number of rows.
-    
     Otherwise, ignored in all other methods.
 }
 

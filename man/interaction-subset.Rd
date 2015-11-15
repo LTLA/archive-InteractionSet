@@ -7,8 +7,8 @@
 \alias{subset,InteractionSet-method}
 
 \alias{[,GInteractions,ANY-method}
-\alias{[,GInteractions,ANY,missing-method}
-\alias{[<-,GInteractions,ANY,missing,GInteractions-method}
+\alias{[,GInteractions,ANY,ANY-method}
+\alias{[<-,GInteractions,ANY,ANY,GInteractions-method}
 \alias{subset,GInteractions-method}
 
 \alias{cbind,InteractionSet-method}
@@ -29,31 +29,20 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 }
 
 \usage{
-### Subsetting
-
-\S4method{[}{GInteractions,ANY,missing}(x, i, j, ..., drop=TRUE)
-\S4method{[}{GInteractions,ANY,missing,GInteractions}(x, i, j) <- value
-\S4method{subset}{GInteractions}(x, i)
-
-\S4method{[}{InteractionSet,ANY,ANY}(x, i, j, ..., drop=TRUE)
-\S4method{[}{InteractionSet,ANY,ANY,InteractionSet}(x, i, j) <- value
-\S4method{subset}{InteractionSet}(x, i, j)
-
-### Combining
+\S4method{[}{GInteractions,ANY,ANY}(x, i, j, ..., drop=TRUE)
+\S4method{[}{GInteractions,ANY,ANY,GInteractions}(x, i, j) <- value
 
 \S4method{rbind}{GInteractions}(..., deparse.level=1)
 \S4method{c}{GInteractions}(x, ..., recursive=FALSE)
 \S4method{combine}{GInteractions,GInteractions}(x, y, ...)
 
-\S4method{cbind}{InteractionSet}(..., deparse.level=1)
-\S4method{rbind}{InteractionSet}(..., deparse.level=1)
-\S4method{c}{InteractionSet}(x, ..., recursive=FALSE)
-\S4method{combine}{InteractionSet,InteractionSet}(x, y, ...)
-
-### Splitting
-
 \S4method{split}{GInteractions}(x, f, drop=FALSE)
-\S4method{split}{InteractionSet}(x, f, drop=FALSE)
+
+## Each of the above methods has an identical equivalent for
+## InteractionSet objects (not shown for brevity).
+
+\S4method{subset}{InteractionSet}(x, i, j)
+\S4method{cbind}{InteractionSet}(..., deparse.level=1)
 }
 
 \arguments{
@@ -61,10 +50,8 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 
 \item{i, j}{
     A vector of logical or integer subscripts.
-
     For InteractionSet objects, these indicate the rows and columns to be subsetted for \code{i} and \code{j}, respectively.
     Rows correspond to pairwise interactions while columns correspond to samples.
-
     For GInteractions objects, \code{i} indicates the genomic interactions to be retained.
     \code{j} is ignored as there is no concept of samples in this class.
 }
@@ -77,12 +64,9 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \item{...}{  
     For \code{rbind}, \code{c} and \code{combine}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise, depending on the method. 
     All objects must be of the same class.
-
+    For all \code{c} and \code{combine} methods, any objects are additional to that already specified in \code{x} (and \code{y}).
     For \code{cbind}, \code{...} contains InteractionSet objects to be combined column-wise.
-
-    For all \code{c} and \code{combine} methods, any objects are additional to that already specified in \code{x}.
-
-    Otherwise, this argument is ignored during subsetting.
+    For all other methods, this argument is ignored.
 }
 
 \item{f}{

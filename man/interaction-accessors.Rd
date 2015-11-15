@@ -23,10 +23,6 @@
 \alias{appendRegions<-,InteractionSet-method}
 \alias{appendRegions<-,GInteractions-method}
 
-\alias{show}
-\alias{show,InteractionSet-method}
-\alias{show,GInteractions-method}
-
 \alias{interactions}
 \alias{interactions,InteractionSet-method}
 \alias{interactions<-}
@@ -47,24 +43,17 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 
 \usage{
 \S4method{anchors}{GInteractions}(x, type="both", id=FALSE)
-\S4method{anchors}{InteractionSet}(x, type="both", id=FALSE)
-\S4method{anchors}{GInteractions}(x, type="both") <- value
-\S4method{anchors}{InteractionSet}(x, type="both") <- value
-
 \S4method{regions}{GInteractions}(x)
-\S4method{regions}{InteractionSet}(x)
-\S4method{regions}{GInteractions}(x) <- value
-\S4method{regions}{InteractionSet}(x) <- value
 
+\S4method{anchors}{GInteractions}(x, type="both") <- value
+\S4method{regions}{GInteractions}(x) <- value
 \S4method{replaceRegions}{GInteractions}(x) <- value
-\S4method{replaceRegions}{InteractionSet}(x) <- value
 \S4method{appendRegions}{GInteractions}(x) <- value
-\S4method{appendRegions}{InteractionSet}(x) <- value
+
+## Each above method has an identical equivalent for 
+## InteractionSet objects (not shown here for brevity).
 
 \S4method{nrow}{GInteractions}(x)
-\S4method{show}{GInteractions}(x)
-\S4method{show}{InteractionSet}(x)
-
 \S4method{$}{GInteractions}(x, name)
 \S4method{$}{GInteractions}(x, name) <- value
 
@@ -91,8 +80,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
     For \code{replaceRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
     For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
-    For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.
-    
+    For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.  
     For \code{mcols<-}, a DataFrame with number of rows equal to that in \code{x}.
 }
 
