@@ -23,6 +23,10 @@ setValidity("InteractionSet", function(object) {
     return(TRUE)
 })
 
+setMethod("parallelSlotNames", "InteractionSet", function(x) {
+    c("interactions", callNextMethod()) 
+})
+
 setMethod("show", signature("InteractionSet"), function(object) {
     callNextMethod()
     cat(sprintf("regions: %i\n", length(regions(object@interactions))))
@@ -62,6 +66,8 @@ setMethod("InteractionSet", c("missing", "missing"),
 ###############################################################
 # Subsetting
 
+# Need to define these because SummarizedExperiment0 doesn't use extract/replaceROWS directly;
+# they divert to these functions anyway.
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) { x@interactions <- x@interactions[i] }
     callNextMethod()
@@ -118,10 +124,6 @@ setMethod("order", "InteractionSet", function(..., na.last=TRUE, decreasing=FALS
     do.call(order, c(all.ids, list(na.last=na.last, decreasing=decreasing)))
 })
 
-setMethod("sort", "InteractionSet", function(x, decreasing=FALSE, ...) {
-    x[order(x, decreasing=decreasing),]
-})
-
 setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) 
 # Stable sort required here: first entry in 'x' is always non-duplicate if fromLast=FALSE,
 # and last entry is non-duplicate if fromLast=TRUE.
@@ -134,26 +136,6 @@ setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromL
     is.dup <- c(FALSE, diff(a1[o])==0L & diff(a2[o])==0L)
     is.dup[o] <- is.dup
     return(is.dup)
-})
-
-setMethod("unique", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) {
-    x[!duplicated(x, incomparables=incomparables, fromLast=fromLast, ...),]
-})
-
-# Not sure how much sense it makes to provide GRanges methods on the InteractionSet,
-# as these'll be operating on 'regions' rather than 'anchors'.
-#setMethod("seqinfo", "InteractionSet", function(x) {
-#     seqinfo(x@regions)
-#})
-#
-#setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
-#    seqinfo(x@regions) <- value
-#    validObject(x)
-#    return(x)
-#})
-
-setMethod("split", "InteractionSet", function(x, f, drop=FALSE, ...) {
-    splitAsList(x, f, drop=drop)
 })
 
 ###############################################################

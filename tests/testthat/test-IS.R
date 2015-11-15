@@ -26,97 +26,76 @@ fixed=TRUE)
 
 # Testing all of our new slots:
 
-expect_that(x, is_a("InteractionSet"))
-expect_that(assay(x), is_equivalent_to(counts))
-expect_true(all(anchors(x, id=TRUE, type="first") >= anchors(x, id=TRUE, type="second")))
-expect_true(!is.unsorted(regions(x)))
+expect_is(x, "InteractionSet")
+expect_is(interactions(x), "GInteractions")
+expect_equivalent(assay(x), counts)
+ref <- GInteractions(all.anchor1, all.anchor2, all.regions)
+expect_identical(interactions(x), ref)
 
-o <- order(all.regions)
-new.regions <- all.regions[o]
-expect_that(regions(x), is_identical_to(new.regions))
-
-new.pos <- integer(length(o))
-new.pos[o] <- seq_along(new.pos)
-new.anchor1 <- pmax(new.pos[all.anchor1], new.pos[all.anchor2])
-new.anchor2 <- pmin(new.pos[all.anchor1], new.pos[all.anchor2])
-expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(new.anchor1))
-expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(new.anchor2))
-expect_that(anchors(x, id=TRUE), is_identical_to(list(first=new.anchor1, second=new.anchor2)))
-
-expect_that(anchors(x, type="first"), is_identical_to(new.regions[new.anchor1]))
-expect_that(anchors(x, type="second"), is_identical_to(new.regions[new.anchor2]))
-expect_that(anchors(x), is_identical_to(GRangesList(first=new.regions[new.anchor1], 
-        second=new.regions[new.anchor2])))
-
-# Testing alternative construction methods for the GInteractions object:
-
-x2 <- InteractionSet(counts, GInteractions(all.regions[all.anchor1], all.regions[all.anchor2]))
-was.used <- sort(unique(all.regions[union(all.anchor1, all.anchor2)])) # Only includes the regions actually used.
-expect_that(regions(x2), is_identical_to(was.used))
-expect_that(anchors(x2), is_identical_to(anchors(x)))
-
-x3 <- InteractionSet(counts, GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], was.used))
-expect_that(anchors(x3, id=TRUE), is_identical_to(anchors(x2, id=TRUE)))
-expect_that(regions(x3), is_identical_to(regions(x2)))
+scores <- Nlibs:1 + 50L
+x2 <- InteractionSet(counts, ref, colData=DataFrame(score=scores))
+expect_identical(x2$score, scores)
+expect_identical(colData(x2)$score, scores)
+expect_identical(mcols(x2)$score, NULL) # Dollar doesn't assign here.
+                     
+x3 <- InteractionSet(counts, ref, metadata=list(whee=5L))
+expect_identical(metadata(x3)$whee, 5L)
 
 # Testing with crappy inputs:
 
-expect_that(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1:4, all.regions)), is_a("InteractionSet")) # No columns.
-expect_that(InteractionSet(matrix(0, 0, 4), GInteractions(integer(0), numeric(0), GRanges())), is_a("InteractionSet")) # No rows.
-expect_that(InteractionSet(matrix(0, 0, 4), GInteractions(GRanges(), GRanges())), is_a("InteractionSet")) # No rows.
-
-expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1, all.regions)), "first and second anchor vectors have different lengths")
-expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(0:3, 1:4, all.regions)), "all anchor indices must be positive integers")
-expect_error(InteractionSet(matrix(0, 4, 0), GInteractions(c(1,2,3,NA), 1:4, all.regions)), "all anchor indices must be finite integers")
+expect_identical(dim(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1:4, all.regions))), c(4L, 0L)) # No columns
+expect_identical(dim(InteractionSet(matrix(0, 0, 4), GInteractions(integer(0), numeric(0), GRanges()))), c(0L, 4L))
 expect_error(InteractionSet(matrix(0, 3, 0), GInteractions(1:4, 1:4, all.regions)), "'assays' nrow differs from 'mcols' nrow")
 
-expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
-expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
-
-# Testing setters.
+# Testing getters, setters.
 
 set.seed(1001)
 shuffled <- sample(100, N, replace=TRUE)
+ref <- interactions(x)
+expect_identical(regions(x), regions(ref))
 regions(x)$score <- shuffled
-expect_that(regions(x)$score, is_identical_to(shuffled))
-expect_false(identical(regions(x), new.regions))
-regions(x) <- new.regions # Restoring.
-expect_true(identical(regions(x), new.regions))
+regions(ref)$score <- shuffled
+expect_identical(regions(x)$score, regions(ref)$score)
+regions(ref)$score <- regions(x)$score <- NULL # Restoring.
 
+orig.x <- x
 fresh.anchor1 <- sample(N, Np)
 fresh.anchor2 <- sample(N, Np)
 anchors(x) <- list(fresh.anchor1, fresh.anchor2)
-expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(pmax(fresh.anchor1, fresh.anchor2)))
-expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(pmin(fresh.anchor1, fresh.anchor2)))
-expect_error(anchors(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
-expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "first and second anchor vectors have different lengths")
+anchors(ref) <- list(fresh.anchor1, fresh.anchor2)
+expect_identical(anchors(x), anchors(ref))
+expect_identical(anchors(x, id=TRUE), anchors(ref, id=TRUE))
+expect_identical(anchors(x, type="first"), anchors(x, type="first"))
+expect_identical(anchors(x, type="second"), anchors(x, type="second"))
 
-mod.x <- x
-anchors(mod.x, type="first") <- new.anchor1 # Checking that this also works
-expect_identical(anchors(mod.x, id=TRUE, type="first"), pmax(new.anchor1, pmin(fresh.anchor1, fresh.anchor2)))
-mod.x <- x
-anchors(mod.x, type="second") <- new.anchor2
-expect_identical(anchors(mod.x, id=TRUE, type="second"), pmin(pmax(fresh.anchor1, fresh.anchor2), new.anchor2))
-anchors(x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
-expect_identical(anchors(x, id=TRUE, type="first"), pmax(new.anchor1, new.anchor2))
-expect_identical(anchors(x, id=TRUE, type="second"), pmin(new.anchor1, new.anchor2))
+anchors(x, type="first") <- anchors(ref, type="first") <- anchors(orig.x, type="first", id=TRUE)
+expect_identical(anchors(x, id=TRUE, type="first"), anchors(ref, id=TRUE, type="first"))
+anchors(x, type="second") <- anchors(ref, type="second") <- anchors(orig.x, type="second", id=TRUE)
+expect_identical(anchors(x, id=TRUE, type="second"), anchors(ref, id=TRUE, type="second"))
+anchors(x, type="both") <- anchors(ref, type="both") <- anchors(orig.x, id=TRUE)
+expect_identical(anchors(x), anchors(ref))
 
 lib.sizes <- 1:4*1000L
 x$totals <- lib.sizes
-expect_that(x$totals, is_identical_to(lib.sizes))
-expect_that(colData(x)$totals, is_identical_to(lib.sizes))
+expect_identical(x$totals, lib.sizes)
+expect_identical(colData(x)$totals, lib.sizes)
 
 x.dump <- x
+ref.dump <- interactions(x)
 mod.ranges <- resize(regions(x), fix="center", width=50)
 new.ranges <- c(regions(x), mod.ranges) 
 expect_error(regions(x.dump) <- new.ranges, "assigned value must be of the same length")
 replaceRegions(x.dump) <- new.ranges
-expect_identical(anchors(x.dump), anchors(x))
-expect_identical(sort(new.ranges), regions(x.dump))
+replaceRegions(ref.dump) <- new.ranges
+expect_identical(anchors(x.dump), anchors(ref.dump))
+expect_identical(regions(x.dump), regions(ref.dump))
 expect_error(replaceRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
-x.dump2 <- x
-appendRegions(x.dump2) <- mod.ranges
-expect_identical(regions(x.dump), regions(x.dump2))
+
+x.dump <- x
+ref.dump <- interactions(x)
+appendRegions(x.dump) <- mod.ranges
+appendRegions(ref.dump) <- mod.ranges
+expect_identical(regions(x.dump), regions(ref.dump))
 
 # Testing the subsetting.
 
@@ -133,11 +112,8 @@ colData names(1): totals
 regions: 30", 
 fixed=TRUE)
 expect_equal(xsub, x[rchosen])
-
-expect_that(assay(xsub), is_identical_to(assay(x)[rchosen,]))
-expect_that(regions(xsub), is_identical_to(regions(x)))
-expect_that(anchors(xsub, type="first"), is_identical_to(new.regions[new.anchor1][rchosen]))
-expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor2][rchosen]))
+expect_identical(assay(xsub), assay(x)[rchosen,])
+expect_identical(interactions(xsub), interactions(x)[rchosen])
 
 cchosen <- c(2,4)
 xsub <- x[,cchosen]
@@ -151,14 +127,11 @@ colnames: NULL
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
+expect_identical(assay(xsub), assay(x)[,cchosen])
+expect_identical(xsub$totals, x$totals[cchosen])
+expect_identical(interactions(xsub), interactions(x))
 
-expect_that(assay(xsub), is_identical_to(assay(x)[,cchosen]))
-expect_that(xsub$totals, is_identical_to(x$totals[cchosen]))
-expect_that(regions(xsub), is_identical_to(regions(x)))
-expect_that(anchors(xsub, type="first"), is_identical_to(new.regions[new.anchor1]))
-expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor2]))
-
-xsub <- subset(x, rchosen,cchosen)
+xsub <- x[rchosen,cchosen]
 expect_output(show(xsub), "class: InteractionSet 
 dim: 10 2 
 metadata(0):
@@ -169,14 +142,19 @@ colnames: NULL
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
+expect_equal(xsub, subset(x, rchosen, cchosen))
+lrchosen <- logical(nrow(x)); lrchosen[rchosen] <- TRUE
+lcchosen <- logical(ncol(x)); lcchosen[cchosen] <- TRUE
+expect_equal(xsub, x[lrchosen,lcchosen])
 
 expect_that(assay(xsub), is_identical_to(assay(x)[rchosen,cchosen]))
-expect_that(regions(xsub), is_identical_to(regions(x)))
-expect_that(anchors(xsub, type="first"), is_identical_to(new.regions[new.anchor1][rchosen]))
-expect_that(anchors(xsub, type="second"), is_identical_to(new.regions[new.anchor2][rchosen]))
+expect_identical(xsub$totals, x$totals[cchosen])
+expect_identical(interactions(xsub), interactions(x)[rchosen])
 
-expect_that(nrow(x[0,]), is_identical_to(0L))
-expect_that(ncol(x[,0]), is_identical_to(0L))
+expect_identical(nrow(x[0,]), 0L)
+expect_identical(ncol(x[0,]), as.integer(Nlibs))
+expect_identical(ncol(x[,0]), 0L)
+expect_identical(nrow(x[,0]), as.integer(Np))
 
 # Testing subset assignment.
 
@@ -185,15 +163,14 @@ temp.x[1:5+10,] <- x[1:5,]
 new.index <- seq_len(nrow(x))
 new.index[1:5+10] <- 1:5
 expect_equal(assay(temp.x), assay(x)[new.index,])
-expect_identical(anchors(temp.x, type="first"), anchors(x, type="first")[new.index,])
-expect_identical(anchors(temp.x, type="second"), anchors(x, type="second")[new.index,])
+expect_identical(interactions(temp.x), interactions(x)[new.index,])
 
 temp.x <- x
 temp.x[,1:2] <- x[,2:3]
 new.index <- seq_len(ncol(x))
 new.index[1:2] <- 2:3
 expect_equal(assay(temp.x), assay(x)[,new.index])
-expect_identical(anchors(temp.x), anchors(x))
+expect_identical(interactions(temp.x), interactions(x))
 
 temp.x <- x
 temp.x[0,] <- x[0,]
@@ -205,66 +182,63 @@ expect_equal(temp.x, x)
 
 xsub <- x[1:5,]
 xsub2 <- x[6:20,]
-expect_that(rbind(xsub, xsub2), equals(x))
+expect_equal(rbind(xsub, xsub2), x)
+xsub <- x[5:10,]
+xsub2 <- x[1:3,]
+expect_equal(rbind(xsub, xsub2), x[c(5:10, 1:3),])
 expect_error(rbind(xsub, xsub2[,1:2]), "objects must have the same number of samples")
+
 xsub <- x[,1]
 xsub2 <- x[,2:4]
-expect_that(cbind(xsub, xsub2), equals(x))
+expect_equal(cbind(xsub, xsub2), x)
+xsub <- x[,3]
+xsub2 <- x[,1:4]
+expect_equal(cbind(xsub, xsub2), x[,c(3,1:4)])
 expect_error(cbind(xsub, xsub2[1:10,]), "interactions must be identical in 'cbind'")
 
-expect_that(nrow(rbind(x[0,], x[0,])), is_identical_to(0L)) # Behaviour with empties.
-expect_that(ncol(rbind(x[0,], x[0,])), is_identical_to(ncol(x)))
-expect_that(rbind(x, x[0,]), equals(x))
-expect_that(nrow(cbind(x[,0], x[,0])), is_identical_to(nrow(x)))
-expect_that(ncol(cbind(x[,0], x[,0])), is_identical_to(0L))
-expect_that(cbind(x, x[,0]), equals(x))
+expect_identical(nrow(rbind(x[0,], x[0,])), 0L) # Behaviour with empties.
+expect_identical(ncol(rbind(x[0,], x[0,])), ncol(x))
+expect_equal(rbind(x, x[0,]), x)
+expect_identical(nrow(cbind(x[,0], x[,0])), nrow(x))
+expect_identical(ncol(cbind(x[,0], x[,0])), 0L)
+expect_equal(cbind(x, x[,0]), x)
 
 set.seed(1002)
-N <- 30
 next.starts <- round(runif(N, 1, 100))
 next.ends <- next.starts + round(runif(N, 5, 20))
 next.regions <- GRanges(rep(c("chrA", "chrB"), c(N-10, 10)), IRanges(next.starts, next.ends))
 
-Np <- 20
 next.anchor1 <- sample(N, Np)
 next.anchor2 <- sample(N, Np)
-Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
 next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 
 expect_error(rbind(x, next.x), "regions must be identical in 'rbind'") 
 c.x <- combine(x, next.x)
-expect_that(c(anchors(x, type="first"), anchors(next.x, type="first")), is_identical_to(anchors(c.x, type="first")))
-expect_that(c(anchors(x, type="second"), anchors(next.x, type="second")), is_identical_to(anchors(c.x, type="second")))
-expect_that(unique(sort(c(regions(x), regions(next.x)))), is_identical_to(regions(c.x)))
+expect_equivalent(assay(c.x), rbind(assay(x), assay(next.x)))
+expect_identical(interactions(c.x), combine(interactions(x), interactions(next.x)))
 
-expect_that(nrow(combine(x[0,], next.x[0,])), is_identical_to(0L)) # Behaviour with empties.
-expect_that(ncol(combine(x[0,], next.x[0,])), is_identical_to(ncol(x)))
-expect_that(nrow(combine(x, next.x[0,])), is_identical_to(nrow(x))) # Not fully equal, as regions have changed.
+expect_identical(nrow(combine(x[0,], next.x[0,])), 0L) # Behaviour with empties.
+expect_identical(ncol(combine(x[0,], next.x[0,])), ncol(x))
+expect_identical(nrow(combine(x, next.x[0,])), nrow(x)) # Not fully equal, as regions have changed.
 
 # Testing the sorting.
 
-o.x <- order(anchors(x, type="first"), anchors(x, type="second"))
-expect_that(o.x, is_identical_to(order(x)))
-expect_that(sort(x), equals(x[o.x,]))
+o.x <- order(x)
+expect_identical(o.x, order(interactions(x)))
+expect_equal(sort(x), x[o.x,])
+o.x2 <- order(x, next.x)
+expect_identical(o.x2, order(interactions(x), interactions(next.x)))
 
-o.x2 <- order(anchors(x, type="first"), anchors(x, type="second"), anchors(next.x, type="first"), anchors(next.x, type="second"))
-expect_that(o.x2, is_identical_to(order(x, next.x)))
-
-is.dup <- duplicated(paste0(anchors(x, type="first"), ".", anchors(x, type="second")))
-expect_that(is.dup, is_identical_to(duplicated(x)))
+expect_identical(duplicated(x), duplicated(interactions(x)))
 temp.x <- rbind(x, x)    
-is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, type="second")))
-expect_that(is.dup, is_identical_to(duplicated(temp.x)))
-expect_true(all(tail(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
+expect_identical(duplicated(temp.x), duplicated(interactions(temp.x)))
 expect_equal(x, unique(temp.x))
 
-is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, type="second")), fromLast=TRUE)
-expect_that(is.dup, is_identical_to(duplicated(temp.x, fromLast=TRUE)))
-expect_true(all(head(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
+expect_identical(duplicated(x, fromLast=TRUE), duplicated(interactions(x), fromLast=TRUE))
 expect_equal(x, unique(temp.x, fromLast=TRUE))
-expect_false(any(duplicated(unique(temp.x))))
 
+expect_identical(order(x[0,]), integer(0))
 expect_identical(duplicated(x[0,]), logical(0))
 
 # Testing the splitting.
@@ -273,4 +247,7 @@ flen <- c(5L, 10L, 5L)
 f <- rep(1:3, flen)
 out <- split(x, f)
 expect_that(sapply(out, nrow), is_equivalent_to(flen))
+for (i in seq_along(flen)) {
+    expect_equal(out[[i]], x[f==i])
+}
 
