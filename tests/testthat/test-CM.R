@@ -190,6 +190,14 @@ expect_identical(temp.x, x)
 temp.x[,0] <- x[,0]
 expect_identical(temp.x, x)
 
+temp.x <- x
+anchors(temp.x[1:5,], type="row") <- 1:5
+expect_identical(anchors(temp.x, type="row", id=TRUE)[1:5], 1:5)
+anchors(temp.x[,1:5], type="column") <- 1:5
+expect_identical(anchors(temp.x, type="column", id=TRUE)[1:5], 1:5)
+expect_error(anchors(temp.x[1:5,1:5], type="row") <- 1:5+1L, "cannot modify row indices for a subset of columns")
+expect_error(anchors(temp.x[1:5,1:5], type="column") <- 1:5+1L, "cannot modify column indices for a subset of rows")
+
 # Testing the combining.
 
 xsub <- x[1:5,]

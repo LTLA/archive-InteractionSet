@@ -129,10 +129,16 @@ setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, 
     if (!identical(regions(value), regions(x))) { 
         stop("replacement and original 'regions' must be identical")
     }
-    if (!missing(i)) { 
+    if (!missing(i) && !missing(j)) {
+        if (!identical(x@anchor1[i], value@anchor1)) {
+            stop("cannot modify row indices for a subset of columns")
+        }
+        if (!identical(x@anchor2[j], value@anchor2)) {
+            stop("cannot modify column indices for a subset of rows")
+        }
+    } else if (!missing(i)) { 
         x@anchor1[i] <- value@anchor1
-    }
-    if (!missing(j)) { 
+    } else if (!missing(j)) { 
         x@anchor2[j] <- value@anchor2
     }
     x@matrix[i,j] <- value@matrix
