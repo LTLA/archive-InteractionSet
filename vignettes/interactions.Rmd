@@ -19,16 +19,16 @@ require(InteractionSet)
 
 # Introduction
 
-Recently developed techniques such as Hi-C and ChIA-PET have driven the study of genomic interactions, i.e., physical interactions between pairs of genomic loci.
+Recently developed techniques such as Hi-C and ChIA-PET have driven the study of genomic interactions, i.e., physical interactions between pairs of genomic regions.
 The `r Githubpkg("LTLA/InteractionSet")` package provides classes to represent these interactions, and to store the associated experimental data.
-The aim is to provide package developers with stable class definitions that can be manipulated through a large set of available methods.
+The aim is to provide package developers with stable class definitions that can be manipulated through a large set of methods.
 It also provides users with a consistent interface across different packages that use the same classes, making it easier to perform analyses with multiple packages.
 
 Three classes are available from this package:
 
-- `GInteractions`, which represents pairwise interactions between genomic loci.
+- `GInteractions`, which represents pairwise interactions between genomic regions.
 - `InteractionSet`, which contains experimental data relevant to each interaction.
-- `ContactMatrix`, which stores data in a matrix where each row and column represents a genomic locus.
+- `ContactMatrix`, which stores data in a matrix where each row and column represents a genomic region.
 
 This vignette will give a brief description of each class and their associated methods.
 
@@ -52,14 +52,14 @@ Anyway, our set of three interactions can be represented like so:
 ```{r}
 index.1 <- c(1,5,10)
 index.2 <- c(3,2,6)
-locus.1 <- all.regions[index.1]
-locus.2 <- all.regions[index.2]
+region.1 <- all.regions[index.1]
+region.2 <- all.regions[index.2]
 ```
 
-Construction of a `GInteractions` object can be performed by supplying the interacting loci:
+Construction of a `GInteractions` object can be performed by supplying the interacting regions:
 
 ```{r}
-gi <- GInteractions(locus.1, locus.2)
+gi <- GInteractions(region.1, region.2)
 ```
 
 This generates a `GInteractions` object of length 3, where each entry corresponds to a pairwise interaction.
@@ -78,7 +78,7 @@ Storing indices rather than repeated `GRanges` saves memory in the final represe
 
 ## Getters 
 
-The interacting loci are referred to as anchor regions, because as they "anchor" the ends of the interaction.
+The interacting regions are referred to as anchor regions, because as they "anchor" the ends of the interaction.
 These can be accessed, funnily enough, with the `anchors` method:
 
 ```{r}
@@ -245,7 +245,7 @@ duplicated(doubled)
 
 ## Distance calculations
 
-We are often interested in the distances between interacting loci on the linear genome, to determine if an interaction is local or distal.
+We are often interested in the distances between interacting regions on the linear genome, to determine if an interaction is local or distal.
 These distances can be easily obtained with the `pairdist` function. 
 To illustrate, let's construct some more complex interactions -- this time, with multiple chromosomes:
 
@@ -690,5 +690,10 @@ For example, if counts were being stored in `iset`, then the linearized data in 
     (where the depth of coverage represents the intensity of the interaction of each region in `rowRanges(rse)` with `x`).
 One application would be in converting Hi-C data into pseudo-4C data for a user-specified "bait" region.
 
-# Conclusion
+# Summary
+
+So, there we have it -- three classes to handle interaction data in a variety of forms.
+We've covered most of the major features in this vignette, though details for any given method can be found through the standard methods, 
+    e.g., `?"anchors,GInteractions"` to get the man page for the `anchors` method.
+If you think of some general functionality that might be useful and isn't present here, just let us know and we'll try to stick it in somewhere.
 
