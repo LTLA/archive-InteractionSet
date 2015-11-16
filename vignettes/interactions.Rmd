@@ -1,21 +1,26 @@
----
-title: Interacting with InteractionSet classes for genomic interaction data
-author: Aaron Lun
-date: 16 November 2015 
-output: 
-  BiocStyle::html_document
-vignette: >
-  %\VignetteIndexEntry{InteractionSet vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}  
----
+<!--
+%\VignetteIndexEntry{Interacting with InteractionSet classes for genomic interaction data}
+%\VignettePackage{BiocStyle}
+%\VignetteEngine{knitr::knitr}
+-->
 
-```{r style, echo=FALSE, results="hide", message=FALSE}
-require(BiocStyle)
+```{r, echo=FALSE, results="hide", message=FALSE}
 require(knitr)
 opts_chunk$set(error=FALSE)
+```
+
+```{r style, echo=FALSE, results='asis'}
+BiocStyle::markdown()
+```
+
+```{r setup, echo=FALSE, message=FALSE}
 require(InteractionSet)
 ```
+
+# Interacting with InteractionSet classes for genomic interaction data
+Package: `r Githubpkg("LTLA/InteractionSet")` <br />
+Author: Aaron Lun (alun@wehi.edu.au) <br />
+Compilation date: `r Sys.Date()`
 
 # Introduction
 
@@ -716,3 +721,6 @@ We've covered most of the major features in this vignette, though details for an
     e.g., `?"anchors,GInteractions"` to get the man page for the `anchors` method.
 If you think of some general functionality that might be useful and isn't present here, just let us know and we'll try to stick it in somewhere.
 
+```{r}
+sessionInfo()
+```
