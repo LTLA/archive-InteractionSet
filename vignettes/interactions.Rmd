@@ -420,8 +420,8 @@ cbind(iset, iset[,3])
 
 ## Other methods
 
-Sorting, duplicate detection and overlap methods for `InteractionSet` objects are equivalent to those for `GInteractions`.
-Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` method within each `InteractionSet`.
+Sorting, duplicate detection, distance calculation and overlap methods for `InteractionSet` objects are equivalent to those for `GInteractions`.
+Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` object within each `InteractionSet`.
 Users should keep in mind that duplicate identification and sorting will not use any experimental data to distinguish between rows that have the same interactions.
 
 # Description of the `ContactMatrix` class
@@ -559,6 +559,25 @@ unique(temp.cm)
 
 Users should be aware that the values of the data matrix are *not* considered when identifying duplicates or during sorting.
 Only the anchor indices are used for ordering and duplicate detection.
+
+## Distance calculation
+
+The `pairdist` function can be applied to a `ContactMatrix`.
+This returns a matrix of distances of the same dimension as the `ContactMatrix`.
+Each cell contains the distance between the midpoints of the corresponding row/column regions.
+
+```{r}
+pairdist(cm)
+```
+
+Recall that distances are undefined for inter-chromosomal interactions, so the values are simply set to `NA`.
+Different distance definitions can be used by changing the `type` argument, as described for `GInteractions`.
+
+The `intrachr` function can also be used to identify those cells corresponding to intra-chromosomal interactions:
+
+```{r}
+intrachr(cm)
+```
 
 ## Overlap methods
 
