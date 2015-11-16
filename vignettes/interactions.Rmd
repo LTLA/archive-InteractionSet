@@ -409,7 +409,7 @@ iset[,1:2]
 ```
 
 `InteractionSet` objects can be combined row-wise using `rbind`, `c` or `combine`, similar to the methods described for `GInteractions`.
-This forms a new `InteractionSet` object containing all interactions (and associated data) from each individual object.
+This forms a new `InteractionSet` object containing all interactions from each individual object, with the associated data across all samples.
 Again, `combine` is distinct from `rbind` or `c` in that objects with different common regions can be combined.
 Objects with the same interactions can also be combined column-wise, i.e., to combine data from different samples.
 The example below forms an object with an extra copy of the data from sample 3:
@@ -424,6 +424,191 @@ Sorting, duplicate detection and overlap methods for `InteractionSet` objects ar
 Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` method within each `InteractionSet`.
 Users should keep in mind that duplicate identification and sorting will not use any experimental data to distinguish between rows that have the same interactions.
 
+# Description of the `ContactMatrix` class
+
+## Construction
+
+The `ContactMatrix` class inherits from the `Annotated` class, and is designed to represent the data in matrix format.
+Each row and column of the matrix corresponds to a genomic region, such that each cell of the matrix represents an interaction between the corresponding row and column.
+The value of that cell is typically the read pair count for that interaction, but any relevant metric can be used.
+Construction is achieved by passing a matrix along with the ranges of the interacting regions for all rows and columns:
+
+```{r}
+row.indices <- 1:10
+col.indices <- 9:15
+row.regions <- all.regions[row.indices]
+col.regions <- all.regions[col.indices]
+Nr <- length(row.indices)
+Nc <- length(col.indices)
+counts <- matrix(rpois(Nr*Nc, lambda=10), Nr, Nc)
+cm <- ContactMatrix(counts, row.regions, col.regions)
+```
+
+For purposes of memory efficiency, the interacting regions for each row or column are internally stored as described for `GInteractions`, 
+    i.e., as anchor indices pointing to a set of common regions.
+Construction can also be achieved directly from the indices and the set of common regions, as shown below:
+
+```{r}
+cm <- ContactMatrix(counts, row.indices, col.indices, all.regions)
+cm
+```
+
+## Getters
+
+The data matrix can be extracted using the `as.matrix` method:
+
+```{r}
+as.matrix(cm)
+```
+
+Anchor regions corresponding to each row and column can be extracted with `anchors`.
+This is shown below for the row-wise regions.
+Indices can also be extracted with `id=TRUE`, as described for the `GInteractions` class.
+
+```{r}
+anchors(cm, type="row")
+```
+
+The common set of regions can be extracted with `regions`:
+
+```{r}
+regions(cm)
+```
+
+Inheritance from `Annotated` also means that general metadata can be accessed using the `metadata` method.
+
+## Setters
+
+Parts or all of the data matrix can be modified using the `as.matrix` replacement method:
+
+```{r}
+temp.cm <- cm
+as.matrix(temp.cm[1,1]) <- 0
+```
+
+The `anchors` replacement method can be used to replace the row or column anchor indices:
+
+```{r}
+anchors(temp.cm) <- list(1:10, 1:7)
+```
+
+The `regions`, `replaceRegions` and `appendRegions` replacement methods are also available and work as described for `GInteractions` objects.
+In the example below, the common regions can be updated to include GC content:
+
+```{r}
+regions(temp.cm)$GC <- runif(length(regions(temp.cm)))
+regions(temp.cm)
+```
+
+Finally, the `metadata` replacement method can be used to set metadata:
+
+```{r}
+metadata(temp.cm)$description <- "I am a ContactMatrix"
+metadata(temp.cm)
+```
+
+## Subsetting and combining
+
+Subsetting returns a `ContactMatrix` containing only the specified rows or columns:
+
+```{r}
+cm[1:5,]
+cm[,1:5]
+```
+
+Combining can be done with `rbind` to combine by row, for objects with the same column anchor indices; 
+    or with `cbind` to combine by column, for objects with the same row anchor indices.
+This forms a new matrix with the additional rows or columns, as one might expect for matrices.
+
+```{r}
+rbind(cm, cm[1:5,]) # extra rows
+cbind(cm, cm[,1:5]) # extra columns
+```
+
+Note that the common regions must be the same in all objects.
+If the common regions differ, they should be set to the same value using `replaceRegions` before running `rbind` or `cbind`.
+The `combine` method is not provided here, as the generic does not provide methods to determine whether a user would want to combine by row or column.
+
+## Sorting and duplication
+
+Sorting of a `ContactMatrix` involves permuting the rows and columns so that both row and column indices are in ascending order.
+This representation is easiest to interpret, as adjacent rows or columns will correspond to adjacent regions.
+
+```{r}
+temp.cm <- cm
+anchors(temp.cm) <- list(10:1, 15:9)
+anchors(sort(temp.cm), id=TRUE)
+```
+
+Note that the `order` function does not return an integer vector, as one might expect.
+Instead, it returns a list of two integer vectors, containing the permutations for rows and columns respectively:
+
+```{r}
+order(temp.cm)
+```
+
+Duplicated rows or columns are defined as those with the same index as another row or column, respectively.
+The `duplicated` method will return a list of two logical vectors, indicating which rows or columns are considered to be duplicates.
+The `unique` method will return a `ContactMatrix` where all duplicates are removed.
+
+```{r}
+temp.cm <- rbind(cm, cm)
+duplicated(temp.cm)
+unique(temp.cm)
+```
+
+Users should be aware that the values of the data matrix are *not* considered when identifying duplicates or during sorting.
+Only the anchor indices are used for ordering and duplicate detection.
+
+## Overlap methods
+
+The `ContactMatrix` class has access to the `overlapsAny` method for `GRanges` subjects.
+This returns a list of two logical vectors indicating whether the row or column anchor regions overlap the interval(s) of interest.
+
+```{r}
+olap <- overlapsAny(cm, GRanges("chrA", IRanges(50, 100)))
+olap
+```
+
+Users can use this to subset the `ContactMatrix` according to the overlapping rows and column regions.
+Alternatively, we can set up AND or OR masks with these vectors, using the `outer` function:
+
+```{r}
+and.mask <- outer(olap$row, olap$column, "&")
+or.mask <- outer(olap$row, olap$column, "|")
+```
+
+This can be used to mask all uninteresting entries in the data matrix for examination:
+
+```{r}
+my.matrix <- as.matrix(cm)
+my.matrix[!and.mask] <- NA
+my.matrix
+```
+
+Two-dimensional overlaps can also be performed by running `overlapsAny` for both interacting regions.
+For example, if the second interacting region is located on chromosome B, we can do:
+
+```{r}
+olap2 <- overlapsAny(cm, GRanges("chrB", IRanges(1, 20)))
+```
+
+This can be used to mask the data, as previously shown:
+
+```{r}
+olap.mask <- outer(olap$row, olap2$column, "&") | outer(olap2$row, olap$column, "&")
+my.matrix <- as.matrix(cm)
+my.matrix[!olap.mask] <- NA
+my.matrix
+```
+
 # Converting between classes
 
+## Inflating a `GInteractions` into a `ContactMatrix`
+
+## Deflating a `ContactMatrix` into an `InteractionSet`
+
+## Linearizing an `InteractionSet` into a `RangedSummarizedExperiment`
+
+# Conclusion
 
