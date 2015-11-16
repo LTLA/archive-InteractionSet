@@ -1,0 +1,314 @@
+---
+title: Interacting with InteractionSet classes for genomic interaction data
+author: Aaron Lun
+date: 16 November 2015 
+output: 
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{InteractionSet vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r style, echo=FALSE, results="hide", message=FALSE}
+require(BiocStyle)
+require(knitr)
+opts_chunk$set(error=FALSE)
+require(InteractionSet)
+```
+
+# Introduction
+
+Recently developed techniques such as Hi-C and ChIA-PET have driven the study of genomic interactions, i.e., physical interactions between pairs of genomic loci.
+The `r Githubpkg("LTLA/InteractionSet")` package provides classes to represent these interactions, and to store the associated experimental data.
+The aim is to provide package developers with stable class definitions that can be manipulated through a large set of available methods.
+It also provides users with a consistent interface across different packages that use the same classes, making it easier to perform analyses with multiple packages.
+
+Three classes are available from this package:
+
+- `GInteractions`, which represents pairwise interactions between genomic loci.
+- `InteractionSet`, which contains experimental data relevant to each interaction.
+- `ContactMatrix`, which stores data in a matrix where each row and column represents a genomic locus.
+
+This vignette will give a brief description of each class and their associated methods.
+
+# Description of the `GInteractions` class
+
+## Construction
+
+The `GInteractions` class stores any number of pairwise interactions between two genomic regions.
+The regions themselves are represented with `GRanges` from the `r Biocpkg("GenomicRanges")` package.
+For example, say we have a `GRanges` object containing consecutive intervals that is assigned to `all.regions` (though any regions can be used here):
+
+```{r}
+all.regions <- GRanges("chrA", IRanges(0:9*10+1, 1:10*10))
+```
+
+Now, let's say we've got a bunch of interactions between elements of `all.regions`.
+We'll consider three pairwise interactions -- one between region #1 and #3, another between #5 and #2, and the last between #10 and #6.
+Note that the exact order doesn't matter -- here, an interaction between regions A and B is considered to be the same as an interaction between B and A.
+Anyway, our set of three interactions can be represented like so:
+
+```{r}
+index.1 <- c(1,5,10)
+index.2 <- c(3,2,6)
+locus.1 <- all.regions[index.1]
+locus.2 <- all.regions[index.2]
+```
+
+Construction of a `GInteractions` object can be performed by supplying the interacting loci:
+
+```{r}
+gi <- GInteractions(locus.1, locus.2)
+```
+
+This generates a `GInteractions` object of length 3, where each entry corresponds to a pairwise interaction.
+Alternatively, the indices can be supplied directly, along with the coordinates of the regions they refer to:
+
+```{r}
+gi <- GInteractions(index.1, index.2, all.regions)
+gi
+```
+
+Note that the `GRanges` are not stored separately for each interaction.
+Rather, a common `GRanges` object is used within the `GInteractions` object. 
+Each interaction simply provides indices to point at the two relevant intervals representing the interacting regions.
+This is because, in many cases, the same intervals are re-used for different interactions. 
+Storing indices rather than repeated `GRanges` saves memory in the final representation.
+
+## Getters 
+
+The interacting loci are referred to as anchor regions, because as they "anchor" the ends of the interaction.
+These can be accessed, funnily enough, with the `anchors` method:
+
+```{r}
+anchors(gi)
+```
+
+This returns a `GRangesList` of length 2, where the *i*^th^ interaction is between the *i*^th^ entry of `first` and that of `second`.
+We can also obtain `GRanges` for just the first or second anchor regions, by specifying `type="first"` or `"second"`, respectively.
+Alternatively, we can get the indices for each interaction directly by setting `id=TRUE`:
+
+```{r}
+anchors(gi, id=TRUE)
+```
+
+The set of common regions to which those indices point can be obtained with the `regions` method:
+
+```{r}
+regions(gi)
+```
+
+This is useful for development, as it is often more efficient to manipulate the indices and regions separately.
+For example, common operations can be applied to the output of `regions(gi)`, and the relevant results retrieved with the anchor indices.
+This is usually faster than applying those operations on repeated instances of the regions in `anchors(gi)`.
+
+A careful reader might notice a couple of things here.
+The first is that the `GRanges` returned by `regions` is sorted -- this is automatically performed within the `GInteractions` class, and enforced for consistency.
+The second is that the `first` anchor always has a higher genomic start coordinate than the `second` anchor (or, if there are multiple chromosomes, a later-ordered interval).
+This is intentional and avoids redundancy from permutations of the anchor regions.
+
+Finally, it's worth pointing out that the `GInteractions` object inherits from the `Vector` base class in the `r Biocpkg("S4Vectors")` package, 
+    and subsequently has access to all of its methods.
+For example, general metadata can be accessed using the `metadata` method, while interaction-specific metadata can be accessed with the `mcols` method.
+For convenience, specific fields in `mcols` can also be accessed directly with the `$` operator.
+
+## Setters 
+
+Modification of the anchors in an existing `GInteractions` object can be performed by supplying new anchor indices.
+For example, the code below re-specifies the three pairwise interactions as that between #1 and #5; between #2 and #6; and between #3 and #7, 
+    for the corresponding entries in `regions(temp.gi)`.
+
+```{r}
+temp.gi <- gi
+anchors(temp.gi) <- list(1:3, 5:7)
+```
+
+This replacement method probably won't get much use, as it would generally be less confusing to construct a new `GInteractions` object.
+Nonetheless, it is provided for purposes of completeness.
+
+Modification of the common regions is probably more useful to most people.
+The most typical application would be to annotate regions with some metadata, e.g., whether or not it is a promoter or enhancer:
+
+```{r}
+temp.gi <- gi
+annotation <- rep(c("E", "P", "N"), length.out=length(all.regions))
+regions(temp.gi)$anno <- annotation
+```
+
+This will show up when the anchor regions are retrieved:
+
+```{r}
+anchors(temp.gi)
+```
+
+The existing common regions can be replaced with a superset using the `replaceRegions` method.
+This may be useful, e.g., in cases where we want to make the anchor indices point to the correct entries in a larger set of regions.
+
+```{r}
+temp.gi <- gi
+super.regions <- GRanges("chrA", IRanges(0:19*10+1, 1:20*10))
+replaceRegions(temp.gi) <- super.regions
+```
+
+Alternatively, any additional regions can be added directly to the common set with the `appendRegions` method.
+This is a bit more efficient than calling `replaceRegions` on the concatenation of the extra regions with `regions(temp.gi)`.
+
+```{r}
+temp.gi <- gi
+extra.regions <- GRanges("chrA", IRanges(10:19*10+1, 11:20*10))
+appendRegions(temp.gi) <- extra.regions
+```
+
+Finally, the derivation from `Vector` means that we can set some metadata fields as well.
+For example, general metadata can be dumped into the `GInteractions` object using the `metadata` method:
+
+```{r}
+metadata(gi)$description <- "I am a GInteractions object"
+metadata(gi)
+```
+
+Interaction-specific metadata can also be stored, via the `mcols` method or through the `$` wrapper.
+One application might be to store interesting metrics relevant to each interaction, such as normalized contact frequencies:
+
+```{r}
+set.seed(1000)
+norm.freq <- rnorm(3) # obviously, these are not real frequencies.
+gi$norm.freq <- norm.freq
+mcols(gi)
+```
+
+## Subsetting and combining
+
+Subsetting of the `GInteractions` object will retrieve the specified interactions, as one might expect:
+
+```{r}
+sub.gi <- gi[1:2]
+sub.gi
+anchors(sub.gi, id=TRUE)
+```
+
+Objects can also be concatenated using `rbind` or `c`. 
+This forms a new `GInteractions` object that contains all of the interactions in the constituent objects.
+However, it requires that the common regions be the same across all objects.
+
+```{r}
+rbind(gi, sub.gi)
+```
+
+Objects with a different set of common regions can be concatenated using the `combine` method.
+This is more flexible but requires a bit more computational work, hence the distinction from `rbind` and `c`.
+
+```{r}
+new.gi <- gi
+regions(new.gi) <- resize(regions(new.gi), width=20)
+combine(gi, new.gi)
+```
+
+## Sorting and duplication
+
+Ordering of `GInteractions` objects is done based on the anchor indices.
+Specifically, interactions are ordered such that the first anchor index is increasing.
+Any interactions with the same first anchor index are ordered by the second index.
+
+```{r}
+new.gi <- gi
+anchors(new.gi) <- list(1:3, 5:7)
+combined <- c(gi, new.gi)
+order(combined)
+sorted <- sort(combined)
+anchors(sorted, id=TRUE)
+```
+
+Recall that the common regions are already sorted within each object.
+Sorting of the anchor indices has the additional effect of ensuring that the anchor regions are also sorted by the first (and, if tied, second) anchor coordinates.
+
+```{r}
+anchors(sorted, type="first")
+```
+
+Duplicated interactions are identified as those that have identical pairs of anchor indices.
+In the example below, all of the repeated entries in `doubled` are marked as duplicates.
+The `unique` method is also implemented and returns a `GInteractions` object where all duplicated entries bar the first are removed.
+
+```{r}
+doubled <- rbind(gi, gi)
+duplicated(doubled)
+```
+
+## Distance calculations
+
+We are often interested in the distances between interacting loci on the linear genome, to determine if an interaction is local or distal.
+These distances can be easily obtained with the `pairdist` function. 
+To illustrate, let's construct some more complex interactions -- this time, with multiple chromosomes:
+
+```{r}
+all.regions <- GRanges(rep(c("chrA", "chrB"), c(10, 5)), 
+        IRanges(c(0:9*10+1, 0:4*5+1), c(1:10*10, 1:5*5)))
+index.1 <- c(5, 15,  3, 12, 9, 10)
+index.2 <- c(1,  5, 11, 13, 7,  4) 
+gi <- GInteractions(index.1, index.2, all.regions)
+```
+
+By default, `pairdist` returns the distances between the midpoints of the anchor regions for each interaction.
+Any inter-chromosomal interactions will not have a defined distance along the linear genome, so a `NA` is returned instead.
+
+```{r}
+pairdist(gi)
+```
+
+Different distances can be obtained by specifying the `type` argument, e.g., gap, span, diagonal.
+In addition, whether an interaction is intra-chromosomal or not can be determined with the `intrachr` function:
+
+```{r}
+intrachr(gi)
+```
+
+## Overlap methods
+
+Overlaps can be identified on one dimension, between anchor regions and a linear genomic interval.
+Say we want to identify all interactions with at least one anchor region lying within a region of interest (e.g., a known promoter or gene).
+This can be done with the `findOverlaps` method, as shown below:
+    
+```{r}
+of.interest <- GRanges("chrA", IRanges(30, 60))
+olap <- findOverlaps(gi, of.interest)
+olap
+```
+
+Examination of the returned `Hits` object reveals that each reported interaction has at least one anchor region overlapping the interval specified in `of.interest`:
+
+```{r}
+anchors(gi[queryHits(olap)])
+```
+
+Longer `GRanges` can be specified if there are several regions of interest.
+Standard arguments can be supplied to `findOverlaps` to modify its behaviour, e.g., `type`, `minoverlap`, `maxgap`, to name a few.
+The corresponding `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available.
+
+A more complex situation involves identifying overlapping interactions in the two-dimensional interaction space.
+Say we have an existing interaction betweeen two regions, represented by a `GRangesList` of length 2.
+We want to determine if any of our new `GInteractions` interactions overlap with the existing one, e.g., to identify corresponding interactions between data sets.
+In particular, we only consider an overlap if each anchor region of the new interaction overlaps a corresponding anchor region of the existing interaction.
+To illustrate:
+
+```{r}
+paired.interest <- GRangesList(of.interest, GRanges("chrB", IRanges(10, 40)))
+olap <- findOverlaps(gi, paired.interest)
+olap
+```
+
+The existing interaction in `paired.interest` occurs between two intervals, one on chromosome A (i.e., `of.interest`) and another on chromosome B.
+Of all the interactions in our `GInteractions` object, only `gi[2]` is considered to be overlapping, 
+    despite the fact that multiple interactions in that object overlap with `of.interest` alone.
+This is because only `gi[2]` has a concomitant interaction with the interaction partner on chromosome B.
+
+The above call uses a `GRangesList` of length 2, where each constituent `GRanges` has a single interval.
+Multiple pairwise interactions can be specified with longer constituent `GRanges`, where corresponding entries between the two `GRanges` represent a single interaction.
+Alternatively, two `GInteractions` objects can be overlapped with each other.
+Again, arguments can be supplied to `findOverlaps` to tune its behaviour.
+The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available for these two-dimensional overlaps.
+
+# Converting between classes
+
+
