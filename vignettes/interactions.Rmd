@@ -180,7 +180,7 @@ mcols(gi)
 
 ## Subsetting and combining
 
-Subsetting of the `GInteractions` object will retrieve the specified interactions, as one might expect:
+Subsetting of a `GInteractions` object will return a new object containing only the specified interactions:
 
 ```{r}
 sub.gi <- gi[1:2]
@@ -203,7 +203,7 @@ However, it requires that the common regions be the same across all objects.
 rbind(gi, sub.gi)
 ```
 
-Objects with a different set of common regions can be concatenated using the `combine` method.
+Objects with different sets of common regions can be concatenated using the `combine` method.
 This is more flexible but requires a bit more computational work, hence the distinction from `rbind` and `c`.
 
 ```{r}
@@ -264,7 +264,7 @@ Any inter-chromosomal interactions will not have a defined distance along the li
 pairdist(gi)
 ```
 
-Different distances can be obtained by specifying the `type` argument, e.g., gap, span, diagonal.
+Different distances can be obtained by specifying the `type` argument, e.g., `"gap"`, `"span"`, `"diagonal"`.
 In addition, whether an interaction is intra-chromosomal or not can be determined with the `intrachr` function:
 
 ```{r}
