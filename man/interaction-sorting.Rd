@@ -82,7 +82,8 @@ This is equivalent to \code{x[!duplicated(x),]}, with any additional arguments p
 For all InteractionSet methods, the corresponding method is called on the GInteractions object in the \code{interactions} slot of the InteractionSet object.
 Return values for each InteractionSet method is the same as those for the corresponding GInteractions method 
     - except for \code{sort} and \code{unique}, which return a row-permuted or row-subsetted InteractionSet, respectively, instead of a GInteractions object.
-Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking.
+Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking,
+    i.e., the assay or metadata values for each interaction is \emph{not} used in distinguishing rows with the same interaction.
 }
 
 \examples{

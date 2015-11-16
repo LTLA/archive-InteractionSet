@@ -66,6 +66,9 @@ For a set of duplicated rows or columns, the first occurrence of that row/column
 
 \code{unique,ContactMatrix-method} returns an ContactMatrix object where all duplicate rows and columns have been removed from \code{x}.
 This is equivalent to subsetting based on the non-duplicate rows and columns defined in \code{duplicated,ContactMatrix-method}.
+
+Note that sorting and duplicate identification only use the anchor indices.
+The values of the \code{matrix} slot are \emph{not} used in distinguishing between rows or columns with the same index.
 }
 
 \examples{
