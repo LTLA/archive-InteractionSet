@@ -720,8 +720,8 @@ rse <- linearize(iset, x)
 rse
 ```
 
-The `linearize` function will select all interactions involving `x` and return a `RangedSummarizedExperiment` object, 
-    where the genomic interval for each row in the object corresponds to the *other* (i.e., non-`x`) region involved in each selected interaction.
+The `linearize` function will select all interactions involving `x` and return a `RangedSummarizedExperiment` object containing the data associated with those interactions. 
+The genomic interval for each row in `rse` corresponds to the *other* (i.e., non-`x`) region involved in each selected interaction.
 Of course, for self-interactions between `x` and itself, the function just reports `x` in the corresponding interval.
 
 ```{r}
