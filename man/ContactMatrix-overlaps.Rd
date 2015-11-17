@@ -1,6 +1,9 @@
 \name{ContactMatrix overlaps}
 
 \alias{overlapsAny,ContactMatrix,GRanges-method}
+\alias{overlapsAny,ContactMatrix,GRangesList-method}
+\alias{overlapsAny,ContactMatrix,GInteractions-method}
+\alias{overlapsAny,ContactMatrix,InteractionSet-method}
 
 \title{Find overlaps between GRanges and a ContactMatrix}
 

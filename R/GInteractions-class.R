@@ -15,6 +15,10 @@ setClass("GInteractions",
     )
 )
 
+# Could inherit from Hits with an extra 'regions'; but I don't want to
+# deal with 'queryHits' and 'subjectHits', which would get very confusing
+# when you're dealing with queries and subjects in the overlap section.
+
 .check_inputs <- function(anchor1, anchor2, regions, same.length=TRUE) {
     if (!all(is.finite(anchor1)) || !all(is.finite(anchor2))) { 
         return("all anchor indices must be finite integers")
