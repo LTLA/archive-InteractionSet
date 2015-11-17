@@ -634,20 +634,13 @@ my.matrix[!and.mask] <- NA
 my.matrix
 ```
 
-Two-dimensional overlaps can also be performed by running `overlapsAny` for both interacting regions.
+Two-dimensional overlaps can also be performed with a `ContrastMatrix` by running `overlapsAny` with a `GRangesList` or `GInteractions` as the `subject`.
+This returns a logical matrix indicating which cells of the matrix have overlaps.
 For example, if the first interacting region is `of.interest`, and the second interacting region is some interval at the start of chromosome B (below), we can do:
 
 ```{r}
-olap2 <- overlapsAny(cm, GRanges("chrB", IRanges(1, 20)))
-```
-
-This can be used to mask the data to only show the overlapping parts of the matrix:
-
-```{r}
-olap.mask <- outer(olap$row, olap2$column, "&") | outer(olap2$row, olap$column, "&")
-my.matrix <- as.matrix(cm)
-my.matrix[!olap.mask] <- NA
-my.matrix
+olap <- overlapsAny(cm, GRangesList(of.interest, GRanges("chrB", IRanges(1, 20))))
+olap
 ```
 
 # Converting between classes
