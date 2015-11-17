@@ -14,13 +14,13 @@ Compare or match GInteractions objects with each other, or with InteractionSet o
 }
 
 \usage{
-\S4method{GInteractions,GInteractions}{match}(x, table, nomatch=NA_integer_, incomparables=NULL, ...)
+\S4method{match}{GInteractions,GInteractions}(x, table, nomatch=NA_integer_, incomparables=NULL, ...)
 
 # The same call for 'match' is used for all combinations of GInteractions and
-# InteractionSet objects in 'x' and 'table'. For brevity, these will not be
+# InteractionSet objects in 'x' or 'table'. For brevity, these will not be
 # listed here.
 
-\S4method{GInteractions,GInteractions}{compare}(x, y)
+\S4method{compare}{GInteractions,GInteractions}(x, y)
 }
 
 \arguments{
@@ -30,7 +30,7 @@ Compare or match GInteractions objects with each other, or with InteractionSet o
 
 \item{table}{A GInteractions or InteractionSet object.}
 
-\item{nomatch, incomparables}{See \code{?\link{base::match}} for a description of these arguments.}
+\item{nomatch, incomparables}{See \code{?\link[base]{match}} for a description of these arguments.}
 
 \item{y}{A GInteractions object, of the same length as \code{x}.}
 
@@ -67,6 +67,6 @@ Aaron Lun
 \seealso{
 \code{\link{InteractionSet-class}},
 \code{\link{GInteractions-class}},
-\code{\link{base::match}},
+\code{\link[base]{match}},
 \code{\link[S4Vectors]{compare}}
 }

@@ -16,18 +16,9 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
     type=c("any", "start", "end", "within", "equal"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
-\S4method{overlapsAny}{ContactMatrix,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
-    ignore.strand=TRUE)
-\S4method{overlapsAny}{ContactMatrix,GInteractions}(query, subject, maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
-    ignore.strand=TRUE)
-\S4method{overlapsAny}{ContactMatrix,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
-    ignore.strand=TRUE)
+
+# The same call is used for the methods taking GRangesList, GInteractions and
+# InteractionSet objects as 'subject'. For brevity, these will not be listed.
 }
 
 \arguments{
