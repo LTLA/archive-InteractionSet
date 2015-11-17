@@ -273,9 +273,36 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
 ###############################################################
 # This defines the overlapsAny method.
 
+setMethod("overlapsAny", c(query="GInteractions", subject="GRanges"), 
+    function(query, subject, maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             algorithm=c("nclist", "intervaltree"),
+             ignore.strand=TRUE) {
+        # Slightly faster than 'countOverlaps > 0', as there's no need to enumerate.
+        rquery <- regions(query)
+        keep <- logical(length(rquery))
+        subset <- .get_used(query)
+        if (length(subset)!=length(rquery)) { rquery <- rquery[subset] }
+        keep[subset] <- overlapsAny(rquery, subject, maxgap=maxgap, minoverlap=minoverlap, type=type, 
+                                    algorithm=algorithm, ignore.strand=ignore.strand)
+        return(keep[anchors(query, type="first", id=TRUE)] | keep[anchors(query, type="second", id=TRUE)])
+    }
+)
+
+setMethod("overlapsAny", c(query="GRanges", subject="GInteractions"),
+    function(query, subject, maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             algorithm=c("nclist", "intervaltree"),
+             ignore.strand=TRUE) {
+        subset <- .get_used(subject)
+        overlapsAny(query, regions(subject)[subset], maxgap=maxgap, minoverlap=minoverlap, type=type, 
+                    algorithm=algorithm, ignore.strand=ignore.strand) 
+    }
+)
+
 for (siglist in list(
-        c(query="GInteractions", subject="GRanges"), 
-        c(query="GRanges", subject="GInteractions"),
+#        c(query="GInteractions", subject="GRanges"), 
+#        c(query="GRanges", subject="GInteractions"),
         c(query="GInteractions", subject="GRangesList"),
         c(query="GRangesList", subject="GInteractions"),
         c(query="GInteractions", subject="GInteractions")
