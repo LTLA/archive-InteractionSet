@@ -309,5 +309,34 @@ expect_equal(overlapsAny(x[0,], query.regions), list(row=logical(0), column=over
 expect_equal(overlapsAny(x[,0], query.regions), list(row=overlapsAny(anchors(x, type="row"), query.regions), column=logical(0)))
 expect_equal(overlapsAny(x[0,0], query.regions), list(row=logical(0), column=logical(0)))
 
+# Trying out some 2D overlaps.
+
+Nq3 <- 10
+query.starts <- round(runif(Nq3, 1, 100))
+query.ends <- query.starts + round(runif(Nq3, 5, 20))
+query.regions1 <- GRanges(rep(c("chrA", "chrB"), Nq3/2), IRanges(query.starts, query.ends))
+query.starts <- round(runif(Nq3, 1, 100))
+query.ends <- query.starts + round(runif(Nq3, 5, 20))
+query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq3/2), IRanges(query.starts, query.ends))
+pairing <- GRangesList(first=query.regions1, second=query.regions2)
+
+olap <- overlapsAny(x, pairing)
+temp.iset <- deflate(x, unique=TRUE)
+ref <- overlapsAny(temp.iset, pairing) # no NAs, everyone's represented here.
+ref <- inflate(temp.iset, anchors(x, type="row", id=TRUE), anchors(x, type="column", id=TRUE), fill=ref)
+expect_identical(olap, as.matrix(ref))
+
+olap <- overlapsAny(x, pairing, type="within")
+ref <- overlapsAny(temp.iset, pairing, type="within")
+ref <- inflate(temp.iset, anchors(x, type="row", id=TRUE), anchors(x, type="column", id=TRUE), fill=ref)
+expect_identical(olap, as.matrix(ref))
+
+olap <- overlapsAny(x, pairing)
+new.gi <- GInteractions(query.regions1, query.regions2)
+expect_identical(olap, overlapsAny(x, new.gi))
+
+new.iset <- InteractionSet(as.matrix(runif(10)), new.gi)
+expect_identical(olap, overlapsAny(x, new.iset))
+
 #######################################################
 # End
