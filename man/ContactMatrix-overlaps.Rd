@@ -13,12 +13,24 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
     type=c("any", "start", "end", "within", "equal"),
     algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
+\S4method{overlapsAny}{ContactMatrix,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{overlapsAny}{ContactMatrix,GInteractions}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
+\S4method{overlapsAny}{ContactMatrix,InteractionSet}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    algorithm=c("nclist", "intervaltree"),
+    ignore.strand=TRUE)
 }
 
 \arguments{
 \item{query}{A ContactMatrix object.}
 
-\item{subject}{A GRanges object.}
+\item{subject}{A GRanges, GRangesList, GInteractions or InteractionSet object.}
 
 \item{maxgap, minoverlap, type}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
@@ -30,13 +42,16 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
 }
 
 \details{
-Overlaps are identified between the row regions of \code{query} and the regions in \code{subject}.
+When \code{subject} is a GRanges, overlaps are identified between the row regions of \code{query} and the regions in \code{subject}.
 This is repeated for the column regions of \code{query}.
 A list of two logical vectors is returned, specifying the rows and columns in \code{query} that are overlapped by any region in \code{subject}.
-
 These vectors can be directly used to subset \code{query}.
-Alternatively, they can be used in \code{outer} to generate a logical matrix for masking.
-See the Examples section for some examples (obviously).
+Alternatively, they can be used in \code{outer} to generate a logical matrix for masking -- see Examples.
+
+For all other classes of \code{subject}, two-dimensional overlaps are identified.
+A logical matrix is returned indicating which entries in the ContactMatrix have overlaps with the specified interactions.
+For any given entry, an overlap is only considered if the regions for the corresponding row and column both overlap anchor regions in the \code{subject}.
+See \code{?"\link{findOverlaps,GInteractions,GInteractions-method}"} for more details.
 }
 
 \examples{
@@ -56,6 +71,13 @@ temp[!keep] <- NA
 keep <- outer(olap$row, olap$column, "&") # AND mask
 temp <- as.matrix(x)
 temp[!keep] <- NA
+
+# Two dimensional overlaps.
+pairing <- GRangesList(first=regions(x), second=regions(x))
+olap <- overlapsAny(x, pairing)
+olap
+olap <- overlapsAny(sort(x), pairing) # A bit prettier
+olap
 }
 
 \author{

@@ -425,4 +425,47 @@ for (siglist in list(
 }
 
 ###############################################################
+# Defining overlapsAny for ContactMatrix objects.
+
+setMethod("overlapsAny", c("ContactMatrix", "GRanges"), 
+    function(query, subject, maxgap=0L, minoverlap=1L,
+        type=c("any", "start", "end", "within", "equal"),
+        algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE) {
+        a1 <- anchors(query, id=TRUE, type="row")
+        a2 <- anchors(query, id=TRUE, type="column")
+        
+        is.used <- union(a1, a2)
+        is.overlapped <- logical(length(regions(query)))
+        is.overlapped[is.used] <- overlapsAny(regions(query)[is.used], subject, maxgap=maxgap,
+                                        minoverlap=minoverlap, type=type, algorithm=algorithm, 
+                                        ignore.strand=ignore.strand)
+        return(list(row=is.overlapped[a1], column=is.overlapped[a2]))
+})
+
+# Use outer(output$row, output$column, "|" or "&") to get the logical area in the interaction space.
+# Not sure it makes a great deal of sense to define 'findOverlaps' here.
+
+for (siglist in list(
+        c(query="ContactMatrix", subject="GRangesList"), 
+        c(query="ContactMatrix", subject="GInteractions"), 
+        c(query="ContactMatrix", subject="InteractionSet")
+    )) {
+    setMethod("overlapsAny", siglist,
+        function(query, subject, maxgap=0L, minoverlap=1L,
+             type=c("any", "start", "end", "within", "equal"),
+             algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE) {
+    
+        # It's possible to do this more efficiently by avoiding instantiation of the full object.
+        # But it would require a total re-implementation at the C++ level, which is a pain.
+        row.a <- rep(anchors(query, type="row", id=TRUE), ncol(query))
+        col.a <- rep(anchors(query, type="column", id=TRUE), each=nrow(query))
+        new.query <- GInteractions(row.a, col.a, regions(query)) 
+        out <- overlapsAny(new.query, subject, maxgap=maxgap, minoverlap=minoverlap, type=type,
+                           algorithm=algorithm, ignore.strand=ignore.strand)
+        dim(out) <- dim(query)
+        return(out)
+    })
+}
+
+###############################################################
 # End
