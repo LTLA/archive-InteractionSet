@@ -435,7 +435,7 @@ Users should keep in mind that duplicate identification and sorting will not use
 
 The `ContactMatrix` class inherits from the `Annotated` class, and is designed to represent the data in matrix format.
 Each row and column of the matrix corresponds to a genomic region, such that each cell of the matrix represents an interaction between the corresponding row and column.
-The value of that cell is typically the read pair count for that interaction, but any relevant metric can be used.
+The value of that cell is typically set to the read pair count for that interaction, but any relevant metric can be used.
 Construction is achieved by passing a matrix along with the ranges of the interacting regions for all rows and columns:
 
 ```{r}
@@ -450,7 +450,8 @@ cm <- ContactMatrix(counts, row.regions, col.regions)
 ```
 
 For purposes of memory efficiency, the interacting regions for each row or column are internally stored as described for `GInteractions`, 
-    i.e., as anchor indices pointing to a set of common regions.
+    i.e., as anchor indices pointing to a set of (sorted) common regions.
+The number and order of rows need not be consistent with that of the columns in each `ContactMatrix`.
 Construction can also be achieved directly from the indices and the set of common regions, as shown below:
 
 ```{r}
@@ -501,16 +502,20 @@ The `regions`, `replaceRegions` and `appendRegions` replacement methods are also
 In the example below, the common regions can be updated to include GC content:
 
 ```{r}
-regions(temp.cm)$GC <- runif(length(regions(temp.cm)))
+regions(temp.cm)$GC <- runif(length(regions(temp.cm))) # not real values, obviously.
 regions(temp.cm)
 ```
 
-Finally, the `metadata` replacement method can be used to set metadata:
+Finally, the `metadata` replacement method can be used to set general metadata:
 
 ```{r}
 metadata(temp.cm)$description <- "I am a ContactMatrix"
 metadata(temp.cm)
 ```
+
+There is no slot to store metadata for each cell of the matrix. 
+Any representation of intraction-specific metadata in matrix form would be equivalent to constructing a new `ContactMatrix` 
+    -- so, we might as well do that, instead of trying to cram additional data into an existing object.
 
 ## Subsetting and combining
 
@@ -519,6 +524,20 @@ Subsetting returns a `ContactMatrix` containing only the specified rows or colum
 ```{r}
 cm[1:5,]
 cm[,1:5]
+```
+
+It should be stressed that the subset indices have no relation to the anchor indices.
+For example, the second subsetting call does not select columns corresponding to anchor regions #1 to #5.
+Rather, it selects the first 5 columns, which actually correspond to anchor regions #9 to #13:
+
+```{r}
+anchors(cm[,1:5], type="column", id=TRUE)
+```
+
+It is also possible to transpose a `ContactMatrix`, to obtain an object where the rows and columns are exchanged:
+
+```{r}
+t(cm)
 ```
 
 Combining can be done with `rbind` to combine by row, for objects with the same column anchor indices; 
@@ -530,9 +549,9 @@ rbind(cm, cm[1:5,]) # extra rows
 cbind(cm, cm[,1:5]) # extra columns
 ```
 
-Note that the common regions must be the same in all objects.
-If the common regions differ, they should be set to the same value using `replaceRegions` before running `rbind` or `cbind`.
-The `combine` method is not provided here, as the generic does not provide methods to determine whether a user would want to combine by row or column.
+Note that the common regions must be the same in all objects to run `cbind` or `rbind`.
+If the common regions differ, they should be set to the same value (namely, a union of common regions from all objects) by using `replaceRegions` beforehand.
+The `combine` method is not provided here, as the generic does not provide arguments to specify whether a user would want to combine by row or column.
 
 ## Sorting and duplication
 
@@ -709,9 +728,9 @@ Of course, for self-interactions between `x` and itself, the function just repor
 rowRanges(rse)
 ```
 
-This conversion is useful for collapsing 2D data into a 1D form for easier processing.
+This conversion method is useful for collapsing 2D data into a 1D form for easier processing.
 For example, if sequencing counts were being stored in `iset`, then the linearized data in `rse` could be analyzed as if it represented genomic coverage 
-    (where the depth of coverage represents the intensity of the interaction of each region in `rowRanges(rse)` with `x`).
+    (where the depth of coverage represents the intensity of the interaction of each region in `rowRanges(rse)` with the region of interest in `x`).
 One application would be in converting Hi-C data into pseudo-4C data, given a user-specified "bait" region as `x`.
 
 # Summary
