@@ -467,5 +467,8 @@ for (siglist in list(
     })
 }
 
+# Haven't defined the converse methods, as it's not clear whether you want to consider the entire
+# interaction space in the ContactMatrix, or just the non-NA entries. 
+
 ###############################################################
 # End
