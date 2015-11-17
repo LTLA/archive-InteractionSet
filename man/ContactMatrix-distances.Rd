@@ -17,7 +17,7 @@ Methods to compute linear distances between pairs of interacting regions in a Co
 }
 
 \arguments{
-\item{x}{An ContactMatrix object.}
+\item{x}{A ContactMatrix object.}
 
 \item{type}{
     A character string specifying the type of distance to compute.

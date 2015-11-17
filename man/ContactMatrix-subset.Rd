@@ -29,7 +29,7 @@ Methods to subset or combine ContactMatrix objects.
 }
 
 \arguments{
-\item{x}{An ContactMatrix object.}
+\item{x}{A ContactMatrix object.}
 
 \item{i, j}{A vector of subscripts, indicating the rows and columns to be subsetted for \code{i} and \code{j}, respectively.}
 

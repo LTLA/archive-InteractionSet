@@ -50,7 +50,7 @@ Methods to get and set fields in an ContactMatrix object.
 }
 
 \arguments{
-\item{x}{An ContactMatrix object.}
+\item{x}{A ContactMatrix object.}
 
 \item{type}{a string specifying which anchors are to be extracted or replaced.}
 

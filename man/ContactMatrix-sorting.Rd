@@ -26,7 +26,7 @@ Also, methods to remove duplicate rows or columns in each ContactMatrix.
     Otherwise, ignored in all other methods.
 }
 
-\item{x}{An ContactMatrix object.}
+\item{x}{A ContactMatrix object.}
 
 \item{na.last}{
     A logical scalar indicating whether \code{NA} values should be ordered last.
