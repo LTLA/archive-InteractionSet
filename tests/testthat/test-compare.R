@@ -21,14 +21,15 @@ ref.match <- function(x, y) {
 expect_identical(match(x, another.x), ref.match(x, another.x))
 expect_identical(match(x, another.x[1:5]), ref.match(x, another.x[1:5]))
 expect_identical(match(x[20:10], another.x), ref.match(x[20:10], another.x))
-regions(another.x)$score <- 5
 
-expect_error(match(x, another.x), "'regions' must be identical")
 expect_identical(match(x[0], another.x), integer(0))
 expect_identical(match(x, another.x[0]), rep(as.integer(NA), Np))
+regions(another.x)$score <- 5
+expect_error(match(x, another.x), "'regions' must be identical")
 
 # Trying for ISet objects.
 
+set.seed(8001)
 iset <- InteractionSet(as.matrix(runif(Np)), x)
 another.x <- x[sample(Np)] 
 iset2 <- InteractionSet(as.matrix(runif(Np)), another.x)
@@ -54,3 +55,8 @@ sub.x <- x[3:12]
 expect_identical(S4Vectors::compare(sub.x, another.x), ifelse(sub.x@anchor1==another.x@anchor1, sub.x@anchor2-another.x@anchor2, sub.x@anchor1-another.x@anchor1))
 expect_identical(S4Vectors::compare(another.x, sub.x), -S4Vectors::compare(sub.x, another.x))
 expect_identical(S4Vectors::compare(x[0], another.x[0]), integer(0))
+
+regions(another.x)$whee <- 1
+expect_error(S4Vectors::compare(x, another.x), "'regions' must be identical")
+
+
