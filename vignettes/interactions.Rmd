@@ -632,10 +632,10 @@ my.matrix
 ## Inflating a `GInteractions` into a `ContactMatrix`
 
 If we have a `GInteractions` object, we can convert this into a `ContactMatrix` with specified rows and columns.
-Each pairwise interaction corresponds to zero, one or two cells of the `ContactMatrix` (zero if it lies outside of the specified rows and columns, obviously;
+Each pairwise interaction in the `GInteractions` corresponds to zero, one or two cells of the `ContactMatrix` (zero if it lies outside of the specified rows and columns, obviously;
     two for some interactions when the `ContactMatrix` is intra-chromosomal and crosses the diagonal of the interaction space).
-Each cell is filled with some value associated with the corresponding interaction, e.g., counts, normalized contact frequencies.
-Cells with no corresponding interactions in `gi` are set to `NA`.
+Each cell is filled with an arbitrary value associated with the corresponding interaction, e.g., counts, normalized contact frequencies.
+Cells with no corresponding interactions in the `GInteractions` object are set to `NA`.
 
 ```{r}
 counts <- rpois(length(gi), lambda=10)
@@ -647,9 +647,9 @@ anchors(new.cm, id=TRUE)
 as.matrix(new.cm)
 ```
 
-In the above example, the desired rows and columns are specified by supplying a set of anchor indices.
-Alternatively, a `GRanges` object can be passed to the `inflate` method.
-The desired rows/columns are defined as those where the corresponding regions overlap any of the intervals in the `GRanges` object.
+In the above example, the desired rows and columns are specified by supplying two integer vectors containing the indices for the anchor regions of interest.
+An alternative approach involves simply passing a `GRanges` object to the `inflate` method.
+The desired rows/columns are defined as those where the corresponding anchor regions overlap any of the intervals in the `GRanges` object.
 
 ```{r}
 inflate(gi, GRanges("chrA", IRanges(50, 100)), GRanges("chrA", IRanges(10, 50)), fill=counts)
@@ -661,9 +661,9 @@ Finally, a character vector can be passed to select all rows/columns lying in a 
 inflate(gi, "chrA", "chrB", fill=counts)
 ```
 
-The process is largely the same for converting an `InteractionSet` object into a `ContactMatrix`.
-However, some additional arguments are available to extract specific data values from the former for filling of the later.
-For example, if we were to fill the `ContactMatrix` using the count data from the 3rd library, we could do:
+The same method is used to convert an `InteractionSet` object into a `ContactMatrix`, by operating on the underlying `GInteractions` object stored the former.
+Some additional arguments are available to extract specific data values from the `InteractionSet` to fill the `ContactMatrix`.
+For example, if we were to fill the `ContactMatrix` using the counts from the 3rd library in `iset`, we could do:
 
 ```{r}
 new.cm <- inflate(iset, desired.rows, desired.cols, sample=3)
@@ -673,16 +673,16 @@ as.matrix(new.cm)
 ## Deflating a `ContactMatrix` into an `InteractionSet`
 
 The reverse procedure can also be used to convert a `ContactMatrix` into an `InteractionSet`.
-This will report pairwise interactions corresponding to each cell of the matrix, with the value of that cell accessible with the `assay` method.
+This will report pairwise interactions corresponding to each cell of the matrix, with the value of that cell stored as experimental data in the `InteractionSet`:
 
 ```{r}
 new.iset <- deflate(cm)
 new.iset
 ```
 
-Note that duplicated interactions are automatically removed.
-This may occur when the `ContactMatrix` crosses the diagonal of the interaction space.
-In most cases, duplicate removal is sensible as the values of the matrix should be reflected around the diagonal.
+Note that any duplicated interactions are automatically removed.
+Such duplications may occur when the `ContactMatrix` crosses the diagonal of the interaction space.
+In most cases, duplicate removal is sensible as the values of the matrix should be reflected around the diagonal, such that the information in duplicated entries is redundant.
 However, if this is not the case, we can preserve duplicates for later processing:
 
 ```{r}
@@ -691,9 +691,9 @@ deflate(cm, unique=FALSE)
 
 ## Linearizing an `InteractionSet` into a `RangedSummarizedExperiment`
 
-The `InteractionSet` stores two-dimensional data across the interaction space.
+The `InteractionSet` stores experimental data for pairwise interactions that span the two-dimensional interaction space.
 This can be "linearized" into one-dimensional data across the linear genome by only considering the interactions involving a single anchor region.
-For example, let's say we're interested in the interactions involving a particular region of chromosome A: 
+For example, let's say we're interested in the interactions involving a particular region of chromosome A, defined below as `x`: 
 
 ```{r}
 x <- GRanges("chrA", IRanges(42, 48))
@@ -701,8 +701,8 @@ rse <- linearize(iset, x)
 rse
 ```
 
-The `linearize` function will identify all interactions involving `x` and return a `RangedSummarizedExperiment` object, 
-    where each genomic interval corresponds to the *other* (i.e., non-`x`) region involved in each interaction.
+The `linearize` function will select all interactions involving `x` and return a `RangedSummarizedExperiment` object, 
+    where the genomic interval for each row in the object corresponds to the *other* (i.e., non-`x`) region involved in each selected interaction.
 Of course, for self-interactions between `x` and itself, the function just reports `x` in the corresponding interval.
 
 ```{r}
@@ -710,9 +710,9 @@ rowRanges(rse)
 ```
 
 This conversion is useful for collapsing 2D data into a 1D form for easier processing.
-For example, if counts were being stored in `iset`, then the linearized data in `rse` could be analyzed as if it represented genomic coverage 
+For example, if sequencing counts were being stored in `iset`, then the linearized data in `rse` could be analyzed as if it represented genomic coverage 
     (where the depth of coverage represents the intensity of the interaction of each region in `rowRanges(rse)` with `x`).
-One application would be in converting Hi-C data into pseudo-4C data for a user-specified "bait" region.
+One application would be in converting Hi-C data into pseudo-4C data, given a user-specified "bait" region as `x`.
 
 # Summary
 
