@@ -546,15 +546,15 @@ anchors(sort(temp.cm), id=TRUE)
 ```
 
 Note that the `order` function does not return an integer vector, as one might expect.
-Instead, it returns a list of two integer vectors, containing the permutations for rows and columns respectively:
+Instead, it returns a list of two integer vectors, where the first and second vector contains the permutation required to sort the rows and columns, respectively:
 
 ```{r}
 order(temp.cm)
 ```
 
 Duplicated rows or columns are defined as those with the same index as another row or column, respectively.
-The `duplicated` method will return a list of two logical vectors, indicating which rows or columns are considered to be duplicates.
-The `unique` method will return a `ContactMatrix` where all duplicates are removed.
+The `duplicated` method will return a list of two logical vectors, indicating which rows or columns are considered to be duplicates (first occurrence is treated as a non-duplicate).
+The `unique` method will return a `ContactMatrix` where all duplicate rows or columns are removed.
 
 ```{r}
 temp.cm <- rbind(cm, cm)
@@ -564,18 +564,18 @@ unique(temp.cm)
 
 Users should be aware that the values of the data matrix are *not* considered when identifying duplicates or during sorting.
 Only the anchor indices are used for ordering and duplicate detection.
+Rows or columns with the same anchor indices will *not* be distinguished by matrix values.
 
 ## Distance calculation
 
-The `pairdist` function can be applied to a `ContactMatrix`.
-This returns a matrix of distances of the same dimension as the `ContactMatrix`.
-Each cell contains the distance between the midpoints of the corresponding row/column regions.
+The `pairdist` function can be applied to a `ContactMatrix`, returning a matrix of distances of the same dimension as the supplied object.
+Each cell contains the distance between the midpoints of the corresponding row/column anchor regions.
 
 ```{r}
 pairdist(cm)
 ```
 
-Recall that distances are undefined for inter-chromosomal interactions, so the values are simply set to `NA`.
+Recall that distances are undefined for inter-chromosomal interactions, so the values for the corresponding cells in the matrix are simply set to `NA`.
 Different distance definitions can be used by changing the `type` argument, as described for `GInteractions`.
 
 The `intrachr` function can also be used to identify those cells corresponding to intra-chromosomal interactions:
@@ -586,8 +586,8 @@ intrachr(cm)
 
 ## Overlap methods
 
-The `ContactMatrix` class has access to the `overlapsAny` method for `GRanges` subjects.
-This returns a list of two logical vectors indicating whether the row or column anchor regions overlap the interval(s) of interest.
+The `ContactMatrix` class has access to the `overlapsAny` method when the `subject` argument is a `GRanges` object.
+This method returns a list of two logical vectors indicating whether the row or column anchor regions overlap the interval(s) of interest.
 
 ```{r}
 of.interest <- GRanges("chrA", IRanges(50, 100))
@@ -595,7 +595,7 @@ olap <- overlapsAny(cm, of.interest)
 olap
 ```
 
-Users can use this to subset the `ContactMatrix` according to the overlapping rows and column regions.
+Users can use this to subset the `ContactMatrix`, to select only those rows or columns that overlap the regions of interest.
 Alternatively, we can set up AND or OR masks with these vectors, using the `outer` function:
 
 ```{r}
@@ -612,13 +612,13 @@ my.matrix
 ```
 
 Two-dimensional overlaps can also be performed by running `overlapsAny` for both interacting regions.
-For example, if the first interacting region is `of.interest`, and the second interacting region is as shown below, we can do:
+For example, if the first interacting region is `of.interest`, and the second interacting region is some interval at the start of chromosome B (below), we can do:
 
 ```{r}
 olap2 <- overlapsAny(cm, GRanges("chrB", IRanges(1, 20)))
 ```
 
-This can be used to mask the data, as previously shown:
+This can be used to mask the data to only show the overlapping parts of the matrix:
 
 ```{r}
 olap.mask <- outer(olap$row, olap2$column, "&") | outer(olap2$row, olap$column, "&")
