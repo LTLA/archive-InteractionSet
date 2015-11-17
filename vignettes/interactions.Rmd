@@ -337,8 +337,9 @@ iset <- InteractionSet(counts, gi)
 iset
 ```
 
-Multiple matrices can also be stuffed into the `InteractionSet` object.
-For example, if we have a matrix of normalized interaction frequencies, these could be stored along with the raw counts:
+The constructor takes an existing `GInteractions` object of length equal to the number of rows in the matrix.
+Multiple matrices can also be stored by supplying them as a list.
+For example, if we have a matrix of normalized interaction frequencies, these could be stored along with the counts:
 
 ```{r}
 norm.freq <- matrix(rnorm(Nlibs*length(gi)), ncol=Nlibs)
@@ -346,13 +347,13 @@ iset2 <- InteractionSet(list(counts=counts, norm.freq=norm.freq), gi)
 iset2
 ```
 
-Users and developers familiar with the `RangedSummarizedExperiment` class should have little trouble dealing with the `InteractionSet`.
-Pairwise interactions and `GInteractions` in the `InteractionSet` class are analogous to genomic intervals and `GRanges` in the `RangedSummarizedExperiment` class.
+Users and developers familiar with the `RangedSummarizedExperiment` class should have little trouble dealing with the `InteractionSet` class.
+The latter is simply the analogue of the former, after replacing genomic intervals in `GRanges` with  pairwise interactions in `GInteractions`.
 
 ## Getters
 
 The `InteractionSet` object supports all access methods in the `SummarizedExperiment0` class, e.g., `colData`, `metadata` and so on.
-In particular, the `assay` and `assays` method allows extraction of the data matrices:
+In particular, the `assay` and `assays` methods can be used to extract the data matrices:
 
 ```{r}
 assay(iset)
@@ -365,11 +366,11 @@ The `interactions` method extracts the `GInteractions` object containing the int
 interactions(iset)
 ```
 
-Access methods for the `GInteractions` class can also be applied to the `InteractionSet` object.
-These are convenience wrappers that will operate on the `GInteractions` object within each `InteractionSet`:
+Access methods for the `GInteractions` class can also be directly applied to the `InteractionSet` object.
+These methods are wrappers that will operate on the `GInteractions` object within each `InteractionSet`, which simplifies the calling sequence:
 
 ```{r}
-anchors(iset, id=TRUE)
+anchors(iset, id=TRUE) # easier than anchors(interactions(iset)), id=TRUE)
 regions(iset)
 ```
 
@@ -393,8 +394,8 @@ regions(new.gi)$score <- 1
 interactions(new.iset) <- new.gi
 ```
 
-Of course, replacement methods for the `GInteractions` class can also be applied here.
-These methods will operate directly on the `GInteractions` object within each `InteractionSet`.
+Of course, the replacement methods described for the `GInteractions` class is also available for `InteractionSet` objects.
+These methods will operate directly on the `GInteractions` object contained within each `InteractionSet`.
 This is often more convenient than extracting the interactions, modifying them and then replacing them with `interactions<-`.
 
 ```{r}
@@ -406,7 +407,7 @@ regions(new.iset)$score <- 1 # same as above.
 Subsetting an `InteractionSet` by row will form a new object containing only the specified interactions (and the associated data for all samples), 
     analogous to subsetting of a `GInteractions` object.
 However, subsetting the object by column will form a new object containing only the data relevant to the specified *samples*.
-This new object will still contain all of the interactions, unless subsetting by row is simultaneously performed.
+This new object will still contain all interactions, unless subsetting by row is simultaneously performed.
 
 ```{r}
 iset[1:3,]
@@ -415,9 +416,11 @@ iset[,1:2]
 
 `InteractionSet` objects can be combined row-wise using `rbind`, `c` or `combine`, similar to the methods described for `GInteractions`.
 This forms a new `InteractionSet` object containing all interactions from each individual object, with the associated data across all samples.
-Again, `combine` is distinct from `rbind` or `c` in that objects with different common regions can be combined.
-Objects with the same interactions can also be combined column-wise, i.e., to combine data from different samples.
-The example below forms an object with an extra copy of the data from sample 3:
+Again, `combine` is distinct from `rbind` or `c` in that objects with different common regions can be combined in the former but not the latter.
+
+Objects with the same interactions can also be combined column-wise with the `cbind` method.
+This is used to combine data from different samples.
+The example below forms an `InteractionSet` object with an extra copy of the data from sample 3:
 
 ```{r}
 cbind(iset, iset[,3])
@@ -427,7 +430,8 @@ cbind(iset, iset[,3])
 
 Sorting, duplicate detection, distance calculation and overlap methods for `InteractionSet` objects are equivalent to those for `GInteractions`.
 Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` object within each `InteractionSet`.
-Users should keep in mind that duplicate identification and sorting will not use any experimental data to distinguish between rows that have the same interactions.
+As a consequence, only the anchor indices will be used for sorting and duplication identification.
+Experimental data will *not* be used to distinguish between rows of an `InteractionSet` that correspond to the same interaction.
 
 # Description of the `ContactMatrix` class
 
