@@ -251,8 +251,8 @@ duplicated(doubled)
 ## Distance calculations
 
 We are often interested in the distances between interacting regions on the linear genome, to determine if an interaction is local or distal.
-These distances can be easily obtained with the `pairdist` function. 
-To illustrate, let's construct some more complex interactions -- this time, with multiple chromosomes:
+These distances can be easily obtained with the `pairdist` method. 
+To illustrate, let's construct some interactions involving multiple chromosomes:
 
 ```{r}
 all.regions <- GRanges(rep(c("chrA", "chrB"), c(10, 5)), 
@@ -269,7 +269,7 @@ Any inter-chromosomal interactions will not have a defined distance along the li
 pairdist(gi)
 ```
 
-Different distances can be obtained by specifying the `type` argument, e.g., `"gap"`, `"span"`, `"diagonal"`.
+Different types of distances can be obtained by specifying the `type` argument, e.g., `"gap"`, `"span"`, `"diagonal"`.
 In addition, whether an interaction is intra-chromosomal or not can be determined with the `intrachr` function:
 
 ```{r}
@@ -278,9 +278,9 @@ intrachr(gi)
 
 ## Overlap methods
 
-Overlaps can be identified on one dimension, between anchor regions and a linear genomic interval.
+Overlaps in one dimension can be identified between anchor regions and a linear genomic interval.
 Say we want to identify all interactions with at least one anchor region lying within a region of interest (e.g., a known promoter or gene).
-This can be done with the `findOverlaps` method, as shown below:
+This can be done with the `findOverlaps` method:
     
 ```{r}
 of.interest <- GRanges("chrA", IRanges(30, 60))
@@ -288,19 +288,20 @@ olap <- findOverlaps(gi, of.interest)
 olap
 ```
 
-Examination of the returned `Hits` object reveals that each reported interaction has at least one anchor region overlapping the interval specified in `of.interest`:
+This returns a `Hits` object containing pairs of indices, where each pair represents an overlap between the interaction (`query`) with a genomic interval (`subject`).
+Here, each reported interaction has at least one anchor region overlapping the interval specified in `of.interest`:
 
 ```{r}
 anchors(gi[queryHits(olap)])
 ```
 
 Longer `GRanges` can be specified if there are several regions of interest.
-Standard arguments can be supplied to `findOverlaps` to modify its behaviour, e.g., `type`, `minoverlap`, `maxgap`, to name a few.
-The corresponding `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available.
+Standard arguments can be supplied to `findOverlaps` to modify its behaviour, e.g., `type`, `minoverlap`.
+The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available.
 
 A more complex situation involves identifying overlapping interactions in the two-dimensional interaction space.
 Say we have an existing interaction betweeen two regions, represented by a `GRangesList` of length 2.
-We want to determine if any of our new `GInteractions` interactions overlap with the existing one, e.g., to identify corresponding interactions between data sets.
+We want to determine if any of our "new" `GInteractions` interactions overlap with the existing interaction, e.g., to identify corresponding interactions between data sets.
 In particular, we only consider an overlap if each anchor region of the new interaction overlaps a corresponding anchor region of the existing interaction.
 To illustrate:
 
@@ -310,10 +311,10 @@ olap <- findOverlaps(gi, paired.interest)
 olap
 ```
 
-The existing interaction in `paired.interest` occurs between two intervals, one on chromosome A (i.e., `of.interest`) and another on chromosome B.
+The existing interaction in `paired.interest` occurs between one interval on chromosome A (i.e., `of.interest`) and another on chromosome B.
 Of all the interactions in our `GInteractions` object, only `gi[2]` is considered to be overlapping, 
-    despite the fact that multiple interactions in that object overlap with `of.interest` alone.
-This is because only `gi[2]` has a concomitant interaction with the interaction partner on chromosome B.
+    despite the fact that several interactions have 1D overlaps with `of.interest`.
+This is because only `gi[2]` has a concomitant overlap with the interacting partner region on chromosome B.
 
 The above call uses a `GRangesList` of length 2, where each constituent `GRanges` has a single interval.
 Multiple pairwise interactions can be specified with longer constituent `GRanges`, where corresponding entries between the two `GRanges` represent a single interaction.
