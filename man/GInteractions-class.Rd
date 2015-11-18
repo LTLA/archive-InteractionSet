@@ -100,6 +100,6 @@ based on suggestions from Malcolm Perry and Liz Ing-Simmons.
 \seealso{
 \code{\link{interaction-access}},
 \code{\link{interaction-subset}},
-\code{\link{interaction-sort}}
+\code{\link{interaction-compare}}
 }
 

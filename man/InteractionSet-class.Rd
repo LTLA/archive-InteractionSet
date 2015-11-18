@@ -73,6 +73,6 @@ Aaron Lun
 \seealso{
 \code{\link{interaction-access}},
 \code{\link{interaction-subset}},
-\code{\link{interaction-sort}}
+\code{\link{interaction-compare}}
 }
 
