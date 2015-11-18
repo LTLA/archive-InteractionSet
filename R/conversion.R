@@ -78,16 +78,13 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
 setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
-    all.values <- as.vector(as.matrix(x))
-    row.index <- rep(anchors(x, type="row", id=TRUE), ncol(x))
-    col.index <- rep(anchors(x, type="column", id=TRUE), each=nrow(x))
-
-    is.valid <- !is.na(all.values)
-    row.index <- row.index[is.valid]
-    col.index <- col.index[is.valid]
-    all.values <- all.values[is.valid]
+    is.valid <- !is.na(as.matrix(x))
+    valid.coords <- which(is.valid, arr.ind=TRUE)
+    row.index <- anchors(x, type="row", id=TRUE)[valid.coords[,1]]
+    col.index <- anchors(x, type="column", id=TRUE)[valid.coords[,2]]
 
     out <- .enforce_order(row.index, col.index)
+    all.values <- as.matrix(x)[is.valid]
     dim(all.values) <- c(length(all.values), 1L)
     final <- InteractionSet(all.values, GInteractions(out$anchor1, out$anchor2, regions(x)), ...)
 
