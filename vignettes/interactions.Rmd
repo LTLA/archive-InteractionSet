@@ -217,9 +217,9 @@ regions(new.gi) <- resize(regions(new.gi), width=20)
 combine(gi, new.gi)
 ```
 
-## Sorting and duplication
+## Sorting, duplication and matching
 
-Ordering of `GInteractions` objects is done based on the anchor indices.
+Ordering of `GInteractions` objects is performed using the anchor indices.
 Specifically, interactions are ordered such that the first anchor index is increasing.
 Any interactions with the same first anchor index are ordered by the second index.
 
@@ -232,8 +232,9 @@ sorted <- sort(combined)
 anchors(sorted, id=TRUE)
 ```
 
-Recall that the common regions are already sorted within each object.
-Sorting of the anchor indices has the additional effect of ensuring that the anchor regions are also sorted by the first (and, if tied, second) anchor coordinates.
+Recall that the common regions are already sorted within each `GInteractions` object.
+This means that sorting by the anchor indices is equivalent to sorting on the anchor regions themselves.
+In the example below, the anchor regions are sorted properly within the sorted object.
 
 ```{r}
 anchors(sorted, type="first")
@@ -241,11 +242,28 @@ anchors(sorted, type="first")
 
 Duplicated interactions are identified as those that have identical pairs of anchor indices.
 In the example below, all of the repeated entries in `doubled` are marked as duplicates.
-The `unique` method is also implemented and returns a `GInteractions` object where all duplicated entries bar the first are removed.
+The `unique` method returns a `GInteractions` object where all duplicated entries are removed.
 
 ```{r}
 doubled <- rbind(gi, gi)
 duplicated(doubled)
+```
+
+Identical interactions can also be matched between `GInteractions` objects.
+The `match` method looks for entries in the second object with the same anchor indices as each entry in the first object.
+Obviously, the common regions must be the same for this to be sensible.
+
+```{r}
+anchors(new.gi) <- list(4:6, 1:3)
+match(gi, new.gi)
+```
+
+Finally, `GInteractions` objects can also be compared in a parallel manner.
+This determines whether the *i*^th^ interaction in one object is equal to the *i*^th^ interaction in the other object.
+Again, the common regions should be the same for both objects.
+
+```{r}
+gi==new.gi
 ```
 
 ## Distance calculations
