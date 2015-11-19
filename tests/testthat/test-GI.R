@@ -163,12 +163,14 @@ expect_identical(temp.x, x)
 temp.x[] <- x
 expect_identical(temp.x, x)
 
-# Doesn't quite work, due to a bug in the Vector class.
-# temp.x <- x
-# temp.x$score <- new.score
-# temp.x[1:5]$score <- 5:1
-# expect_identical(temp.x[rchosen]$score, new.score[rchosen])
-# expect_identical(nrow(mcols(temp.x[rchosen])), length(rchosen))
+temp.x <- x
+temp.x$score <- new.score
+temp.x[1:5]$score <- 5:1
+mod.score <- new.score
+mod.score[1:5] <- 5:1
+expect_identical(temp.x$score, mod.score)
+expect_identical(temp.x[rchosen]$score, mod.score[rchosen])
+expect_identical(nrow(mcols(temp.x[rchosen])), length(rchosen))
 
 # Testing the combining.
 
