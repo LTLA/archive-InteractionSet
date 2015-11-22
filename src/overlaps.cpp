@@ -40,7 +40,9 @@ class expanded_overlap : public output_store { // Stores all new query:subject r
 public:
     expanded_overlap() : just_added(0) {};
     ~expanded_overlap() {};
-    void prime(int nq, int ns) {};
+    void prime(int nq, int ns) {
+        (void)nq; (void)ns;
+    };
     void acknowledge(int q, int s) {
         new_query.push_back(q);
         new_subject.push_back(s);
@@ -76,10 +78,12 @@ public:
     query_overlap() : nquery(0) {};
     ~query_overlap() {};
     void prime(int nq, int ns) {
+        (void)ns;
         nquery=nq;
         query_hit.resize(nq);    
     };
     void acknowledge(int q, int s) {
+        (void)s;
         if (q >= nquery) { throw std::runtime_error("requested query index out of range"); }
         ++query_hit[q];
     }
@@ -106,10 +110,12 @@ public:
     subject_overlap() : nsubject(0) {};
     ~subject_overlap() {};
     void prime(int nq, int ns) {
+        (void)nq;
         nsubject=ns;
         subject_hit.resize(ns);    
     };
     void acknowledge(int q, int s) {
+        (void)q;
         if (s >= nsubject) { throw std::runtime_error("requested subject index out of range"); }
         ++subject_hit[s];
     }
