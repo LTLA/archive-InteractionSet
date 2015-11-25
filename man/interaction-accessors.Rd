@@ -15,6 +15,9 @@
 \alias{regions<-,InteractionSet-method}
 \alias{regions<-,GInteractions-method}
 
+\alias{show,GInteractions-method}
+\alias{show,InteractionSet-method}
+
 \alias{replaceRegions<-}
 \alias{replaceRegions<-,InteractionSet-method}
 \alias{replaceRegions<-,GInteractions-method}
@@ -29,6 +32,7 @@
 \alias{interactions<-,InteractionSet-method}
 
 \alias{nrow,GInteractions-method}
+\alias{as.data.frame,GInteractions-method}
 \alias{$,GInteractions-method}
 \alias{$<-,GInteractions-method}
 
@@ -44,6 +48,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \usage{
 \S4method{anchors}{GInteractions}(x, type="both", id=FALSE)
 \S4method{regions}{GInteractions}(x)
+\S4method{show}{GInteractions}(x)
 
 \S4method{anchors}{GInteractions}(x, type="both") <- value
 \S4method{regions}{GInteractions}(x) <- value
@@ -54,6 +59,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 ## InteractionSet objects (not shown here for brevity).
 
 \S4method{nrow}{GInteractions}(x)
+\S4method{as.data.frame}{GInteractions}(x, row.names=NULL, optional=FALSE, ...)
 \S4method{$}{GInteractions}(x, name)
 \S4method{$}{GInteractions}(x, name) <- value
 
@@ -82,6 +88,10 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 
     For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.  
     For \code{mcols<-}, a DataFrame with number of rows equal to that in \code{x}.
+}
+
+\item{row.names, optional, ...}{
+    Additional arguments, see \code{?\link[base]{as.data.frame}} for more details.
 }
 
 \item{use.names}{
@@ -114,6 +124,7 @@ The \code{nrow} method is an alias for \code{length}, and will return the number
 
 The \code{show} method will print out the class, the number of pairwise interactions, and the total number of regions in the GInteractions object.
 The number and names of the various metadata fields will also be printed.
+The \code{as.data.frame} method will return a data.frame object containing the coordinates for the two anchor regions as well as any element-wise metadata.
 }
 
 \section{Details for InteractionSet}{
@@ -188,6 +199,7 @@ length(regions(gi))
 # Accessing or modifying metadata.
 gi$score <- runif(nrow(gi))
 mcols(gi)
+as.data.frame(gi)
 
 #################
 # Same can be done for an InteractionSet object:

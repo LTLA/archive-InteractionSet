@@ -268,5 +268,19 @@ setMethod("duplicated", "GInteractions", function(x, incomparables=FALSE, fromLa
 #    return(x)
 #})
 
+setMethod("as.data.frame", "GInteractions", function (x, row.names=NULL, optional=FALSE, ...) {
+    all1 <- anchors(x, type="first", id=TRUE)
+    all2 <- anchors(x, type="second", id=TRUE)
+    used <- logical(length(regions(x)))
+    used[all1] <- TRUE
+    used[all2] <- TRUE
+    new.index <- cumsum(used) # Accelerate by only converting what we need.
+
+    regs.dframe <- as.data.frame(regions(x)[used], optional=optional, ...)
+    a1.dframe <- regs.dframe[new.index[all1],]
+    a2.dframe <- regs.dframe[new.index[all2],]
+    data.frame(anchor1=a1.dframe, anchor2=a2.dframe, mcols(x), row.names=row.names, ...)
+})
+
 ###############################################################
 # End
