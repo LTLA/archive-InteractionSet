@@ -4,8 +4,8 @@ Date: 2015/12/01
 Title: InteractionSet object for holding interaction data
 Author: Aaron Lun <alun@wehi.edu.au>
 Maintainer: Aaron Lun <alun@wehi.edu.au>
-Depends: R (>= 3.2.2), GenomicRanges
-Imports: SummarizedExperiment, IRanges, S4Vectors, GenomeInfoDb, 
+Depends: R (>= 3.3.0), GenomicRanges, SummarizedExperiment 
+Imports: IRanges, S4Vectors, GenomeInfoDb, 
         BiocGenerics, methods
 Suggests: testthat, knitr, rmarkdown, BiocStyle
 biocViews: HiC
