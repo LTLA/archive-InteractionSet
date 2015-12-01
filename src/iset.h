@@ -4,6 +4,7 @@
 #include <deque>
 #include <algorithm>
 #include <stdexcept>
+#include <set>
 
 #include "R.h"
 #include "Rinternals.h"
@@ -23,6 +24,8 @@ SEXP expand_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 SEXP queryhit_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 SEXP subjecthit_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+
+SEXP expand_pair_links(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 }
 

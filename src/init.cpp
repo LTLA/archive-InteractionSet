@@ -10,6 +10,7 @@ static const R_CallMethodDef all_call_entries[] = {
     REGISTER(expand_paired_olaps, 9),
     REGISTER(queryhit_paired_olaps, 9),
     REGISTER(subjecthit_paired_olaps, 9),
+    REGISTER(expand_pair_links, 10),
     {NULL, NULL, 0}
 };
 

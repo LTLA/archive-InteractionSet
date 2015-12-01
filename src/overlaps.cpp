@@ -343,4 +343,118 @@ SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP
     return mkString(e.what());
 }
 
+/* Another function that links two regions together. This does something quite similar
+ * to detect_paired_olaps, but whereas that function requires both anchor regions to
+ * overlap the regions from the same subject pair, here we only require that the
+ * anchor regions overlap one region from either set. We then store all possible 
+ * combinations of regions that are mediated by our interactions.
+ */
+
+SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP sameness) try {
+
+    if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
+    const int Npairs = LENGTH(anchor1);
+    if (Npairs != LENGTH(anchor2)) { throw std::runtime_error("anchor vectors must be of equal length"); } 
+    const int* a1ptr=INTEGER(anchor1), *a2ptr=INTEGER(anchor2);
+    
+    if (!isInteger(querystarts1) || !isInteger(queryends1)) { throw std::runtime_error("query indices (1) must be integer vectors"); }
+    const int Nq = LENGTH(querystarts1);
+    if (Nq != LENGTH(queryends1)) { throw std::runtime_error("query indices (1) must be of equal length"); }
+    const int* qsptr1=INTEGER(querystarts1), *qeptr1=INTEGER(queryends1);
+    
+    if (!isInteger(subject1)) { throw std::runtime_error("subject indices (1) must be integer"); }
+    const int Ns1 = LENGTH(subject1);
+    const int *sjptr1=INTEGER(subject1);
+
+    if (!isInteger(querystarts2) || !isInteger(queryends2)) { throw std::runtime_error("query indices (2) must be integer vectors"); }
+    if (Nq != LENGTH(querystarts2) || Nq != LENGTH(queryends2)) { throw std::runtime_error("query indices (2) must be of equal length"); }
+    const int* qsptr2=INTEGER(querystarts2), *qeptr2=INTEGER(queryends2);
+    
+    if (!isInteger(subject2)) { throw std::runtime_error("subject indices (2) must be integer"); }
+    const int Ns2 = LENGTH(subject2);
+    const int *sjptr2=INTEGER(subject2);
+
+    if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
+    const int Ns_all = asInteger(nsubjects);
+
+    if (!isLogical(sameness) || LENGTH(sameness)!=1) { throw std::runtime_error("same region indicator should be a logical scalar"); }
+    const bool is_same=asLogical(sameness);
+   
+    // Check indices.
+    check_indices(qsptr1, qeptr1, Nq, sjptr1, Ns1, Ns_all);
+    check_indices(qsptr2, qeptr2, Nq, sjptr2, Ns2, Ns_all);
+
+    // Setting up the set. 
+    typedef std::pair<int, int> link;
+    std::set<link> currently_active;
+    std::set<link>::const_iterator itca;
+    std::deque<link> stored_inactive;
+    std::deque<int> interactions;
+
+    int curpair=0, mode=0, maxmode=(is_same ? 1 : 2), curq1=0, curq2=0, curindex1=0, curindex2=0;
+    for (curpair=0; curpair<Npairs; ++curpair) {
+
+        // Repeating with switched anchors, if the query sets are not the same.
+        for (mode=0; mode<maxmode; ++mode) { 
+            if (mode==0) { 
+                curq1 = a1ptr[curpair];
+                curq2 = a2ptr[curpair];
+                if (curq1 >= Nq || curq1 < 0 || curq1==NA_INTEGER) { throw std::runtime_error("region index (1) out of bounds"); }
+                if (curq2 >= Nq || curq2 < 0 || curq2==NA_INTEGER) { throw std::runtime_error("region index (2) out of bounds"); }
+            } else {
+                curq2 = a1ptr[curpair];
+                curq1 = a2ptr[curpair];
+            }
+
+            /* Storing all combinations associated with this pair. Avoiding redundant combinations
+             * for self-linking (we can't use a simpe rule like curindex2 < curindex1 to restrict 
+             * the loop, as the second anchor can overlap regions above the first anchor if the 
+             * latter is nested within the former).
+             */
+            for (curindex1=qsptr1[curq1]; curindex1<qeptr1[curq1]; ++curindex1) {
+                for (curindex2=qsptr2[curq2]; curindex2<qeptr2[curq2]; ++curindex2) {
+                    if (is_same && sjptr1[curindex1] < sjptr2[curindex2]) {
+                        currently_active.insert(link(sjptr2[curindex2], sjptr1[curindex1]));
+                    } else {
+                        currently_active.insert(link(sjptr1[curindex1], sjptr2[curindex2]));
+                    }
+                }
+            }
+        }
+
+        // Relieving the set by storing all inactive entries (automatically sorted as well).
+        for (itca=currently_active.begin(); itca!=currently_active.end(); ++itca) {
+            stored_inactive.push_back(*itca);
+        }
+        interactions.resize(interactions.size() + currently_active.size(), curpair);
+        currently_active.clear();
+    }
+
+    // Popping back a list of information.
+    SEXP output=PROTECT(allocVector(VECSXP, 3));
+    try {
+        const int total_entries=interactions.size();
+        SET_VECTOR_ELT(output, 0, allocVector(INTSXP, total_entries));
+        int * oiptr=INTEGER(VECTOR_ELT(output, 0));
+        SET_VECTOR_ELT(output, 1, allocVector(INTSXP, total_entries));
+        int * os1ptr=INTEGER(VECTOR_ELT(output, 1));
+        SET_VECTOR_ELT(output, 2, allocVector(INTSXP, total_entries));
+        int * os2ptr=INTEGER(VECTOR_ELT(output, 2));
+    
+        std::copy(interactions.begin(), interactions.end(), oiptr);
+        for (int curdex=0; curdex < total_entries; ++curdex) {
+            os1ptr[curdex]=stored_inactive[curdex].first;
+            os2ptr[curdex]=stored_inactive[curdex].second;
+        }
+    } catch (std::exception& e) {
+        UNPROTECT(1);
+        throw;
+    }
+
+    UNPROTECT(1);
+    return output;
+} catch (std::exception& e) {
+    return mkString(e.what());
+}
 
