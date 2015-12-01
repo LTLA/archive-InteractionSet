@@ -58,4 +58,10 @@ head(out)
 
 out <- linkOverlaps(gi, all.genes)
 head(out)
+
+# Same methods apply for InteractionSet objects.
+
+example(InteractionSet, echo=FALSE)
+out <- linkOverlaps(iset, all.genes, all.enhancers)
+out <- linkOverlaps(iset, all.genes)
 }
