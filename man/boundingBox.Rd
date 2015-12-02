@@ -33,8 +33,8 @@ An error will be raised if a group spans multiple chromosomes for either the fir
 
 The function returns a GRangesList object with entries \code{first} and \code{second}.
 This contains the coordinates for the sides of the bounding box across the first or second anchor regions, respectively.
-The length of each internal GRanges is equal to the number of levels of \code{f}, and each entry is named according to the corresponding level of \code{f}.
-Matching entries across \code{first} and \code{second} constitute the bounding box for all interactions with that level of \code{f}.
+The internal GRanges are named according to the levels of \code{f}, 
+    such that the entries with matching names across \code{first} and \code{second} constitute the bounding box for the group corresponding to that level of \code{f}.
 
 It should be noted that reflection around the diagonal does not need to be considered. 
 Because \code{anchor1 >= anchor2} in the GInteractions class, all interactions lie on one side of the diagonal of the intra-chromosomal interaction space.
