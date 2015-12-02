@@ -1,7 +1,7 @@
 Package: InteractionSet
 Version: 0.2.3
-Date: 2015/12/01
-Title: InteractionSet object for holding interaction data
+Date: 2015-12-02
+Title: Base Classes for Storing Genomic Interaction Data
 Author: Aaron Lun <alun@wehi.edu.au>
 Maintainer: Aaron Lun <alun@wehi.edu.au>
 Depends: R (>= 3.3.0), GenomicRanges, SummarizedExperiment 
