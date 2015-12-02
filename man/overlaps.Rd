@@ -207,7 +207,8 @@ Aaron Lun
 
 \seealso{
 \code{\link{InteractionSet-class}},
-\code{\link[GenomicRanges]{findOverlaps}}
+\code{\link[GenomicRanges]{findOverlaps}},
+\code{\link{linkOverlaps}}
 }
 
 

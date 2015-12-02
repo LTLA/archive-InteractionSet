@@ -13,9 +13,7 @@ exportMethods(
     InteractionSet, 
     interactions,
     "interactions<-",
-    pairdist, intrachr,
-    linearize,
-    linkOverlaps,
+    pairdist, intrachr, linearize, linkOverlaps, boundingBox,
     ContactMatrix, 
     "as.matrix<-",
     inflate, deflate

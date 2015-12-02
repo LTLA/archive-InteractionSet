@@ -11,6 +11,7 @@ static const R_CallMethodDef all_call_entries[] = {
     REGISTER(queryhit_paired_olaps, 9),
     REGISTER(subjecthit_paired_olaps, 9),
     REGISTER(expand_pair_links, 10),
+    REGISTER(get_box_bounds, 6),
     {NULL, NULL, 0}
 };
 

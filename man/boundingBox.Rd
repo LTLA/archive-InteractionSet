@@ -1,0 +1,72 @@
+\name{boundingBox}
+
+\alias{boundingBox}
+\alias{boundingBox,GInteractions-method}
+\alias{boundingBox,InteractionSet-method}
+
+\title{Get the bounding box}
+
+\description{Computing a minimum bounding box for groups of pairwise interactions.}
+
+\usage{
+\S4method{boundingBox}{GInteractions}(x, f)
+
+# Note, the same call is used for the InteractionSet method.
+}
+
+\arguments{
+\item{x}{A GInteractions or InteractionSet object.}
+
+\item{f}{
+A factor or vector of length equal to that of \code{x}, indicating the group to which each pairwise interaction belongs.
+}
+}
+
+\details{
+For any group of pairwise interactions, the minimum bounding box is the smallest rectangle in the interaction space that contains all interactions in the group.
+Each side of the box has coordinates spanning the most extreme anchor regions on the corresponding chromosome.
+This is often useful for summarizing clusters of interactions.
+
+Grouping of interactions is specified using \code{f}, where interactions in \code{x} with the same level of \code{f} are considered to be in the same group.
+If \code{f} is not specified, all interactions in \code{x} are assumed to be in a single group (named as ``0'').
+An error will be raised if a group spans multiple chromosomes for either the first or second anchor regions.
+
+The function returns a GRangesList object with entries \code{first} and \code{second}.
+This contains the coordinates for the sides of the bounding box across the first or second anchor regions, respectively.
+The length of each internal GRanges is equal to the number of levels of \code{f}, and each entry is named according to the corresponding level of \code{f}.
+Matching entries across \code{first} and \code{second} constitute the bounding box for all interactions with that level of \code{f}.
+
+It should be noted that reflection around the diagonal does not need to be considered. 
+Because \code{anchor1 >= anchor2} in the GInteractions class, all interactions lie on one side of the diagonal of the intra-chromosomal interaction space.
+This already results in the smallest possible minimum bounding box, which will only increase in size if interactions are placed on the other side of the diagonal.
+
+% Bit of a pain to prove, but basically, if you flip a point to be above the diagonal, the Chebyshev distance to a point below the diagonal will always increase.
+% This means that you must increase the size of one of your sides of your bounding box.
+}
+
+\seealso{
+\code{\link{GInteractions-class}}
+}
+
+\author{
+Aaron Lun
+}
+
+\examples{
+example(GInteractions, echo=FALSE)
+
+# Making up a sensible grouping.
+gi <- sort(gi)
+all.chrs <- as.character(seqnames(regions(gi)))
+f <- paste0(all.chrs[anchors(gi, type="first", id=TRUE)], ".",
+            all.chrs[anchors(gi, type="second", id=TRUE)])
+
+out <- boundingBox(gi, f)
+
+# Fails for multiple chromosomes
+try(out <- boundingBox(gi))
+in.A <- f=="chrA.chrA"
+out <- boundingBox(gi[in.A])
+}
+
+

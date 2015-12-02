@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <set>
+#include <sstream>
 
 #include "R.h"
 #include "Rinternals.h"
@@ -26,6 +27,8 @@ SEXP queryhit_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)
 SEXP subjecthit_paired_olaps(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 SEXP expand_pair_links(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+
+SEXP get_box_bounds(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 }
 
