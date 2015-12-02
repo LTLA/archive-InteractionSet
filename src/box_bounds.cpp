@@ -41,9 +41,9 @@ try {
 
     if (ngroups > 0) {
         fac_ptr[0]=iptr[0];
-        chr_ptr[0]=cptr[0];
-        start_ptr[0]=sptr[0];
-        end_ptr[0]=eptr[0];
+        chr_ptr[0]=cptr[aptr[0]];
+        start_ptr[0]=sptr[aptr[0]];
+        end_ptr[0]=eptr[aptr[0]];
     }
 
     int curgroup=0;
