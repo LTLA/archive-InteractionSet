@@ -28,7 +28,7 @@ Each side of the box has coordinates spanning the most extreme anchor regions on
 This is often useful for summarizing clusters of interactions.
 
 Grouping of interactions is specified using \code{f}, where interactions in \code{x} with the same level of \code{f} are considered to be in the same group.
-If \code{f} is not specified, all interactions in \code{x} are assumed to be in a single group (named as ``1'').
+If \code{f} is not specified, all interactions in \code{x} are assumed to be in a single group (named as ``0'').
 An error will be raised if a group spans multiple chromosomes for either the first or second anchor regions.
 
 The function returns a GRangesList object with entries \code{first} and \code{second}.
