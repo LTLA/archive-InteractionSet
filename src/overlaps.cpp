@@ -416,7 +416,7 @@ SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP query
                 for (curindex2=qsptr2[curq2]; curindex2<qeptr2[curq2]; ++curindex2) {
                     if (is_same && sjptr1[curindex1] < sjptr2[curindex2]) {
                         currently_active.insert(link(sjptr2[curindex2], sjptr1[curindex1]));
-                    } else {
+                    } else if (!is_same || sjptr1[curindex1] > sjptr2[curindex2]) {
                         currently_active.insert(link(sjptr1[curindex1], sjptr2[curindex2]));
                     }
                 }

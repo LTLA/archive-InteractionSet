@@ -68,8 +68,8 @@ for (cls in 1:2) {
         combo2$subject1 <- new.s1
         combo2$subject2 <- new.s2
 
-        is.dup <- duplicated(paste0(combo2$query, ".", combo2$subject1, ".", combo2$subject2)) | is.na(combo2$query)
-        combo2 <- combo2[!is.dup,]
+        to.drop <- duplicated(paste0(combo2$query, ".", combo2$subject1, ".", combo2$subject2)) | is.na(combo2$query) || combo2$subject1==combo2$subject2
+        combo2 <- combo2[!to.drop,]
         o <- order(combo2$query, combo2$subject1, combo2$subject2)
         combo2 <- combo2[o,]
         rownames(combo2) <- NULL
