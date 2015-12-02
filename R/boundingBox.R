@@ -6,7 +6,10 @@
 # created 2 December 2015
 {
     if (missing(f)) { 
-        f <- integer(length(x))
+        f <- rep(1L, length(x))
+    }
+    if (length(f)!=length(x)) { 
+        stop("length of 'f' must be equal to number of interactions")
     } 
     o <- order(f)
     f <- f[o]
