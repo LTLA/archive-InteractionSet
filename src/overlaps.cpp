@@ -408,7 +408,7 @@ SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP query
             }
 
             /* Storing all combinations associated with this pair. Avoiding redundant combinations
-             * for self-linking (we can't use a simpe rule like curindex2 < curindex1 to restrict 
+             * for self-linking (we can't use a simple rule like curindex2 < curindex1 to restrict 
              * the loop, as the second anchor can overlap regions above the first anchor if the 
              * latter is nested within the former).
              */

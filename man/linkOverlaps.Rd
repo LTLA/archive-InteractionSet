@@ -16,7 +16,7 @@ Identify interactions that link two sets of regions by having anchor regions ove
 \S4method{linkOverlaps}{GInteractions,GRanges,GRanges}(query, subject1, subject2, ...)
 \S4method{linkOverlaps}{GInteractions,GRanges,missing}(query, subject1, subject2, ...)
 
-# The same methods apply for InteractionSet objects as the query.
+# The same methods apply for InteractionSet objects as 'query'.
 }
 
 \arguments{
@@ -29,12 +29,15 @@ Identify interactions that link two sets of regions by having anchor regions ove
 
 \details{
 This function identifies all interactions in \code{query} where one anchor overlaps an entry in \code{subject1} and the other anchor overlaps an entry in \code{subject2}.
-It returns a dataframe specifying the index of the interaction in \code{query}; the index of the overlapped region in \code{subject1};
-    and the index of the overlapped region in \code{subject2}.
-If multiple regions in \code{subject1} and/or \code{subject2} are overlapping, all combinations of two regions (one in each \code{subject} set) are reported.
-
-This function can be used to identify regions that are linked by interactions in \code{query}.
+It is designed to be used to identify regions that are linked by interactions in \code{query}.
 For example, one might specify genes as \code{subject1} and enhancers as \code{subject2}, to identify all gene-enhancer contacts present in \code{query}.
+This is useful when the exact pairings between \code{subject1} and \code{subject2} are undefined.
+
+The function returns a dataframe specifying the index of the interaction in \code{query}; the index of the overlapped region in \code{subject1};
+    and the index of the overlapped region in \code{subject2}.
+If multiple regions in \code{subject1} and/or \code{subject2} are overlapping the anchor regions of a particular interaction,
+    all combinations of two overlapping regions (one from each \code{subject*} set) are reported for that interaction.
+
 If \code{subject2} is not specified, links within \code{subject1} are identified instead, i.e., \code{subject2} is set to \code{subject1}.
 In such cases, the returned dataframe is such that the first subject index is always greater than the second subject index, to avoid redundant permutations.
 }
