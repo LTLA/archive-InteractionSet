@@ -32,17 +32,7 @@
 
 setGeneric("linkOverlaps", function(query, subject1, subject2, ...) { standardGeneric('linkOverlaps') })
 setMethod("linkOverlaps", c("GInteractions", "GRanges", "GRanges"), .linkOverlap)
-
-setMethod("linkOverlaps", c("GInteractions", "GRanges", "missing"), function(query, subject1, subject2, ...) {
-    .linkOverlap(query, subject1, subject2, ...)
-})
-
-setMethod("linkOverlaps", c("InteractionSet", "GRanges", "GRanges"), function(query, subject1, subject2, ...) {
-    .linkOverlap(query, subject1, subject2, ...)
-})
-
-setMethod("linkOverlaps", c("InteractionSet", "GRanges", "missing"), function(query, subject1, subject2, ...) {
-    .linkOverlap(query, subject1, subject2, ...)
-})
-
+setMethod("linkOverlaps", c("GInteractions", "GRanges", "missing"), .linkOverlap)
+setMethod("linkOverlaps", c("InteractionSet", "GRanges", "GRanges"), .linkOverlap)
+setMethod("linkOverlaps", c("InteractionSet", "GRanges", "missing"), .linkOverlap)
 
