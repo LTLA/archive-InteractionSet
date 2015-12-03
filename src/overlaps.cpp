@@ -350,8 +350,8 @@ SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP
  * combinations of regions that are mediated by our interactions.
  */
 
-SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP sameness) try {
+SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, SEXP nsubjects1, 
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects2, SEXP sameness) try {
 
     if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
     const int Npairs = LENGTH(anchor1);
@@ -375,15 +375,17 @@ SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP query
     const int Ns2 = LENGTH(subject2);
     const int *sjptr2=INTEGER(subject2);
 
-    if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
-    const int Ns_all = asInteger(nsubjects);
+    if (!isInteger(nsubjects1) || LENGTH(nsubjects1)!=1) { throw std::runtime_error("total number of subjects (1) must be an integer scalar"); }
+    const int Ns_all1 = asInteger(nsubjects1);
+    if (!isInteger(nsubjects2) || LENGTH(nsubjects2)!=1) { throw std::runtime_error("total number of subjects (2) must be an integer scalar"); }
+    const int Ns_all2 = asInteger(nsubjects2);
 
     if (!isLogical(sameness) || LENGTH(sameness)!=1) { throw std::runtime_error("same region indicator should be a logical scalar"); }
     const bool is_same=asLogical(sameness);
    
     // Check indices.
-    check_indices(qsptr1, qeptr1, Nq, sjptr1, Ns1, Ns_all);
-    check_indices(qsptr2, qeptr2, Nq, sjptr2, Ns2, Ns_all);
+    check_indices(qsptr1, qeptr1, Nq, sjptr1, Ns1, Ns_all1);
+    check_indices(qsptr2, qeptr2, Nq, sjptr2, Ns2, Ns_all2);
 
     // Setting up the set. 
     typedef std::pair<int, int> link;
