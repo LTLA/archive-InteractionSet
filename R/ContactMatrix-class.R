@@ -11,7 +11,7 @@ setClass("ContactMatrix",
     )		
 )
 
-setValidity("ContactMatrix", function(object) {
+setValidity2("ContactMatrix", function(object) {
     if (is.unsorted(object@regions)) {
         return("'regions' should be sorted")
     }

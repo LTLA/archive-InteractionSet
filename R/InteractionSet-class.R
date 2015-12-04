@@ -12,7 +12,7 @@ setClass("InteractionSet",
     )
 )
 
-setValidity("InteractionSet", function(object) {
+setValidity2("InteractionSet", function(object) {
     if (nrow(object@assays)!=length(object@interactions)) {
         return("'assay' nrow differs from length of anchor vectors")
     } 

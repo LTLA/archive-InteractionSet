@@ -36,7 +36,7 @@ setClass("GInteractions",
     return(TRUE)
 }
 
-setValidity("GInteractions", function(object) {
+setValidity2("GInteractions", function(object) {
     if (is.unsorted(object@regions)) { # Don't move into .check_inputs, as resorting comes after checking validity in various methods.
         return("'regions' should be sorted")
     }
