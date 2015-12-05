@@ -4,6 +4,11 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
     type <- match.arg(type, c("mid", "gap", "span", "diag", "intra"))
     chr <- as.character(seqnames(regs))
 
+    # To get sensible distances
+    swapped <- .enforce_order(ai1, ai2) 
+    ai1 <- swapped$ai1
+    ai2 <- swapped$ai2
+
     # Protection when all inter's.
     is.same <- chr[ai1]==chr[ai2]
     if (type=="intra") { return(is.same) }
@@ -50,7 +55,6 @@ setMethod("pairdist", "ContactMatrix", function(x, type="mid")
 {
     ai1 <- rep(anchors(x, type="row", id=TRUE), ncol(x))
     ai2 <- rep(anchors(x, type="column", id=TRUE), each=nrow(x))
-    swapped <- .enforce_order(ai1, ai2) # To get sensible distances
     out <- .get_dist_output(regions(x), swapped$anchor1, swapped$anchor2, type)
     dim(out) <- dim(x@matrix)
     return(out)
