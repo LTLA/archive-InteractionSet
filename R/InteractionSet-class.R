@@ -110,33 +110,15 @@ setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
     rbind(x, ...)
 })
 
-# "combine" is slightly different from "rbind", in that it allows different regions to be combined.
-setMethod("combine", c("InteractionSet", "InteractionSet"), function(x, y, ...) {
-    args <- list(x, y, ...)
-    base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
-    new("InteractionSet", base, interactions=do.call(combine, lapply(args, FUN=interactions)))
-})
-
 ###############################################################
 # Other methods
 
 setMethod("order", "InteractionSet", function(..., na.last=TRUE, decreasing=FALSE) {
-    all.ids <- unlist(lapply(list(...), anchors, id=TRUE), recursive=FALSE)
-    do.call(order, c(all.ids, list(na.last=na.last, decreasing=decreasing)))
+    do.call(order, c(lapply(list(...), interactions), list(na.last=na.last, decreasing=decreasing)))
 })
 
-setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) 
-# Stable sort required here: first entry in 'x' is always non-duplicate if fromLast=FALSE,
-# and last entry is non-duplicate if fromLast=TRUE.
-{
-    if (!nrow(x)) { return(logical(0)) }
-    a1 <- anchors(x, id=TRUE, type="first")
-    a2 <- anchors(x, id=TRUE, type="second")
-    o <- order(a1, a2) 
-    if (fromLast) { o <- rev(o) }
-    is.dup <- c(FALSE, diff(a1[o])==0L & diff(a2[o])==0L)
-    is.dup[o] <- is.dup
-    return(is.dup)
+setMethod("duplicated", "InteractionSet", function(x, incomparables=FALSE, fromLast=FALSE, ...) {
+    duplicated(interactions(x))
 })
 
 ###############################################################
