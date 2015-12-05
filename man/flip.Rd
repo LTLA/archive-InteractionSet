@@ -40,8 +40,7 @@ out <- flip(gi)
 out
 
 flip(out) # Automated 'regions' construction.
-
-flip(out, regions=regions(gi))
+flip(out, regions=regions(gi)) # Manual specification.
 }
 
 \author{
