@@ -13,6 +13,7 @@ all.anchor1 <- sample(N, Np, replace=TRUE)
 all.anchor2 <- sample(N, Np, replace=TRUE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 #######################################################
@@ -221,6 +222,7 @@ N2 <- length(next.regions)
 next.anchor1 <- sample(N2, Np, replace=TRUE)
 next.anchor2 <- sample(N2, Np, replace=TRUE)
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 x2 <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 pairing <- anchors(x2)
 
@@ -335,7 +337,7 @@ olap <- overlapsAny(x, pairing)
 new.gi <- GInteractions(query.regions1, query.regions2)
 expect_identical(olap, overlapsAny(x, new.gi))
 
-new.iset <- InteractionSet(as.matrix(runif(10)), new.gi)
+new.iset <- InteractionSet(matrix(runif(10), dimnames=list(NULL, 1)), new.gi)
 expect_identical(olap, overlapsAny(x, new.iset))
 
 #######################################################

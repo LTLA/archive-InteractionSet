@@ -30,9 +30,9 @@ expect_error(match(x, another.x), "'regions' must be identical")
 # Trying for ISet objects.
 
 set.seed(8001)
-iset <- InteractionSet(as.matrix(runif(Np)), x)
+iset <- InteractionSet(matrix(runif(Np), dimnames=list(NULL, 1)), x)
 another.x <- x[sample(Np)] 
-iset2 <- InteractionSet(as.matrix(runif(Np)), another.x)
+iset2 <- InteractionSet(matrix(runif(Np), dimnames=list(NULL, 1)), another.x)
 
 expect_identical(match(iset, x), ref.match(iset, x))
 expect_identical(match(iset, another.x), ref.match(iset, another.x))

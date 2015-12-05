@@ -35,21 +35,8 @@ setMethod("show", signature("InteractionSet"), function(object) {
 ###############################################################
 # Constructors
 
-.new_InteractionSet <- function(assays, interactions, colData, ...) {
-    # Avoid need to specify column names externally (but respecting it if it is).
-    no.names <- FALSE
-    if (missing(colData)) {
-        assays <- as(Assays(assays), "SimpleList")
-        if (length(assays)) {
-            nms <- colnames(assays[[1]]) 
-            if (is.null(nms)) { 
-                no.names <- TRUE
-                colnames(assays[[1]]) <- seq_len(ncol(assays[[1]]))
-            }
-        }
-    }
-    se0 <- SummarizedExperiment(assays, colData=colData, ...)
-    if (no.names) { colnames(se0) <- NULL }
+.new_InteractionSet <- function(assays, interactions, ...) {
+    se0 <- SummarizedExperiment(assays, ...)
     new("InteractionSet", se0, interactions=interactions)
 }
 

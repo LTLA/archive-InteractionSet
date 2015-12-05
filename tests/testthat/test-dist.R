@@ -11,6 +11,7 @@ all.anchor1 <- sample(N, Np, replace=TRUE)
 all.anchor2 <- sample(N, Np, replace=TRUE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 a1 <- all.regions[all.anchor1]

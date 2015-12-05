@@ -29,7 +29,7 @@ for (cls in 1:2) {
     if (cls==1L) {
         obj <- x
     } else {
-        obj <- InteractionSet(matrix(0, Np, 4), x)
+        obj <- InteractionSet(matrix(0, Np, 4, dimnames=list(NULL, seq_len(4))), x)
     }
     
     for (param in seq_len(4)) {

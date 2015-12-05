@@ -186,6 +186,7 @@ subsetByOverlaps(first.half, second.half)
 
 Nlibs <- 4
 counts <- matrix(rpois(Nlibs*Np, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 iset <- InteractionSet(counts, gi)
 
 findOverlaps(of.interest, iset)

@@ -49,6 +49,7 @@ Note that any \code{metadata} arguments will be placed in the metadata of the Su
 example(GInteractions, echo=FALSE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 
 iset <- InteractionSet(counts, gi)
 iset <- InteractionSet(counts, gi, colData=DataFrame(lib.size=1:Nlibs*1000))

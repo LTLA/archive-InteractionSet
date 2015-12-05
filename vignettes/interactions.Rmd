@@ -400,7 +400,8 @@ A typical use would be to store the count matrix for each interaction in each sa
 set.seed(1000)
 Nlibs <- 4
 counts <- matrix(rpois(Nlibs*length(gi), lambda=10), ncol=Nlibs)
-iset <- InteractionSet(counts, gi)
+lib.data <- DataFrame(lib.size=seq_len(Nlibs)*1e6)
+iset <- InteractionSet(counts, gi, colData=lib.data)
 iset
 ```
 
@@ -410,7 +411,7 @@ For example, if we have a matrix of normalized interaction frequencies, these co
 
 ```{r}
 norm.freq <- matrix(rnorm(Nlibs*length(gi)), ncol=Nlibs)
-iset2 <- InteractionSet(list(counts=counts, norm.freq=norm.freq), gi)
+iset2 <- InteractionSet(list(counts=counts, norm.freq=norm.freq), gi, colData=lib.data)
 iset2
 ```
 

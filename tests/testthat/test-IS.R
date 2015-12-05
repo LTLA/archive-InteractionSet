@@ -11,6 +11,7 @@ all.anchor1 <- sample(N, Np)
 all.anchor2 <- sample(N, Np)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 expect_output(show(x), "class: InteractionSet 
@@ -19,7 +20,7 @@ metadata(0):
 assays(1): ''
 rownames: NULL
 metadata column names(0):
-colnames: NULL
+colnames(4): 1 2 3 4
 colData names(0):
 regions: 30", 
 fixed=TRUE)
@@ -44,7 +45,7 @@ expect_identical(metadata(x3)$whee, 5L)
 # Testing with crappy inputs:
 
 expect_identical(dim(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1:4, all.regions))), c(4L, 0L)) # No columns
-expect_identical(dim(InteractionSet(matrix(0, 0, 4), GInteractions(integer(0), numeric(0), GRanges()))), c(0L, 4L))
+expect_identical(dim(InteractionSet(matrix(0, 0, 4, dimnames=list(NULL, seq_len(4))), GInteractions(integer(0), numeric(0), GRanges()))), c(0L, 4L))
 expect_error(InteractionSet(matrix(0, 3, 0), GInteractions(1:4, 1:4, all.regions)), "'assays' nrow differs from length of anchor vectors")
 
 # Testing getters, setters.
@@ -124,7 +125,7 @@ metadata(0):
 assays(1): ''
 rownames: NULL
 metadata column names(0):
-colnames: NULL
+colnames(4): 1 2 3 4
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
@@ -140,7 +141,7 @@ metadata(0):
 assays(1): ''
 rownames: NULL
 metadata column names(0):
-colnames: NULL
+colnames(2): 2 4
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
@@ -155,7 +156,7 @@ metadata(0):
 assays(1): ''
 rownames: NULL
 metadata column names(0):
-colnames: NULL
+colnames(2): 2 4
 colData names(1): totals
 regions: 30", 
 fixed=TRUE)
@@ -182,11 +183,17 @@ new.index[1:5+10] <- 1:5
 expect_equal(assay(temp.x), assay(x)[new.index,])
 expect_identical(interactions(temp.x), interactions(x)[new.index,])
 
-temp.x <- x
-temp.x[,1:2] <- x[,2:3]
+temp.x <- x  
+c.from <- 2:3
+c.to <- 1:2
+tmp <- x[,c.from]
+colnames(tmp) <- colnames(x)[c.to] # Avoid errors from duplicated column names.
+temp.x[,c.to] <- tmp
 new.index <- seq_len(ncol(x))
-new.index[1:2] <- 2:3
-expect_equal(assay(temp.x), assay(x)[,new.index])
+new.index[c.to] <- c.from
+ref.x <- x[,new.index]
+colnames(ref.x) <- colnames(x)
+expect_equal(assay(temp.x), assay(ref.x))
 expect_identical(interactions(temp.x), interactions(x))
 
 temp.x <- x
@@ -203,14 +210,21 @@ expect_equal(rbind(xsub, xsub2), x)
 xsub <- x[5:10,]
 xsub2 <- x[1:3,]
 expect_equal(rbind(xsub, xsub2), x[c(5:10, 1:3),])
-expect_error(rbind(xsub, xsub2[,1:2]), "objects must have the same number of samples")
+expect_error(rbind(xsub, xsub2[,1:2]), "objects must have the same colnames")
 
 xsub <- x[,1]
 xsub2 <- x[,2:4]
 expect_equal(cbind(xsub, xsub2), x)
-xsub <- x[,3]
-xsub2 <- x[,1:4]
-expect_equal(cbind(xsub, xsub2), x[,c(3,1:4)])
+
+first.cols <- 3 
+other.cols <- 1:4
+xsub <- x[,first.cols]
+xsub2 <- x[,other.cols]
+xsub.comb <- cbind(xsub, xsub2)
+xsub.ref <- x[,c(first.cols, other.cols)]
+colnames(xsub.comb) <- colnames(xsub.ref) # Keeping the column names happy again.
+expect_equal(xsub.comb, xsub.ref)
+
 expect_error(cbind(xsub, xsub2[1:10,]), "interactions must be identical in 'cbind'")
 
 expect_identical(nrow(rbind(x[0,], x[0,])), 0L) # Behaviour with empties.
@@ -228,6 +242,7 @@ next.regions <- GRanges(rep(c("chrA", "chrB"), c(N-10, 10)), IRanges(next.starts
 next.anchor1 <- sample(N, Np)
 next.anchor2 <- sample(N, Np)
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- colnames(x)
 next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 
 c.x <- rbind(x, next.x)

@@ -86,6 +86,7 @@ setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
     out <- .enforce_order(row.index, col.index)
     all.values <- as.matrix(x)[is.valid]
     dim(all.values) <- c(length(all.values), 1L)
+    colnames(all.values) <- "1"
     final <- InteractionSet(all.values, GInteractions(out$anchor1, out$anchor2, regions(x)), ...)
 
     if (unique) { final <- unique(final) }

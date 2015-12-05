@@ -13,6 +13,7 @@ all.anchor1 <- sample(N, Np, replace=TRUE)
 all.anchor2 <- sample(N, Np, replace=TRUE)
 Nlibs <- 4
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
+colnames(counts) <- seq_len(Nlibs)
 x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 o <- order(all.regions)
@@ -35,7 +36,7 @@ metadata(0):
 assays(1): ''
 rownames: NULL
 rowRanges metadata column names(0):
-colnames: NULL
+colnames(4): 1 2 3 4
 colData names(0):", sum(chosen)), fixed=TRUE)
 
     new.ranges <- anchors(x, type="first")
