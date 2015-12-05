@@ -30,6 +30,11 @@
 \alias{reduceRegions,InteractionSet-method}
 \alias{reduceRegions,GInteractions-method}
 
+\alias{seqinfo,InteractionSet-method}
+\alias{seqinfo,GInteractions-method}
+\alias{seqinfo<-,InteractionSet-method}
+\alias{seqinfo<-,GInteractions-method}
+
 \alias{interactions}
 \alias{interactions,InteractionSet-method}
 \alias{interactions<-}
@@ -52,10 +57,12 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \usage{
 \S4method{anchors}{GInteractions}(x, type="both", id=FALSE)
 \S4method{regions}{GInteractions}(x)
+\S4method{seqinfo}{GInteractions}(x)
 \S4method{show}{GInteractions}(x)
 
 \S4method{anchors}{GInteractions}(x, type="both") <- value
 \S4method{regions}{GInteractions}(x) <- value
+\S4method{seqinfo}{GInteractions}(x) <- value
 
 \S4method{replaceRegions}{GInteractions}(x) <- value
 \S4method{appendRegions}{GInteractions}(x) <- value
@@ -92,6 +99,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
     For \code{replaceRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
     For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
+    For \code{seqinfo<-}, a SeqInfo object containing chromosome length data for all regions.
     For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.  
     For \code{mcols<-}, a DataFrame with number of rows equal to that in \code{x}.
 }
@@ -143,6 +151,9 @@ The \code{nrow} method is an alias for \code{length}, and will return the number
 The \code{show} method will print out the class, the number of pairwise interactions, and the total number of regions in the GInteractions object.
 The number and names of the various metadata fields will also be printed.
 The \code{as.data.frame} method will return a data.frame object containing the coordinates for the two anchor regions as well as any element-wise metadata.
+
+The \code{seqinfo} method will return the sequence information of the GRanges in the \code{regions} slot.
+This can be replaced with the \code{seqinfo<-} method -- see \code{?\link{Seqinfo}} for more details.
 }
 
 \section{Details for InteractionSet}{
@@ -212,6 +223,9 @@ length(regions(gi))
 appendRegions(gi) <- GRanges("chrA", IRanges(5:10+1000, 1100+5:10), score=runif(6))
 length(regions(gi))
 
+seqinfo(gi)
+seqinfo(gi) <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
+
 # Accessing or modifying metadata.
 gi$score <- runif(nrow(gi))
 mcols(gi)
@@ -227,6 +241,9 @@ regions(iset)
 reduceRegions(iset)
 regions(iset)$score <- regions(gi)$score
 replaceRegions(iset) <- new.ranges
+
+seqinfo(iset)
+seqinfo(iset) <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
 
 # Standard SE methods also available:
 colData(iset)

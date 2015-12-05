@@ -127,6 +127,11 @@ expect_identical(x$stuff, mcols(x)$stuff)
 expect_identical(colnames(mcols(x)), "stuff")
 x$stuff <- NULL
 
+new.si <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
+new.x <- x
+seqinfo(new.x) <- new.si
+expect_identical(seqinfo(new.x), new.si)
+
 # Testing the subsetting.
 
 rchosen <- 1:10

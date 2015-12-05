@@ -109,6 +109,11 @@ mcols(x.dump)$fire <- new.scores
 expect_identical(mcols(x.dump)$fire, new.scores)
 expect_identical(interactions(x.dump)$fire, new.scores)
 
+new.si <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
+new.x <- x
+seqinfo(new.x) <- new.si
+expect_identical(seqinfo(new.x), seqinfo(interactions(new.x)))
+
 # Testing the subsetting.
 
 rchosen <- 1:10

@@ -234,7 +234,7 @@ setMethod("seqinfo", "InteractionSet", function(x) {
      seqinfo(interactions(x))
 })
 
-setReplaceMethod("seqinfo", "GInteractions", function(x, value) {
+setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
     seqinfo(interactions(x)) <- value
     return(x)
 })
