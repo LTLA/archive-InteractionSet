@@ -6,23 +6,23 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
 
     # To get sensible distances
     swapped <- .enforce_order(ai1, ai2) 
-    ai1 <- swapped[[1]]
-    ai2 <- swapped[[2]]
+    larger <- swapped[[2]]
+    smaller <- swapped[[1]]
 
     # Protection when all inter's.
-    is.same <- chr[ai1]==chr[ai2]
+    is.same <- chr[larger]==chr[smaller]
     if (type=="intra") { return(is.same) }
-    output <- rep(as.integer(NA), length(ai1))
+    output <- rep(as.integer(NA), length(larger))
     if (!any(is.same)) { return(output) }
 
     st <- start(regs)
     en <- end(regs)
-    ai1 <- ai1[is.same]
-    ai2 <- ai2[is.same]
-    all.as <- st[ai1]
-    all.ae <- en[ai1]
-    all.ts <- st[ai2]
-    all.te <- en[ai2]
+    larger <- larger[is.same]
+    smaller <- smaller[is.same]
+    all.as <- st[larger]
+    all.ae <- en[larger]
+    all.ts <- st[smaller]
+    all.te <- en[smaller]
 
     if (type=="gap") {
         output[is.same] <- pmax(all.as, all.ts) - pmin(all.ae, all.te) - 1L
@@ -31,7 +31,7 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
     } else if (type=="mid") {
         output[is.same] <- as.integer(abs(all.as + all.ae - all.ts - all.te)/2L) # Need 'abs', in case later range has earlier midpoint (e.g., if nested).
     } else if (type=="diag") {
-        output[is.same] <- ai1 - ai2
+        output[is.same] <- larger - smaller
     }
     return(output)
 }
