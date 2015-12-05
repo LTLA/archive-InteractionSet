@@ -3,9 +3,9 @@
 
 \alias{GInteractions-class}
 \alias{GInteractions}
-\alias{GInteractions,numeric,numeric-method}
-\alias{GInteractions,GRanges,GRanges-method}
-\alias{GInteractions,missing,missing-method}
+\alias{GInteractions,numeric,numeric,GRanges-method}
+\alias{GInteractions,GRanges,GRanges,missing_OR_GRanges-method}
+\alias{GInteractions,missing,missing,missing_OR_GRanges-method}
 
 \title{GInteractions class and constructors}
 
@@ -15,25 +15,22 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 }
 
 \usage{
-\S4method{GInteractions}{numeric,numeric}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{numeric,numeric,GRanges}(anchor1, anchor2, regions, metadata=list())
 
-\S4method{GInteractions}{GRanges,GRanges}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{GRanges,GRanges,missing_OR_GRanges}(anchor1, anchor2, regions, metadata=list())
 
-\S4method{GInteractions}{missing,missing}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{missing,missing,missing_OR_GRanges}(anchor1, anchor2, regions, metadata=list())
 }
 
 \arguments{
 \item{anchor1, anchor2}{
-    For \code{GInteractions,ANY,numeric,numeric-method}, an integer vector containing indices to \code{regions}.
-    
-    For \code{GInteractions,ANY,GRanges,GRanges-method}, a GRanges object specifying the interacting loci.
-    
+    Either a pair of numeric vectors containing indices to \code{regions}, or a pair of GRanges objects specifying the interacting loci.
     Lengths of both \code{anchor1} and \code{anchor2} must be equal.
 }
 
 \item{regions}{
     A GRanges object containing the coordinates of the interacting regions.
-    This argument is optional for \code{GInteractions,ANY,GRanges,GRanges-method}.
+    This is only mandatory if \code{anchor1} and \code{anchor2} are numeric vectors.
 } 
 
 \item{metadata}{
@@ -53,14 +50,14 @@ It also contains several additional slots:
 Each interaction is defined by the corresponding entries in the \code{anchor1} and \code{anchor2} slots, which point to the relevant coordinates in \code{regions} for each locus.
 Values of \code{anchor1} and \code{anchor2} are set such that the former is not smaller than the latter, to avoid redundancy from different permutations.
 
-GInteractions objects can be constructed by specifying integer vectors in \code{GInteractions,numeric,numeric-method} to define pairwise interactions.
+GInteractions objects can be constructed by specifying integer vectors to define the pairwise interactions in the \code{GInteractions} call.
 For entry \code{x}, the corresponding interaction is defined between \code{regions[anchor1[x]]} and \code{regions[anchor2[x]]}.
 Obviously, coordinates of all of the interacting loci must be specified in the \code{regions} argument.
 
-Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to \code{GInteractions,GRanges,GRanges-method}.
+Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to the \code{GInteractions} function.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
-If \code{regions} is supplied, exact matching will be performed to identify the corresponding entries in \code{anchor1} and \code{anchor2}.
-Missing values are not tolerated and will cause an error.
+If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied GRanges.
+Missing values are not tolerated and will cause an error to be raised.
 
 Both methods will return an GInteractions object containing all of the specified information.
 Values may be swapped between the two anchor vectors in the returned object, to ensure that \code{anchor1} is not less than \code{anchor2}.

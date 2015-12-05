@@ -56,9 +56,13 @@ expect_identical(regions(x3), regions(x2))
 empty <- GInteractions(integer(0), numeric(0), GRanges())
 expect_identical(length(empty), 0L)
 expect_identical(length(anchors(empty, type="first")), 0L)
+expect_identical(empty, GInteractions())
+
 empty <- GInteractions(GRanges(), GRanges())
 expect_identical(length(empty), 0L)
 expect_identical(length(anchors(empty, type="first")), 0L)
+expect_identical(empty, GInteractions())
+
 empty <- GInteractions(GRanges(), GRanges(), all.regions)
 expect_identical(length(empty), 0L)
 expect_identical(length(anchors(empty, type="first")), 0L)

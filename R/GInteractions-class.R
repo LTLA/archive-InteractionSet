@@ -131,8 +131,8 @@ setMethod("show", signature("GInteractions"), function(object) {
         metadata=as.list(metadata))
 }
 
-setGeneric("GInteractions", function(anchor1, anchor2, ...) { standardGeneric("GInteractions") })
-setMethod("GInteractions", c("numeric", "numeric"), 
+setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) { standardGeneric("GInteractions") })
+setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
     function(anchor1, anchor2, regions, metadata=list()) {
         .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata)
 })
@@ -158,11 +158,12 @@ setMethod("GInteractions", c("numeric", "numeric"),
     return(list(indices=split(refdex, obj.dex), ranges=combined))
 }
 
-setMethod("GInteractions", c("GRanges", "GRanges"), 
+setClassUnion("missing_OR_GRanges", c("missing", "GRanges"))
+setMethod("GInteractions", c("GRanges", "GRanges", "missing_OR_GRanges"), 
     function(anchor1, anchor2, regions, metadata=list()) {
 
-        # Making unique regions to save space (metadata is ignored)
         if (missing(regions)) {
+            # Making unique regions to save space (metadata is ignored)
             collated <- .collate_GRanges(anchor1, anchor2)
             regions <- collated$ranges
             anchor1 <- collated$indices[[1]]
@@ -180,8 +181,9 @@ setMethod("GInteractions", c("GRanges", "GRanges"),
    }
 )
 
-setMethod("GInteractions", c("missing", "missing"),
-    function(anchor1, anchor2, regions=GRanges(), metadata=list()) {
+setMethod("GInteractions", c("missing", "missing", "missing_OR_GRanges"),
+    function(anchor1, anchor2, regions, metadata=list()) {
+        if (missing(regions)) { regions <- GRanges() }
         .new_GInteractions(integer(0), integer(0), regions, metadata)
 })
 
