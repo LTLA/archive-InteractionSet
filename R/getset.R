@@ -136,25 +136,21 @@ anchor.repfun.gen <- function(is.GI) {
             if (length(value)!=2L) { 
                 stop("'value' must be a list of 2 numeric vectors")
             }
-            first <- as.integer(value[[1]])
-            second <- as.integer(value[[2]])
+            x@anchor1 <- as.integer(value[[1]])
+            x@anchor2 <- as.integer(value[[2]])
         } else if (type==type1) {
-            first <- as.integer(value)
-            second <- x@anchor2
+            x@anchor1 <- as.integer(value)
         } else {
-            first <- x@anchor1
-            second <- as.integer(value)
+            x@anchor2 <- as.integer(value)
         }
 
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
         validObject(x)
         return(x)
     }
 }
 
 setReplaceMethod("anchors", "GInteractions", anchor.repfun.gen(TRUE))
-setReplaceMethod("anchors", "GInteractions", anchor.repfun.gen(FALSE))
+setReplaceMethod("anchors", "ContactMatrix", anchor.repfun.gen(FALSE))
 
 ###############################################################
 # Methods on InteractionSet that operate on GInteractions.

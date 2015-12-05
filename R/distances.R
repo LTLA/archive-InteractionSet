@@ -6,8 +6,8 @@ setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
 
     # To get sensible distances
     swapped <- .enforce_order(ai1, ai2) 
-    ai1 <- swapped$ai1
-    ai2 <- swapped$ai2
+    ai1 <- swapped[[1]]
+    ai2 <- swapped[[2]]
 
     # Protection when all inter's.
     is.same <- chr[ai1]==chr[ai2]
@@ -55,7 +55,7 @@ setMethod("pairdist", "ContactMatrix", function(x, type="mid")
 {
     ai1 <- rep(anchors(x, type="row", id=TRUE), ncol(x))
     ai2 <- rep(anchors(x, type="column", id=TRUE), each=nrow(x))
-    out <- .get_dist_output(regions(x), swapped$anchor1, swapped$anchor2, type)
+    out <- .get_dist_output(regions(x), ai1, ai2, type)
     dim(out) <- dim(x@matrix)
     return(out)
 })

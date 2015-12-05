@@ -79,7 +79,7 @@ setMethod("show", signature("GInteractions"), function(object) {
 # Constructors
 
 .enforce_order <- function(anchor1, anchor2) {
-    swap <- anchor2 > anchor1
+    swap <- anchor2 < anchor1
     if (any(swap)) { 
         temp <- anchor1[swap]
         anchor1[swap] <- anchor2[swap]
@@ -193,7 +193,7 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     if (length(unique(all.regions))!=1L) { 
         collated <- do.call(.collate_GRanges, all.regions)
         ans@regions <- collated$ranges       
-        for (i in seq_along(incoming)) {
+        for (i in seq_along(all.regions)) {
             all.anchor1[[i]] <- collated$indices[[i]][all.anchor1[[i]]]
             all.anchor2[[i]] <- collated$indices[[i]][all.anchor2[[i]]]
         }

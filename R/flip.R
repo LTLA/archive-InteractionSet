@@ -37,9 +37,9 @@ setGeneric("swapAnchors", function(x, ...) { standardGeneric("swapAnchors") })
 setMethod("swapAnchors", "GInteractions", function(x, mode=c("order", "reverse", "all")) {
     mode <- match.arg(mode)
     if (mode=="order") {
-        out <- .enforce_order(x@anchor2, x@anchor1) 
+        out <- .enforce_order(x@anchor1, x@anchor2)
     } else if (mode=="reverse") {
-        out <- .enforce_order(x@anchor1, x@anchor2) 
+        out <- rev(.enforce_order(x@anchor1, x@anchor2))
     } else {
         out <- list(x@anchor2, x@anchor1)
     }
@@ -49,7 +49,7 @@ setMethod("swapAnchors", "GInteractions", function(x, mode=c("order", "reverse",
 })
 
 setMethod("swapAnchors", "InteractionSet", function(x, mode=c("order", "reverse", "all")) {
-    x@interactions <- swap(x@interactions, mode)
+    x@interactions <- swapAnchors(x@interactions, mode)
     return(x)
 })
 
