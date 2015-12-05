@@ -77,6 +77,8 @@ expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,NA), 1:4, all.regions), "all
 expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
 expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
 
+expect_identical(ContactMatrix(), ContactMatrix(matrix(0L,0,0), integer(0), integer(0), GRanges()))
+
 # Testing setters.
 
 set.seed(4001)

@@ -3,8 +3,9 @@
 
 \alias{ContactMatrix-class}
 \alias{ContactMatrix}
-\alias{ContactMatrix,ANY,numeric,numeric-method}
-\alias{ContactMatrix,ANY,GRanges,GRanges-method}
+\alias{ContactMatrix,ANY,numeric,numeric,GRanges-method}
+\alias{ContactMatrix,ANY,GRanges,GRanges,missing_OR_GRanges-method}
+\alias{ContactMatrix,missing,missing,missing,missing_OR_GRanges-method}
 
 \title{ContactMatrix class and constructors}
 
@@ -15,9 +16,11 @@ Coordinates of the loci are also contained within this class.
 }
 
 \usage{
-\S4method{ContactMatrix}{ANY,numeric,numeric}(matrix, anchor1, anchor2, regions, metadata=list())
+\S4method{ContactMatrix}{ANY,numeric,numeric,GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
 
-\S4method{ContactMatrix}{ANY,GRanges,GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
+\S4method{ContactMatrix}{ANY,GRanges,GRanges,missing_OR_GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
+
+\S4method{ContactMatrix}{missing,missing,missing,missing_OR_GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
 }
 
 \arguments{
@@ -26,10 +29,7 @@ Coordinates of the loci are also contained within this class.
 }
 
 \item{anchor1,anchor2}{
-    For \code{ContactMatrix,ANY,numeric,numeric-method}, an integer vector containing indices to \code{regions}.
-    
-    For \code{ContactMatrix,ANY,GRanges,GRanges-method}, a GRanges object specifying the interacting loci.
-    
+    Either a pair of numeric vectors containing indices to \code{regions} or a pair of GRanges objects.
     In both cases, \code{anchor1} and \code{anchor2} should have lengths equal to the number of rows and columns in \code{matrix}, respectively.
 }
 
@@ -55,14 +55,15 @@ Each entry of \code{anchor1} corresponds to a row in \code{matrix}, while each e
 Each entry of \code{matrix} represents an interaction between the corresponding entries in \code{anchor1} and \code{anchor2}, i
     which point to the relevant coordinates in \code{regions} for each locus.
 
-ContactMatrix objects can be constructed by specifying integer vectors in \code{ContactMatrix,ANY,numeric,numeric-method} to define pairwise interactions.
-Coordinates of all of the interacting loci must be specified in the \code{regions} argument.
-This means that the range of entries must lie within \code{[1, length(regions)]}.:w
+ContactMatrix objects can be constructed by specifying numeric vectors in \code{ContactMatrix}.
+These vectors will define the regions corresponding to the rows and columns of the matrix.
+Specifically, each value of the vector acts as an index to specify the relevant coordinates from \code{regions}.
+This means that the range of entries must lie within \code{[1, length(regions)]}.
 
-Alternatively, ContactMatrix objects can be constructed by directly supplying the GRanges of the interacting loci to \code{ContactMatrix,ANY,GRanges,GRanges-method}.
+Alternatively, ContactMatrix objects can be constructed by directly supplying the GRanges of the interacting loci in \code{ContactMatrix}.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
-If \code{regions} is supplied, exact matching will be performed to identify the indices corresponding to \code{anchor1} and \code{anchor2}.
-Missing values are not tolerated and will cause an error.
+If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied GRanges.
+Missing values are not tolerated and will cause an error to be raised.
 
 Both methods will return an ContactMatrix object containing all of the specified information.
 Sorting of \code{regions} is also performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.

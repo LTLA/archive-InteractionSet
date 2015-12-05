@@ -54,14 +54,15 @@ setMethod("show", signature("ContactMatrix"), function(object) {
         regions=out$regions, metadata=metadata)
 }
 
-setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, ...) { standardGeneric("ContactMatrix") })
-setMethod("ContactMatrix", c("ANY", "numeric", "numeric"), 
+setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, regions, ...) { standardGeneric("ContactMatrix") })
+setMethod("ContactMatrix", c("ANY", "numeric", "numeric", "GRanges"), 
     function(matrix, anchor1, anchor2, regions, metadata=list()) { 
         .new_ContactMatrix(matrix, anchor1, anchor2, regions, metadata)
     }
 )
 
-setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"), 
+setClassUnion("missing_OR_GRanges", c("missing", "GRanges"))
+setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "missing_OR_GRanges"), 
     function(matrix, anchor1, anchor2, regions, metadata=list()) { 
 
         if (missing(regions)) { 
@@ -79,6 +80,13 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges"),
         
         .new_ContactMatrix(matrix, anchor1, anchor2, regions, metadata)
     }
+)
+
+setMethod("ContactMatrix", c("missing", "missing", "missing", "missing_OR_GRanges"),
+    function(matrix, anchor1, anchor2, regions, metadata=list()) {
+        if (missing(regions)) { regions <- GRanges() }
+        .new_ContactMatrix(base::matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
+    } 
 )
 
 ##############################################
