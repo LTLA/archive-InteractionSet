@@ -108,11 +108,7 @@ regions(gi)
 From a developer's perspective, this is useful as it is often more efficient to manipulate the indices and regions separately.
 For example, common operations can be applied to the output of `regions(gi)`, and the relevant results retrieved with the anchor indices.
 This is usually faster than applying those operations on repeated instances of the regions in `anchors(gi)`.
-
-A careful reader might notice a couple of things here.
-The first is that the `GRanges` returned by `regions` is sorted -- this is automatically performed within the `GInteractions` class, and is enforced throughout for consistency.
-The second is that the `first` anchor always has a higher genomic start coordinate than the `second` anchor (or, if there are multiple chromosomes, a later-ordered interval).
-This is intentional and avoids redundancy from different permutations of the anchor regions.
+Also note that `regions(gi)` is sorted -- this is automatically performed within the `GInteractions` class, and is enforced throughout for consistency.
 
 Finally, it's worth pointing out that the `GInteractions` object inherits from the `Vector` base class in the `r Biocpkg("S4Vectors")` package, 
     and subsequently has access to all of its methods.
@@ -202,31 +198,34 @@ identical(regions(gi), regions(sub.gi))
 
 Objects can also be concatenated using `rbind` or `c`. 
 This forms a new `GInteractions` object that contains all of the interactions in the constituent objects.
-However, both methods require that the common regions be the same across all objects.
+Both methods will also work on objects with different sets of common regions, with the final common set of regions being formed from a union of the constituent sets.
 
 ```{r}
 rbind(gi, sub.gi)
-```
-
-Objects with different sets of common regions can be concatenated using the `combine` method.
-This is more flexible but requires a bit more computational work, hence the distinction from `rbind` and `c`.
-
-```{r}
 new.gi <- gi
 regions(new.gi) <- resize(regions(new.gi), width=20)
-combine(gi, new.gi)
+rbind(gi, new.gi)
 ```
 
 ## Sorting, duplication and matching
+
+Before we start, we make a slightly more complicated object so we get more interesting results.
+The `swapAnchors` method is applied here to ensure that the first anchor index is always less than the second anchor index for each interaction.
+This avoids redundant permutations such that an interaction between regions #1 and #2 is treated the same as an interaction between regions #2 and #1.
+We recommend running `swapAnchors` prior to comparing between interactions within or between `GInteractions` objects, unless you have a good reason not to do so.
+
+```{r}
+new.gi <- gi
+anchors(new.gi) <- list(1:3, 5:7)
+combined <- c(gi, new.gi)
+combined <- swapAnchors(combined)
+```
 
 Ordering of `GInteractions` objects is performed using the anchor indices.
 Specifically, interactions are ordered such that the first anchor index is increasing.
 Any interactions with the same first anchor index are ordered by the second index.
 
 ```{r}
-new.gi <- gi
-anchors(new.gi) <- list(1:3, 5:7)
-combined <- c(gi, new.gi)
 order(combined)
 sorted <- sort(combined)
 anchors(sorted, id=TRUE)
@@ -245,17 +244,20 @@ In the example below, all of the repeated entries in `doubled` are marked as dup
 The `unique` method returns a `GInteractions` object where all duplicated entries are removed.
 
 ```{r}
-doubled <- rbind(gi, gi)
+doubled <- rbind(combined, combined)
 duplicated(doubled)
 ```
 
 Identical interactions can also be matched between `GInteractions` objects.
 The `match` method looks for entries in the second object with the same anchor indices as each entry in the first object.
 Obviously, the common regions must be the same for this to be sensible.
+We also coerce the permutations to a consistent format with `swapAnchors` for comparing between objects.
 
 ```{r}
 anchors(new.gi) <- list(4:6, 1:3)
-match(gi, new.gi)
+new.gi <- swapAnchors(new.gi)
+swap.gi <- swapAnchors(gi)
+match(new.gi, swap.gi)
 ```
 
 Finally, `GInteractions` objects can also be compared in a parallel manner.
@@ -263,7 +265,7 @@ This determines whether the *i*^th^ interaction in one object is equal to the *i
 Again, the common regions should be the same for both objects.
 
 ```{r}
-gi==new.gi
+new.gi==swap.gi
 ```
 
 ## Distance calculations
@@ -479,10 +481,8 @@ iset[1:3,]
 iset[,1:2]
 ```
 
-`InteractionSet` objects can be combined row-wise using `rbind`, `c` or `combine`, similar to the methods described for `GInteractions`.
+`InteractionSet` objects can be combined row-wise using `rbind` or `c`, similar to the methods described for `GInteractions`.
 This forms a new `InteractionSet` object containing all interactions from each individual object, with the associated data across all samples.
-Again, `combine` is distinct from `rbind` or `c` in that objects with different common regions can be combined in the former but not the latter.
-
 Objects with the same interactions can also be combined column-wise with the `cbind` method.
 This is used to combine data from different samples.
 The example below forms an `InteractionSet` object with an extra copy of the data from sample 3:
@@ -497,6 +497,7 @@ Sorting, duplicate detection, distance calculation and overlap methods for `Inte
 Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` object within each `InteractionSet`.
 As a consequence, only the anchor indices will be used for sorting and duplication identification.
 Experimental data will *not* be used to distinguish between rows of an `InteractionSet` that correspond to the same interaction.
+Also keep in mind that you should use `swapAnchors` to standardize the interactions before comparing within or between `InteractionSet` objects.
 
 # Description of the `ContactMatrix` class
 
