@@ -16,6 +16,10 @@
 \alias{match,GInteractions,InteractionSet-method}
 \alias{match,InteractionSet,InteractionSet-method}
 
+\alias{swapAnchors}
+\alias{swapAnchors,GInteractions-method}
+\alias{swapAnchors,InteractionSet-method}
+
 \alias{compare,GInteractions,GInteractions-method}
 
 \title{Interaction comparisons}
@@ -76,6 +80,11 @@ Methods to order, compare and de-duplicate GInteractions or InteractionSet objec
 \item{fromLast}{
     A logical scalar indicating whether the last entry of a repeated set in \code{x} should be considered as a non-duplicate.
 }
+
+\item{mode}{
+    A string indicating what type of swapping should be performed in \code{swapAnchors}.
+}
+
 \item{table}{A GInteractions or InteractionSet object.}
 
 \item{nomatch}{An integer scalar indicating the value to use for unmatched entries.}
