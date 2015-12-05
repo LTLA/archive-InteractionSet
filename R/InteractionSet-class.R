@@ -14,7 +14,7 @@ setClass("InteractionSet",
 
 setValidity2("InteractionSet", function(object) {
     if (nrow(object@assays)!=length(object@interactions)) {
-        return("'assay' nrow differs from length of anchor vectors")
+        return("'assays' nrow differs from length of anchor vectors")
     } 
     msg <- validObject(object@interactions)
     if (is.character(msg)) { 
@@ -35,31 +35,32 @@ setMethod("show", signature("InteractionSet"), function(object) {
 ###############################################################
 # Constructors
 
-.new_InteractionSet <- function(assays, interactions, colData, metadata) {
-    elementMetadata <- new("DataFrame", nrows=length(interactions))
-    if (!is(assays, "Assays")) { 
-        assays <- Assays(assays)
+.new_InteractionSet <- function(assays, interactions, colData, ...) {
+    # Avoid need to specify column names externally (but respecting it if it is).
+    no.names <- FALSE
+    if (missing(colData)) {
+        assays <- as(Assays(assays), "SimpleList")
+        if (length(assays)) {
+            nms <- colnames(assays[[1]]) 
+            if (is.null(nms)) { 
+                no.names <- TRUE
+                colnames(assays[[1]]) <- seq_len(ncol(assays[[1]]))
+            }
+        }
     }
-    if (ncol(colData)==0L) { colData <- new("DataFrame", nrows=ncol(assays)) } # If empty, we fill it.
-
-    new("InteractionSet", 
-        interactions=interactions,
-        colData=colData,
-        assays=assays,
-        elementMetadata=elementMetadata,
-        metadata=as.list(metadata))
+    se0 <- SummarizedExperiment(assays, colData=colData, ...)
+    if (no.names) { colnames(se0) <- NULL }
+    new("InteractionSet", se0, interactions=interactions)
 }
 
 setGeneric("InteractionSet", function(assays, interactions, ...) { standardGeneric("InteractionSet") })
-setMethod("InteractionSet", c("ANY", "GInteractions"),
-    function(assays, interactions, colData=DataFrame(), metadata=list()) {
-        .new_InteractionSet(assays, interactions, colData=colData, metadata=metadata)
+setMethod("InteractionSet", c("ANY", "GInteractions"), function(assays, interactions, ...) { 
+        .new_InteractionSet(assays, interactions, ...)
    }
 )
 
-setMethod("InteractionSet", c("missing", "missing"),
-    function(assays, interactions, colData=DataFrame(), metadata=list()) {
-        .new_InteractionSet(list(), GInteractions(), colData=colData, metadata=metadata)
+setMethod("InteractionSet", c("missing", "missing"), function(assays, interactions, ...) {
+        .new_InteractionSet(list(), GInteractions(), ...)
    }
 )
 

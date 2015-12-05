@@ -16,9 +16,9 @@ Each InteractionSet also contains one or more assays, intended to hold experimen
 }
 
 \usage{
-\S4method{InteractionSet}{ANY,GInteractions}(assays, interactions, colData=DataFrame(), metadata=list())
+\S4method{InteractionSet}{ANY,GInteractions}(assays, interactions, ...)
 
-\S4method{InteractionSet}{missing,missing}(assays, interactions, colData=DataFrame(), metadata=list())
+\S4method{InteractionSet}{missing,missing}(assays, interactions, ...)
 }
 
 \arguments{
@@ -30,14 +30,7 @@ Each InteractionSet also contains one or more assays, intended to hold experimen
     A GInteractions object of length equal to the number of rows in \code{assays}.
 }
 
-\item{colData}{
-    An optional \link{DataFrame} describing the samples. 
-    Row names, if present, become the column names of the InteractionSet.
-}
-
-\item{metadata}{
-    An optional \code{list} of arbitrary content describing the overall experiment.
-}
+\item{...}{Other arguments to be passed to \code{\link{SummarizedExperiment}}.}
 }
 
 \details{
@@ -71,6 +64,7 @@ Aaron Lun
 }
 
 \seealso{
+\code{\link{SummarizedExperiment}},
 \code{\link{interaction-access}},
 \code{\link{interaction-subset}},
 \code{\link{interaction-compare}}
