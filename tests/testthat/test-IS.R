@@ -97,6 +97,8 @@ appendRegions(x.dump) <- mod.ranges
 appendRegions(ref.dump) <- mod.ranges
 expect_identical(regions(x.dump), regions(ref.dump))
 
+expect_identical(interactions(reduceRegions(x)), reduceRegions(interactions(x)))
+
 x.dump <- x
 interactions(x.dump) <- rev(interactions(x))
 expect_identical(interactions(x.dump), rev(interactions(x)))
@@ -223,14 +225,13 @@ next.anchor2 <- sample(N, Np)
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
 next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
 
-expect_error(rbind(x, next.x), "regions must be identical in 'rbind'") 
-c.x <- combine(x, next.x)
+c.x <- rbind(x, next.x)
 expect_equivalent(assay(c.x), rbind(assay(x), assay(next.x)))
-expect_identical(interactions(c.x), combine(interactions(x), interactions(next.x)))
+expect_identical(interactions(c.x), rbind(interactions(x), interactions(next.x)))
 
-expect_identical(nrow(combine(x[0,], next.x[0,])), 0L) # Behaviour with empties.
-expect_identical(ncol(combine(x[0,], next.x[0,])), ncol(x))
-expect_identical(nrow(combine(x, next.x[0,])), nrow(x)) # Not fully equal, as regions have changed.
+expect_identical(nrow(rbind(x[0,], next.x[0,])), 0L) # Behaviour with empties.
+expect_identical(ncol(rbind(x[0,], next.x[0,])), ncol(x))
+expect_identical(nrow(rbind(x, next.x[0,])), nrow(x)) # Not fully equal, as regions have changed.
 
 # Testing the sorting.
 
@@ -250,6 +251,12 @@ expect_equal(x, unique(temp.x, fromLast=TRUE))
 
 expect_identical(order(x[0,]), integer(0))
 expect_identical(duplicated(x[0,]), logical(0))
+
+# Testing the anchor swapping.
+
+expect_identical(interactions(swapAnchors(x)), swapAnchors(interactions(x)))
+expect_identical(interactions(swapAnchors(x, mode='reverse')), swapAnchors(interactions(x), mode='reverse'))
+expect_identical(interactions(swapAnchors(x, mode='all')), swapAnchors(interactions(x), mode='all'))
 
 # Testing the splitting.
 

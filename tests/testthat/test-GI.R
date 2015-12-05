@@ -21,7 +21,6 @@ fixed=TRUE)
 # Testing all of our new slots:
 
 expect_that(x, is_a("GInteractions"))
-expect_true(all(anchors(x, id=TRUE, type="first") >= anchors(x, id=TRUE, type="second")))
 expect_true(!is.unsorted(regions(x)))
 
 o <- order(all.regions)
@@ -30,8 +29,8 @@ expect_identical(regions(x), new.regions)
 
 new.pos <- integer(length(o))
 new.pos[o] <- seq_along(new.pos)
-new.anchor1 <- pmax(new.pos[all.anchor1], new.pos[all.anchor2])
-new.anchor2 <- pmin(new.pos[all.anchor1], new.pos[all.anchor2])
+new.anchor1 <- new.pos[all.anchor1]
+new.anchor2 <- new.pos[all.anchor2]
 expect_identical(anchors(x, id=TRUE, type="first"), new.anchor1)
 expect_identical(anchors(x, id=TRUE, type="second"), new.anchor2)
 expect_identical(anchors(x, id=TRUE), list(first=new.anchor1, second=new.anchor2))
@@ -88,32 +87,39 @@ expect_true(identical(regions(x), new.regions))
 fresh.anchor1 <- sample(N, Np)
 fresh.anchor2 <- sample(N, Np)
 anchors(x) <- list(fresh.anchor1, fresh.anchor2)
-expect_that(anchors(x, id=TRUE, type="first"), is_identical_to(pmax(fresh.anchor1, fresh.anchor2)))
-expect_that(anchors(x, id=TRUE, type="second"), is_identical_to(pmin(fresh.anchor1, fresh.anchor2)))
+expect_identical(anchors(x, id=TRUE, type="first"), fresh.anchor1)
+expect_identical(anchors(x, id=TRUE, type="second"), fresh.anchor2)
 expect_error(anchors(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
-expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "first and second anchor vectors have different lengths")
+expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "x@anchor2' is not parallel to 'x'")
 
 mod.x <- x
 anchors(mod.x, type="first") <- new.anchor1 # Checking that this also works
-expect_identical(anchors(mod.x, id=TRUE, type="first"), pmax(new.anchor1, pmin(fresh.anchor1, fresh.anchor2)))
+expect_identical(anchors(mod.x, id=TRUE, type="first"), new.anchor1)
 mod.x <- x
 anchors(mod.x, type="second") <- new.anchor2
-expect_identical(anchors(mod.x, id=TRUE, type="second"), pmin(pmax(fresh.anchor1, fresh.anchor2), new.anchor2))
+expect_identical(anchors(mod.x, id=TRUE, type="second"), new.anchor2)
 anchors(x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
-expect_identical(anchors(x, id=TRUE, type="first"), pmax(new.anchor1, new.anchor2))
-expect_identical(anchors(x, id=TRUE, type="second"), pmin(new.anchor1, new.anchor2))
+expect_identical(anchors(x, id=TRUE, type="first"), new.anchor1)
+expect_identical(anchors(x, id=TRUE, type="second"), new.anchor2)
 
 x.dump <- x
 mod.ranges <- resize(regions(x), fix="center", width=50)
 new.ranges <- c(regions(x), mod.ranges) 
 expect_error(regions(x.dump) <- new.ranges, "assigned value must be of the same length")
+
 replaceRegions(x.dump) <- new.ranges
 expect_identical(anchors(x.dump), anchors(x))
 expect_identical(sort(new.ranges), regions(x.dump))
 expect_error(replaceRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
+
 x.dump2 <- x
 appendRegions(x.dump2) <- mod.ranges
+expect_identical(anchors(x.dump2), anchors(x))
 expect_identical(regions(x.dump), regions(x.dump2))
+
+x.dump <- reduceRegions(x)
+expect_identical(anchors(x), anchors(x.dump))
+expect_identical(regions(x)[sort(unique(unlist(anchors(x, id=TRUE))))], regions(x.dump))
 
 new.score <- runif(Np)
 x$stuff <- new.score
@@ -207,19 +213,18 @@ next.anchor1 <- sample(N, Np)
 next.anchor2 <- sample(N, Np)
 next.x <- GInteractions(next.anchor1, next.anchor2, next.regions)
 
-expect_error(rbind(x, next.x), "regions must be identical in 'rbind'") 
-c.x <- combine(x, next.x)
+c.x <- rbind(x, next.x)
 expect_identical(c(anchors(x, type="first"), anchors(next.x, type="first")), anchors(c.x, type="first"))
 expect_identical(c(anchors(x, type="second"), anchors(next.x, type="second")), anchors(c.x, type="second"))
 expect_identical(unique(sort(c(regions(x), regions(next.x)))), regions(c.x))
 
-expect_identical(anchors(combine(x[0,], next.x[0,])), anchors(x[0,])) # Behaviour with empties.
-expect_identical(anchors(combine(x, next.x[0,])), anchors(x)) # Not fully equal, as regions have changed.
+expect_identical(anchors(rbind(x[0,], next.x[0,])), anchors(x[0,])) # Behaviour with empties.
+expect_identical(anchors(rbind(x, next.x[0,])), anchors(x)) # Not fully equal, as regions have changed.
 
 temp.x <- x
 temp.x$score <- new.score
-double.up <- combine(temp.x, temp.x)
-expect_identical(regions(double.up), regions(combine(x)))
+double.up <- rbind(temp.x, temp.x)
+expect_identical(regions(double.up), regions(x))
 expect_identical(anchors(double.up, type="first"), rep(anchors(x, type="first"), 2))
 expect_identical(anchors(double.up, type="second"), rep(anchors(x, type="second"), 2))
 expect_identical(double.up$score, rep(temp.x$score, 2))
@@ -249,6 +254,23 @@ expect_false(any(duplicated(unique(temp.x))))
 
 expect_identical(order(x[0,]), integer(0))
 expect_identical(duplicated(x[0,]), logical(0))
+
+# Testing the anchor swapping.
+
+new.x <- swapAnchors(x)
+expect_identical(anchors(new.x, type="first", id=TRUE), pmin(anchors(x, type="first", id=TRUE), anchors(x, type="second", id=TRUE)))
+expect_identical(anchors(new.x, type="second", id=TRUE), pmax(anchors(x, type="first", id=TRUE), anchors(x, type="second", id=TRUE)))
+expect_identical(regions(x), regions(new.x))
+
+new.x2 <- swapAnchors(x, mode="reverse")
+expect_identical(anchors(new.x2, type="first"), anchors(new.x, type="second"))
+expect_identical(anchors(new.x, type="first"), anchors(new.x2, type="second"))
+expect_identical(regions(x), regions(new.x2))
+
+new.x3 <- swapAnchors(x, mode="all")
+expect_identical(anchors(new.x3, type="first"), anchors(x, type="second"))
+expect_identical(anchors(x, type="first"), anchors(new.x3, type="second"))
+expect_identical(regions(x), regions(new.x3))
 
 # Testing the splitting.
 

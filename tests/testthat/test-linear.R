@@ -19,8 +19,8 @@ o <- order(all.regions)
 new.regions <- all.regions[o]
 new.pos <- integer(length(o))
 new.pos[o] <- seq_along(new.pos)
-new.anchor1 <- pmax(new.pos[all.anchor1], new.pos[all.anchor2])
-new.anchor2 <- pmin(new.pos[all.anchor1], new.pos[all.anchor2])
+new.anchor1 <- new.pos[all.anchor1]
+new.anchor2 <- new.pos[all.anchor2]
 
 # Running through all possibilities:
 
