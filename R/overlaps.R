@@ -60,7 +60,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GRanges"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         out <- .linear_olap_finder(query, subject, cxx_expand_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap,
@@ -76,7 +76,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         out <- .linear_olap_finder(subject, query, cxx_expand_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap,
@@ -119,7 +119,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GRangesList"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         out <- .paired_overlap_finder(query, subject, cxx_expand_paired_olaps,
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
@@ -135,7 +135,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         out <- .paired_overlap_finder(subject, query, cxx_expand_paired_olaps,
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
@@ -196,7 +196,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         out <- .paired_overlap_finder2(query, subject, cxx_expand_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
@@ -212,7 +212,7 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GRanges"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         .linear_olap_finder(query, subject, cxx_queryhit_olaps,
             maxgap=maxgap, minoverlap=minoverlap,
@@ -225,7 +225,7 @@ setMethod("countOverlaps", c(query="GRanges", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
 
         .linear_olap_finder(subject, query, cxx_subjecthit_olaps,
             maxgap=maxgap, minoverlap=minoverlap,
@@ -238,7 +238,7 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GRangesList"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         out <- .paired_overlap_finder(query, subject, cxx_queryhit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=TRUE)
@@ -250,7 +250,7 @@ setMethod("countOverlaps", c(query="GRangesList", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         out <- .paired_overlap_finder(subject, query, cxx_subjecthit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand, IS.query=FALSE)
@@ -262,7 +262,7 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         out <- .paired_overlap_finder2(query, subject, cxx_queryhit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand)
@@ -277,7 +277,7 @@ setMethod("overlapsAny", c(query="GInteractions", subject="GRanges"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         # Slightly faster than 'countOverlaps > 0', as there's no need to enumerate.
         rquery <- regions(query)
         keep <- logical(length(rquery))
@@ -293,7 +293,7 @@ setMethod("overlapsAny", c(query="GRanges", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         subset <- .get_used(subject)
         overlapsAny(query, regions(subject)[subset], maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand) 
@@ -310,7 +310,7 @@ for (siglist in list(
     setMethod("overlapsAny", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         return(countOverlaps(query, subject,
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     algorithm=algorithm, ignore.strand=ignore.strand) > 0L)
@@ -329,7 +329,7 @@ for (siglist in list(
     setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
                 type=type, algorithm=algorithm, ignore.strand=ignore.strand),] 
     })
@@ -339,7 +339,7 @@ setMethod("subsetByOverlaps", c(query="GRangesList", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE) {
+             ignore.strand=FALSE) {
         keep <- overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
                     type=type, algorithm=algorithm, ignore.strand=ignore.strand)
         query[[1]] <- query[[1]][keep]
@@ -393,25 +393,25 @@ for (siglist in list(
              alist(maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE)))
+             ignore.strand=FALSE)))
     setMethod("countOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "countOverlaps", 
              alist(maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE)))
+             ignore.strand=FALSE)))
     setMethod("findOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "findOverlaps", 
              alist(maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              algorithm=c("nclist", "intervaltree"),
-             ignore.strand=TRUE)))
+             ignore.strand=FALSE)))
 
     if (first.IS) {
         # Special treatment here, otherwise it'll return a GInteractions.
         setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
             type=c("any", "start", "end", "within", "equal"),
             algorithm=c("nclist", "intervaltree"),
-            ignore.strand=TRUE) {
+            ignore.strand=FALSE) {
             query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap,
                               type=type, algorithm=algorithm, ignore.strand=ignore.strand),]
         })
@@ -420,7 +420,7 @@ for (siglist in list(
             alist(maxgap=0L, minoverlap=1L, 
             type=c("any", "start", "end", "within", "equal"),
             algorithm=c("nclist", "intervaltree"),
-            ignore.strand=TRUE)))
+            ignore.strand=FALSE)))
     }
 }
 
@@ -430,7 +430,7 @@ for (siglist in list(
 setMethod("overlapsAny", c("ContactMatrix", "GRanges"), 
     function(query, subject, maxgap=0L, minoverlap=1L,
         type=c("any", "start", "end", "within", "equal"),
-        algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE) {
+        algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE) {
         a1 <- anchors(query, id=TRUE, type="row")
         a2 <- anchors(query, id=TRUE, type="column")
         
@@ -453,7 +453,7 @@ for (siglist in list(
     setMethod("overlapsAny", siglist,
         function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
-             algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE) {
+             algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE) {
     
         # It's possible to do this more efficiently by avoiding instantiation of the full object.
         # But it would require a total re-implementation at the C++ level, which is a pain.

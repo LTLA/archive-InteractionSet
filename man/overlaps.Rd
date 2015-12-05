@@ -72,19 +72,19 @@ Find overlaps between interactions and linear intervals, between interactions an
 \S4method{findOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE)
+    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
 
 \S4method{overlapsAny}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE)
+    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
 
 \S4method{countOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE)
+    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
 
 \S4method{subsetByOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=TRUE)
+    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
 
 # For brevity, only GInteractions,GRanges-methods are listed. Methods are
 # available for all pairwise combinations of GInteractions, InteractionSet,
@@ -129,9 +129,6 @@ For the other methods, \code{countOverlaps} returns an integer vector indicating
 \code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
 \code{subsetByOverlaps} returns a subsetted \code{query} containing only those elements overlapped by at least one element in \code{subject}.
 For GRangesList queries, the constituent GRanges objects are subsetted rather than the GRangesList itself.
-
-Note that, unlike the \code{findOverlaps} method for \code{GRanges} objects, strandedness is ignored by default.
-This is due to the typical use of GInteractions objects to represent interactions between unstranded genomic regions rather than stranded transcripts.
 }
 
 \section{Details for InteractionSet}{
