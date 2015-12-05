@@ -284,3 +284,22 @@ empty <- as.data.frame(x[0,])
 expect_identical(colnames(empty), colnames(as.data.frame(x)))
 expect_identical(nrow(empty), 0L)
 
+# Testing object flipping to a GRangesList.
+
+temp.x <- x
+temp.x$score <- new.score
+grl <- flip(temp.x)
+first <- do.call(c, sapply(grl, function(x) { unname(x[1]) }))
+second <- do.call(c, sapply(grl, function(x) { unname(x[2]) }))
+expect_identical(anchors(x, type="first"), first)
+expect_identical(anchors(x, type="second"), second)
+expect_identical(mcols(temp.x), mcols(grl))
+
+temp.x2 <- flip(grl)
+expect_identical(anchors(x), anchors(temp.x2))
+expect_identical(mcols(temp.x), mcols(temp.x2))
+temp.x2 <- flip(grl, regions=regions(x))
+expect_identical(anchors(x), anchors(temp.x2))
+expect_identical(regions(x), regions(temp.x2))
+expect_identical(mcols(temp.x), mcols(temp.x2))
+
