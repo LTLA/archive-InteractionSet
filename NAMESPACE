@@ -9,12 +9,12 @@ exportClasses(
 
 exportMethods(
     GInteractions,
-    anchors, regions, 
+    anchors, regions, reduceRegions, swapAnchors,
     "anchors<-", "regions<-", "replaceRegions<-",  "appendRegions<-",
     InteractionSet, 
     interactions,
     "interactions<-",
-    pairdist, intrachr, linearize, linkOverlaps, boundingBox, flip,
+    pairdist, intrachr, linearize, linkOverlaps, boundingBox, flip, 
     ContactMatrix, 
     "as.matrix<-",
     inflate, deflate

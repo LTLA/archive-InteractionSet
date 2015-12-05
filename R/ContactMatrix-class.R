@@ -48,7 +48,7 @@ setMethod("show", signature("ContactMatrix"), function(object) {
     
     msg <- .check_inputs(anchor1, anchor2, regions, same.length=FALSE)
     if (is.character(msg)) { stop(msg) }
-    out <- .resort_regions(anchor1, anchor2, regions, enforce.order=FALSE)
+    out <- .resort_regions(anchor1, anchor2, regions)
 
     new("ContactMatrix", matrix=matrix, anchor1=out$anchor1, anchor2=out$anchor2, 
         regions=out$regions, metadata=metadata)

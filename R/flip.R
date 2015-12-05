@@ -31,3 +31,25 @@ setMethod("flip", "GRangesList", function(x, ...) {
     return(out)
 })
 
+# Also seems a good place to put this function, which swaps first and second.
+
+setGeneric("swapAnchors", function(x, ...) { standardGeneric("swapAnchors") })
+setMethod("swapAnchors", "GInteractions", function(x, mode=c("order", "reverse", "all")) {
+    mode <- match.arg(mode)
+    if (mode=="order") {
+        out <- .enforce_order(x@anchor2, x@anchor1) 
+    } else if (mode=="reverse") {
+        out <- .enforce_order(x@anchor1, x@anchor2) 
+    } else {
+        out <- list(x@anchor2, x@anchor1)
+    }
+    x@anchor1 <- out[[1]]        
+    x@anchor2 <- out[[2]]        
+    return(x)
+})
+
+setMethod("swapAnchors", "InteractionSet", function(x, mode=c("order", "reverse", "all")) {
+    x@interactions <- swap(x@interactions, mode)
+    return(x)
+})
+

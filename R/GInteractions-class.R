@@ -43,10 +43,6 @@ setValidity2("GInteractions", function(object) {
     msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
     if (is.character(msg)) { return(msg) }
 
-    if (!all(object@anchor1 >= object@anchor2)) { 
-        return('first anchors cannot be less than the second anchor')
-    }
-    
     ### Length of anchors versus object is automatically checked by 'parallelSlotNames.'
 
     return(TRUE)
@@ -89,10 +85,10 @@ setMethod("show", signature("GInteractions"), function(object) {
         anchor1[swap] <- anchor2[swap]
         anchor2[swap] <- temp
     }
-    return(list(anchor1=anchor1, anchor2=anchor2))   
+    return(list(anchor1=anchor1, anchor2=anchor2))
 }
 
-.resort_regions <- function(anchor1, anchor2, regions, enforce.order=TRUE) {
+.resort_regions <- function(anchor1, anchor2, regions) {
     if (is.unsorted(regions)) { 
         o <- order(regions)
         new.pos <- seq_along(o)
@@ -100,11 +96,6 @@ setMethod("show", signature("GInteractions"), function(object) {
         anchor1 <- new.pos[anchor1]
         anchor2 <- new.pos[anchor2]
         regions <- regions[o]
-    }
-    if (enforce.order) { 
-        out <- .enforce_order(anchor1, anchor2)
-        anchor1 <- out$anchor1
-        anchor2 <- out$anchor2
     }
     return(list(anchor1=anchor1, anchor2=anchor2, regions=regions)) 
 }
@@ -193,47 +184,29 @@ setMethod("GInteractions", c("missing", "missing", "missing_OR_GRanges"),
 setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     args <- unname(list(...))
     ans <- args[[1]]
-    all1 <- list(anchors(ans, type="first", id=TRUE))
-    all2 <- list(anchors(ans, type="second", id=TRUE))
-    em <- list(mcols(ans))
+    all.regions <- lapply(args, FUN=regions)
+    all.anchor1 <- lapply(args, FUN=slot, name="anchor1")
+    all.anchor2 <- lapply(args, FUN=slot, name="anchor2")
+    all.mcols <- lapply(args, FUN=mcols)
 
-    for (x in args[-1]) { 
-        if (!identical(regions(x), regions(ans))) { stop("regions must be identical in 'rbind'") }
-        all1 <- c(all1, anchors(x, type="first", id=TRUE))
-        all2 <- c(all2, anchors(x, type="second", id=TRUE))
-        em <- c(em, mcols(x))
+    # Checking if regions are the same; collating if not.
+    if (length(unique(all.regions))!=1L) { 
+        collated <- do.call(.collate_GRanges, all.regions)
+        ans@regions <- collated$ranges       
+        for (i in seq_along(incoming)) {
+            all.anchor1[[i]] <- collated$indices[[i]][all.anchor1[[i]]]
+            all.anchor2[[i]] <- collated$indices[[i]][all.anchor2[[i]]]
+        }
     }
 
-    ans@anchor1 <- unlist(all1)
-    ans@anchor2 <- unlist(all2)
-    ans@regions <- regions(ans)
-    ans@elementMetadata <- do.call(rbind, em)
+    ans@anchor1 <- unlist(all.anchor1)
+    ans@anchor2 <- unlist(all.anchor2)
+    ans@elementMetadata <- do.call(rbind, all.mcols)
     return(ans)
 })
 
 setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym for 'rbind'.
     rbind(x, ...)                   
-})
-
-# "combine" is slightly different from "rbind", in that it allows different regions to be combined.
-setMethod("combine", c("GInteractions", "GInteractions"), function(x, y, ...) {
-    incoming <- list(x, y, ...)
-    all.regions <- lapply(incoming, FUN=regions)
-    collated <- do.call(.collate_GRanges, all.regions)
-    all1 <- all2 <- em <- list()
-
-    for (i in seq_along(incoming)) {
-        current <- incoming[[i]]
-        all1[[i]] <- collated$indices[[i]][anchors(current, type="first", id=TRUE)]
-        all2[[i]] <- collated$indices[[i]][anchors(current, type="second", id=TRUE)]
-        em <- c(em, mcols(current))
-    }
-
-    x@anchor1 <- unlist(all1)
-    x@anchor2 <- unlist(all2)
-    x@regions <- collated$ranges
-    x@elementMetadata <- do.call(rbind, em)
-    return(x)
 })
 
 ###############################################################
@@ -257,18 +230,6 @@ setMethod("duplicated", "GInteractions", function(x, incomparables=FALSE, fromLa
     is.dup[o] <- is.dup
     return(is.dup)
 })
-
-# Not sure how much sense it makes to provide GRanges methods on the GInteractions,
-# as these'll be operating on 'regions' rather than 'anchors'.
-#setMethod("seqinfo", "GInteractions", function(x) {
-#     seqinfo(x@regions)
-#})
-#
-#setReplaceMethod("seqinfo", "GInteractions", function(x, value) {
-#    seqinfo(x@regions) <- value
-#    validObject(x)
-#    return(x)
-#})
 
 setMethod("as.data.frame", "GInteractions", function (x, row.names=NULL, optional=FALSE, ...) {
     all1 <- anchors(x, type="first", id=TRUE)
