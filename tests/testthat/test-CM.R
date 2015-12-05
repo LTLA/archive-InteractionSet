@@ -114,9 +114,15 @@ replaceRegions(x.dump) <- new.ranges
 expect_identical(anchors(x.dump), anchors(x))
 expect_identical(sort(new.ranges), regions(x.dump))
 expect_error(replaceRegions(x.dump) <- mod.ranges, "some existing ranges do not exist in replacement GRanges")
+
 x.dump2 <- x
 appendRegions(x.dump2) <- mod.ranges
 expect_identical(regions(x.dump), regions(x.dump2))
+expect_identical(anchors(x.dump), anchors(x.dump2))
+
+x.dump <- reduceRegions(x)
+expect_identical(anchors(x), anchors(x.dump))
+expect_identical(regions(x)[sort(unique(unlist(anchors(x, id=TRUE))))], regions(x.dump))
 
 x.dump <- x
 new.mat <- matrix(sample(N, Nr*Nc, replace=TRUE), Nr, Nc)
