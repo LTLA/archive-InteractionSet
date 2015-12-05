@@ -48,20 +48,21 @@ It also contains several additional slots:
 \item{\code{regions}:}{A sorted GRanges object containing the coordinates of all interacting regions.}
 }
 Each interaction is defined by the corresponding entries in the \code{anchor1} and \code{anchor2} slots, which point to the relevant coordinates in \code{regions} for each locus.
-Values of \code{anchor1} and \code{anchor2} are set such that the former is not smaller than the latter, to avoid redundancy from different permutations.
 
 GInteractions objects can be constructed by specifying integer vectors to define the pairwise interactions in the \code{GInteractions} call.
 For entry \code{x}, the corresponding interaction is defined between \code{regions[anchor1[x]]} and \code{regions[anchor2[x]]}.
 Obviously, coordinates of all of the interacting loci must be specified in the \code{regions} argument.
+Any metadata in \code{regions} will be preserved.
 
 Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to the \code{GInteractions} function.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
-If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied GRanges.
+Both GRanges should have the same set of metadata fields, which will be retained in the constructed \code{regoins}.
+If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied anchor GRanges.
+Any metadata in the anchor GRanges will be ignored in favour of metadata in the supplied \code{regions}.
 Missing values are not tolerated and will cause an error to be raised.
 
-Both methods will return an GInteractions object containing all of the specified information.
-Values may be swapped between the two anchor vectors in the returned object, to ensure that \code{anchor1} is not less than \code{anchor2}.
-Sorting of \code{regions} is also performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
+All constructors will return an GInteractions object containing all of the specified information.
+Sorting of \code{regions} is performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
 If both anchors are missing, the constructor will return an empty GInteractions object.
 }
 

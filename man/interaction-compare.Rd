@@ -33,6 +33,8 @@ Methods to order, compare and de-duplicate GInteractions or InteractionSet objec
 
 \S4method{unique}{GInteractions}(x, incomparables=FALSE, fromLast=FALSE, ...)
 
+\S4method{swapAnchors}{GInteractions}(x, mode=c("order", "reverse", "all"))
+
 ## Each of the above methods has an identical equivalent for
 ## InteractionSet objects (not shown for brevity).
 
@@ -119,10 +121,23 @@ Negative, zero and positive values indicate that the corresponding interaction i
 Again, the \code{regions} must be identical between the two objects.
 }
 
+\section{Swapping anchors}{
+For GInteractions objects, \code{swapAnchors} returns a GInteractions object where \code{anchor1} and \code{anchor2} values are swapped.
+If \code{mode="order"}, this is done so that all values in the \code{anchor2} slot are not less than values in \code{anchor1} in the returned object.
+If \code{mode="reverse"}, all values in \code{anchor1} are not less than all values in \code{anchor2}.
+If \code{mode="all"}, the anchor indices in \code{x} are directly swapped without consideration of ordering.
+
+It is recommended to apply this method before running methods like \code{order} or \code{duplicated}.
+This ensures that redundant permutations are coerced into the same format for a valid comparison.
+In many applications, permutations of pairwise interactions are not of interest, i.e., an interaction between regions 1 and 2 is the same as that between 2 and 1.
+Application of \code{swapAnchors} with \code{mode="order"} ensures that all indices are arranged in a comparable manner.
+}
+
 \section{Methods for InteractionSet objects}{
 For all InteractionSet methods, the corresponding method is called on the GInteractions object in the \code{interactions} slot of the InteractionSet object.
 Return values for each InteractionSet method is the same as those for the corresponding GInteractions method 
-    - except for \code{sort} and \code{unique}, which return a row-permuted or row-subsetted InteractionSet, respectively, instead of a GInteractions object.
+    - except for \code{sort} and \code{unique}, which return a row-permuted or row-subsetted InteractionSet, respectively, instead of a GInteractions object;
+      and \code{swapAnchors}, which returns an InteractionSet object where the internal GInteractions has its anchor indices swapped around.      
 
 Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking,
     i.e., the assay or metadata values for each interaction is \emph{not} used in distinguishing rows with the same interaction.
@@ -132,6 +147,10 @@ It makes little sense to do a parallel comparison in an InteractionSet without e
 
 \examples{
 example(GInteractions, echo=FALSE)
+
+anchors(gi, id=TRUE)
+anchors(swapAnchors(gi, mode="all"), id=TRUE)
+gi <- swapAnchors(gi)
 
 anchors(gi)
 gi2 <- sort(gi)
@@ -159,6 +178,7 @@ compare(gi, another.gi)
 # Same can be done for an InteractionSet object:
 
 example(InteractionSet, echo=FALSE)
+iset <- swapAnchors(iset)
 
 anchors(iset)
 anchors(sort(iset))

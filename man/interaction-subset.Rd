@@ -14,12 +14,10 @@
 \alias{cbind,InteractionSet-method}
 \alias{rbind,InteractionSet-method}
 \alias{c,InteractionSet-method}
-\alias{combine,InteractionSet,InteractionSet-method}
 \alias{split,InteractionSet-method}
 
 \alias{rbind,GInteractions-method}
 \alias{c,GInteractions-method}
-\alias{combine,GInteractions,GInteractions-method}
 \alias{split,GInteractions-method}
 
 \title{Interaction subsetting and combining}
@@ -34,7 +32,6 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 
 \S4method{rbind}{GInteractions}(..., deparse.level=1)
 \S4method{c}{GInteractions}(x, ..., recursive=FALSE)
-\S4method{combine}{GInteractions,GInteractions}(x, y, ...)
 
 \S4method{split}{GInteractions}(x, f, drop=FALSE)
 
@@ -62,9 +59,9 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 }
 
 \item{...}{  
-    For \code{rbind}, \code{c} and \code{combine}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise, depending on the method. 
+    For \code{rbind} and \code{c}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise, depending on the method. 
     All objects must be of the same class.
-    For all \code{c} and \code{combine} methods, any objects are additional to that already specified in \code{x} (and \code{y}).
+    For \code{c}, any objects are additional to that already specified in \code{x}.
     For \code{cbind}, \code{...} contains InteractionSet objects to be combined column-wise.
     For all other methods, this argument is ignored.
 }
@@ -82,8 +79,6 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \item{deparse.level}{An integer scalar; see \code{?base::\link[base]{cbind}} for a description of this argument.}
 
 \item{recursive}{An integer scalar, ignored.}
-
-\item{y}{An object of the same class as \code{x}.}
 }
 
 \section{Details for GInteractions}{
@@ -91,11 +86,12 @@ Subsetting operations will return a GInteractions object containing the specifie
 Values of the \code{anchor1} and \code{anchor2} slots will be appropriately subsetted in the returned object, along with any metadata in \code{mcols}.
 However, note that the value of \code{regions} will not be modified by subsetting.
 
-\code{rbind}, \code{c} and \code{combine} will concatenate GInteractions objects.
-\code{rbind} and \code{c} are synonyms, and require that the \code{regions} slot of all supplied objects are the same.
-\code{combine} does not have this requirement - instead, a new GRanges is constructed containing the (sorted) union of all \code{regions} across the input objects.
-This is more flexible but is more computationally intensive.
-Note that in both methods, the column names in \code{mcols} must be identical across all supplied objects.
+\code{rbind} and \code{c} are synonyms and will concatenate GInteractions objects.
+These methods will check whether the \code{regions} slot of all supplied objects are the same, in which case the regions and anchor indices are used directly.
+Otherwise, a new GRanges is constructed containing the (sorted) union of all \code{regions} across the input objects.
+Anchor indices in each object are refactored appropriately to refer to the relevant entries in this new object.
+Note that the column names in \code{mcols} must be identical across all supplied objects.
+The column names of \code{mcols} for the \code{regions} slot must also be identical across objects.
 
 \code{split} produces a list of GInteractions objects, where each entry of the list corresponds to a level of \code{f}.
 Each GInteractions object contains all rows associated with the corresponding level of \code{f}. 
@@ -107,13 +103,12 @@ Interactions are treated as rows and will be subsetted as such.
 All subsetting operations will return an InteractionSet with the specified interactions (rows) or samples (columns).
 Again, note that the value of \code{regions} will not be modified by subsetting.
 
-\code{cbind} will combines objects with the same interactions but different samples.
+\code{cbind} will combine objects with the same interactions but different samples.
 Errors will occur if the interactions are not identical between objects (i.e., must have same values in the \code{interactions} slots).
 Additional restrictions apply on the column and assay names - see \code{\link{cbind,SummarizedExperiment0-method}} for details.
 
-\code{rbind} (or equivalently, \code{c}) will combine objects with the same samples but different interactions.
-In this case, the interactions need not be identical, but the value of \code{regions(x)} must be the same across objects.
-\code{combine} does the same as \code{rbind}, but does not require identical \code{regions}, as described for the GInteractions class.
+\code{rbind} and \code{c} will combine objects with the same samples but different interactions.
+In this case, the interactions need not be identical, and will be combined using the methods described above for GInteractions objects.
 Again, additional restrictions apply - see \code{\link{rbind,SummarizedExperiment0-method}} for details.
 
 \code{split} produces a list of InteractionSet objects, where each entry of the list corresponds to a level of \code{f}.
@@ -138,8 +133,7 @@ c(gi, gi)
 
 new.gi <- gi
 regions(new.gi) <- resize(regions(new.gi), width=20, fix="start")
-try(rbind(gi, new.gi))
-combine(gi, new.gi)
+rbind(gi, new.gi)
 
 # Splitting:
 f <- sample(4, nrow(gi), replace=TRUE)
@@ -166,8 +160,7 @@ c(iset, iset)
 
 new.iset <- iset
 regions(new.iset) <- resize(regions(new.iset), width=20, fix="start")
-try(rbind(iset, new.iset))
-combine(iset, new.iset)
+rbind(iset, new.iset)
 
 # Splitting:
 out <- split(iset, f)

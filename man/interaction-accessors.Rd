@@ -26,6 +26,10 @@
 \alias{appendRegions<-,InteractionSet-method}
 \alias{appendRegions<-,GInteractions-method}
 
+\alias{reduceRegions}
+\alias{reduceRegions,InteractionSet-method}
+\alias{reduceRegions,GInteractions-method}
+
 \alias{interactions}
 \alias{interactions,InteractionSet-method}
 \alias{interactions<-}
@@ -52,8 +56,10 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 
 \S4method{anchors}{GInteractions}(x, type="both") <- value
 \S4method{regions}{GInteractions}(x) <- value
+
 \S4method{replaceRegions}{GInteractions}(x) <- value
 \S4method{appendRegions}{GInteractions}(x) <- value
+\S4method{reduceRegions}{GInteractions}(x)
 
 ## Each above method has an identical equivalent for 
 ## InteractionSet objects (not shown here for brevity).
@@ -99,25 +105,37 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 }
 }
 
-\section{Details for GInteractions}{
+\section{Anchor manipulations for GInteractions}{
 The return value of \code{anchors} varies depending on \code{type} and \code{id}.
 If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
     for \code{type=="first"} or \code{"second"}, respectively.
 If \code{type="both"}, a GRangesList will be returned with two entries - \code{first} and \code{second}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
-However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly 
-    (a list of length two is returned for \code{type="both"}, containing both of the vectors).
+
+If \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly.
+A list of length two is returned for \code{type="both"}, containing both of the vectors.
+Otherwise, each vector is returned corresponding to the requested value of \code{type}.
 
 Replacement in \code{anchors<-} can only be performed using anchor indices.
 If \code{type="both"}, a list of two integer vectors is required in \code{value}, specifying the indices of the interacting regions in \code{regions(x)}.
 If \code{type="first"} or \code{"second"}, an integer vector is required to replace the existing values in the \code{anchor1} or \code{anchor2} slot, respectively.
-Swapping is performed automatically to ensure that the entries in the \code{anchor1} slot are not less than those in \code{anchor2} in the final GInteractions object.
-   
+}
+
+\section{Region manipulations for GInteractions}{
 For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
 For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
+
 The \code{replaceRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 The \code{appendRegions} replacement method appends extra intervals to the existing \code{regions} slot of \code{x}.
+This is more efficient than calling \code{replaceRegions} on a concatenated object with \code{regions(x)} and the extra intervals.
 
+The \code{reduceRegions} method will return a GInteractions object where the \code{regions} slot is reduced to only those entries used in \code{anchors(x)}.
+This may save some memory in each object by removing unused regions.
+However, this is not recommended for large workflows with many GInteractions objects.
+R uses a copy-on-write memory management scheme, so only one copy of the GRanges in \code{regions} will be stored so long as it is not modified in different objects.
+}
+
+\section{Other methods for GInteractions}{
 For access and setting of all other slots, see \code{\link{Vector-class}} for details on the appropriate methods.
 This includes \code{mcols} or \code{metadata}, to store interactions-specific or experiment-wide metadata, respectively.
 The \code{nrow} method is an alias for \code{length}, and will return the number of interactions stored in \code{x}.
@@ -137,9 +155,6 @@ An additional line is added indicating the number of regions in the \code{region
 
 For access and setting of all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
 This includes \code{assays}, \code{colData}, \code{mcols} or \code{metadata}, which can all be applied to InteractionSet objects.
-
-Note that getting or setting of \code{mcols} or \code{metadata} will use the fields in the SummarizedExperiment0 class, not in the GInteractions class.
-If the latter is desired, these functions should be applied after extracting the GInteractions object with \code{interactions(x)}.
 }
 
 \section{Handling different metadata}{
@@ -152,7 +167,7 @@ In addition, library-specific data (e.g., library size) should be placed into \c
 Users should take care with the differences in the \code{$} and \code{$<-} operators between these two classes.
 For GInteractions objects, this will access or modify fields in the \code{mcols} slot, i.e., for interaction-specific metadata.
 For InteractionSet objects, this will access or modify fields in the \code{colData} slot, i.e., for library-specific data.
-The differences in behaviour are due to the concept of libraries in the InteractionSet, which is lacking in the GInteractions class.
+The difference in behaviour is due to the concept of libraries in the InteractionSet, which is lacking in the GInteractions class.
 
 For InteractionSet objects, the \code{mcols} getter and setter functions operate on the GInteractions object stored in \code{interactions} slot,
     rather than accessing the \code{elementMetadata} slot of the SummarizedExperiment0 base class.
@@ -186,6 +201,7 @@ anchors(gi, type="first") <- mod[[2]]
 
 # Accessing or modifying regions:
 regions(gi)
+reduceRegions(gi)
 regions(gi)$score <- runif(length(regions(gi)))
 
 new.ranges <- c(regions(gi), resize(regions(gi), fix="center", width=50))
@@ -208,6 +224,7 @@ example(InteractionSet, echo=FALSE)
 
 anchors(iset)
 regions(iset)
+reduceRegions(iset)
 regions(iset)$score <- regions(gi)$score
 replaceRegions(iset) <- new.ranges
 
