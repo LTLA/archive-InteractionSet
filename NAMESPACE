@@ -2,6 +2,7 @@ useDynLib(InteractionSet, .registration=TRUE, .fixes="cxx_")
 
 # Exporting the InteractionSet class.
 exportClasses(
+    GInteractions,
     InteractionSet, 
     ContactMatrix
 )
@@ -13,7 +14,7 @@ exportMethods(
     InteractionSet, 
     interactions,
     "interactions<-",
-    pairdist, intrachr, linearize, linkOverlaps, boundingBox,
+    pairdist, intrachr, linearize, linkOverlaps, boundingBox, flip,
     ContactMatrix, 
     "as.matrix<-",
     inflate, deflate
