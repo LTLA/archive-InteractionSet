@@ -39,6 +39,7 @@ The internal GRanges are named according to the levels of \code{f},
 It is recommended to run \code{\link{swapAnchors}} prior to computing the bounding box for intra-chromosomal groups.
 If all \code{anchor1 >= anchor2} or all \code{anchor1 <= anchor2}, all interactions will lie on one side of the diagonal of the intra-chromosomal interaction space.
 This results in the smallest possible minimum bounding box, which will only increase in size if interactions are placed on the other side of the diagonal.
+Alternatively, users can specify a StrictGInteractions object as an input into \code{x}, in which \code{anchor1 >= anchor2} is enforced automatically.
 
 % Bit of a pain to prove, but basically, if you flip a point to be above the diagonal, the Chebyshev distance to a point below the diagonal will always increase.
 % This means that you must increase the size of one of your sides of your bounding box.

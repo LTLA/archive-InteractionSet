@@ -140,6 +140,7 @@ It is recommended to apply this method before running methods like \code{order} 
 This ensures that redundant permutations are coerced into the same format for a valid comparison.
 In many applications, permutations of pairwise interactions are not of interest, i.e., an interaction between regions 1 and 2 is the same as that between 2 and 1.
 Application of \code{swapAnchors} with \code{mode="order"} ensures that all indices are arranged in a comparable manner.
+Alternatively, users can use a StrictGInteractions object which enforces a consistent arrangement of indices across interactions.
 }
 
 \section{Methods for InteractionSet objects}{

@@ -2,6 +2,7 @@
 \docType{class}
 
 \alias{GInteractions-class}
+\alias{StrictGInteractions-class}
 \alias{GInteractions}
 \alias{GInteractions,numeric,numeric,GRanges-method}
 \alias{GInteractions,GRanges,GRanges,GenomicRangesORmissing-method}
@@ -15,11 +16,11 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 }
 
 \usage{
-\S4method{GInteractions}{numeric,numeric,GRanges}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{numeric,numeric,GRanges}(anchor1, anchor2, regions, metadata=list(), mode="normal")
 
-\S4method{GInteractions}{GRanges,GRanges,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{GRanges,GRanges,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal")
 
-\S4method{GInteractions}{missing,missing,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list())
+\S4method{GInteractions}{missing,missing,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal")
 }
 
 \arguments{
@@ -36,9 +37,13 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 \item{metadata}{
     An optional \code{list} of arbitrary content describing the overall experiment.
 }
+
+\item{mode}{
+    A string indicating what type of GInteractions object should be constructed.
+}
 }
 
-\details{
+\section{Description of the class}{
 The GInteractions class inherits from the Vector class and has access to all of its data members and methods 
     (e.g, \code{metadata} and \code{elementMetadata} - see \code{\link{Vector-class}} for more details). 
 It also contains several additional slots:
@@ -49,6 +54,14 @@ It also contains several additional slots:
 }
 Each interaction is defined by the corresponding entries in the \code{anchor1} and \code{anchor2} slots, which point to the relevant coordinates in \code{regions} for each locus.
 
+The StrictGInteractions class inherits from the GInteractions class and has the same slots.
+The only difference is that, for each interaction, \code{anchor1} must be greater than or equal to \code{anchor2}.
+This means that the first interacting region has a start position that is "higher" than the second interacting region.
+This condition is useful for comparing interactions within and between objects, as it ensures that redundant permutations of the same interaction are not being overlooked.
+However, it is not used by default as there may conceivably be instances where the order of interactions is informative.
+}
+
+\section{Class construction}{
 GInteractions objects can be constructed by specifying integer vectors to define the pairwise interactions in the \code{GInteractions} call.
 For entry \code{x}, the corresponding interaction is defined between \code{regions[anchor1[x]]} and \code{regions[anchor2[x]]}.
 Obviously, coordinates of all of the interacting loci must be specified in the \code{regions} argument.
@@ -61,8 +74,9 @@ If \code{regions} is supplied, exact matching will be performed to identify the 
 Any metadata in the anchor GRanges will be ignored in favour of metadata in the supplied \code{regions}.
 Missing values are not tolerated and will cause an error to be raised.
 
-All constructors will return an GInteractions object containing all of the specified information.
+All constructors will return a GInteractions (or StrictGInteractions) object containing all of the specified information.
 Sorting of \code{regions} is performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
+If \code{mode="strict"}, a StrictGInterctions object is returned with anchor indices swapped such that \code{anchor1 >= anchor2} for all interactions.
 If both anchors are missing, the constructor will return an empty GInteractions object.
 }
 
@@ -88,6 +102,10 @@ gi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2],
 temp.gi <- gi
 metadata(temp.gi)$name <- "My GI object"
 mcols(temp.gi)$score <- runif(Np)
+
+# Strict construction
+sgi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], 
+        all.regions, mode="strict")
 }
 
 \author{

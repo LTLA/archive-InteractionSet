@@ -7,6 +7,7 @@
 \alias{anchors<-}
 \alias{anchors<-,InteractionSet-method}
 \alias{anchors<-,GInteractions-method}
+\alias{anchors<-,StrictGInteractions-method}
 
 \alias{regions}
 \alias{regions,InteractionSet-method}
@@ -79,6 +80,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 ## Each above method has an identical equivalent for 
 ## InteractionSet objects (not shown here for brevity).
 
+\S4method{anchors}{StrictGInteractions}(x, type="both") <- value
+
 \S4method{nrow}{GInteractions}(x)
 \S4method{as.data.frame}{GInteractions}(x, row.names=NULL, optional=FALSE, ...)
 \S4method{$}{GInteractions}(x, name)
@@ -135,6 +138,7 @@ Otherwise, each vector is returned corresponding to the requested value of \code
 Replacement in \code{anchors<-} can only be performed using anchor indices.
 If \code{type="both"}, a list of two integer vectors is required in \code{value}, specifying the indices of the interacting regions in \code{regions(x)}.
 If \code{type="first"} or \code{"second"}, an integer vector is required to replace the existing values in the \code{anchor1} or \code{anchor2} slot, respectively.
+If the object is a StrictGInteractions object, indices are automatically swapped so that \code{anchor1 >= anchor2} for each interaction.
 }
 
 \section{Region manipulations for GInteractions}{
