@@ -57,6 +57,10 @@ expect_identical(S4Vectors::compare(another.x, sub.x), -S4Vectors::compare(sub.x
 expect_identical(S4Vectors::compare(x[0], another.x[0]), integer(0))
 
 old <- S4Vectors::compare(x, another.x)
+expect_identical(x==x, !logical(length(x)))
+expect_identical(x!=x, logical(length(x)))
+expect_identical(x==another.x, old==0L)
+
 regions(another.x)$whee <- 1
 expect_identical(S4Vectors::compare(x, another.x), old) # This should be okay, as metadata is ignored.
 regions(another.x) <- resize(regions(another.x), width(regions(another.x))*2L)
