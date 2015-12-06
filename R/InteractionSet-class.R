@@ -16,9 +16,11 @@ setValidity2("InteractionSet", function(object) {
     if (nrow(object@assays)!=length(object@interactions)) {
         return("'assays' nrow differs from length of anchor vectors")
     } 
-    msg <- validObject(object@interactions)
-    if (is.character(msg)) { 
-        return(msg)
+    if (!is.null(object@NAMES)) {
+        return("'NAMES' slot must always be NULL")
+    }
+    if (ncol(object@elementMetadata) != 0L) {
+        return("'elementMetadata' slot must always have zero columns")
     }
     return(TRUE)
 })

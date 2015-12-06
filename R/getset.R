@@ -10,8 +10,11 @@ CM.args <- c("both", "row", "column")
 anchor.fun.gen <- function(is.GI) { 
     if (is.GI) { 
         type.arg <- GI.args
+        n1fun <- n2fun <- names
     } else {
         type.arg <- CM.args
+        n1fun <- rownames
+        n2fun <- colnames
     }
     out.names <- type.arg[2:3]
     type1 <- out.names[1]
@@ -21,24 +24,31 @@ anchor.fun.gen <- function(is.GI) {
         if (id) {
             if (type=="both") {
                 out <- list(x@anchor1, x@anchor2)
+                names(out[[1]]) <- n1fun(x)
+                names(out[[2]]) <- n2fun(x)
                 names(out) <- out.names
-                return(out)
             } else if (type==type1) {
-                return(x@anchor1)
+                out <- x@anchor1
+                names(out) <- n1fun(x)
             } else {
-                return(x@anchor2)
+                out <- x@anchor2
+                names(out) <- n2fun(x)
             }
         } else {
             if (type=="both") {
                 out <- GRangesList(x@regions[x@anchor1], x@regions[x@anchor2])
+                names(out[[1]]) <- n1fun(x)
+                names(out[[2]]) <- n2fun(x)
                 names(out) <- out.names
-                return(out)
             } else if (type==type1) {
-                return(x@regions[x@anchor1])
+                out <- x@regions[x@anchor1]
+                names(out) <- n1fun(x)
             } else {
-                return(x@regions[x@anchor2])
+                out <-x@regions[x@anchor2]
+                names(out) <- n2fun(x)
             }
         }
+        return(out)
     }
 }
 
@@ -220,15 +230,50 @@ setReplaceMethod("mcols", "InteractionSet", function(x, ..., value) {
     return(x)
 })
 
-setMethod("seqinfo", "GInteractions", function(x) {
-     seqinfo(x@regions)
+###############################################################
+
+setMethod("names", "GInteractions", function(x) { 
+    x@NAMES 
 })
 
-setReplaceMethod("seqinfo", "GInteractions", function(x, value) {
-    seqinfo(x@regions) <- value
+setReplaceMethod("names", "GInteractions", function(x, value) {
+    x@NAMES <- value
     validObject(x)
     return(x)
 })
+
+setMethod("names", "InteractionSet", function(x) {
+    names(interactions(x))
+})
+
+setReplaceMethod("names", "InteractionSet", function(x, value) {
+    names(interactions(x)) <- value
+    return(x)
+})
+
+setMethod("dimnames", "ContactMatrix", function(x) {
+    dimnames(x@matrix)
+})
+
+setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
+    dimnames(x@matrix) <- value
+    return(x)
+})
+
+###############################################################
+
+for (siglist in c("GInteractions", "ContactMatrix")) { 
+
+    setMethod("seqinfo", siglist, function(x) {
+        seqinfo(x@regions)
+    })
+    
+    setReplaceMethod("seqinfo", siglist, function(x, value) {
+        seqinfo(x@regions) <- value
+        validObject(x)
+        return(x)
+    })
+}
 
 setMethod("seqinfo", "InteractionSet", function(x) {
      seqinfo(interactions(x))
@@ -238,6 +283,28 @@ setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
     seqinfo(interactions(x)) <- value
     return(x)
 })
+
+##############################################
+# Matrix dimensions
+
+setMethod("dim", "ContactMatrix", function(x) { 
+    dim(x@matrix)
+})
+
+setMethod("length", "ContactMatrix", function(x) { 
+    length(x@matrix)
+})
+
+
+setMethod("as.matrix", "ContactMatrix", function(x) {
+    return(x@matrix)
+}) 
+
+setGeneric("as.matrix<-", function(x, ..., value) { standardGeneric("as.matrix<-") });
+setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
+    x@matrix[] <- value
+    return(x)
+}) 
 
 ###############################################################
 # End

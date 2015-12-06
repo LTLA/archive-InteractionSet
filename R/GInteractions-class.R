@@ -6,12 +6,14 @@ setClass("GInteractions",
     representation(
         anchor1="integer",
         anchor2="integer",
-        regions="GRanges"
+        regions="GRanges",
+        NAMES="characterORNULL"
     ),
     prototype(
         anchor1=integer(0),
         anchor2=integer(0),
-        regions=GRanges()
+        regions=GRanges(),
+        NAMES=NULL
     )
 )
 
@@ -44,6 +46,12 @@ setValidity2("GInteractions", function(object) {
     if (is.character(msg)) { return(msg) }
 
     ### Length of anchors versus object is automatically checked by 'parallelSlotNames.'
+
+    if (!is.null(object@NAMES)) {
+        if (length(object@NAMES)!=length(object)) {
+            stop("'NAMES' must be NULL or have length equal to that of the object")
+        }
+    }
 
     return(TRUE)
 })
@@ -149,8 +157,7 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
     return(list(indices=split(refdex, obj.dex), ranges=combined))
 }
 
-setClassUnion("missing_OR_GRanges", c("missing", "GRanges"))
-setMethod("GInteractions", c("GRanges", "GRanges", "missing_OR_GRanges"), 
+setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"), 
     function(anchor1, anchor2, regions, metadata=list()) {
 
         if (missing(regions)) {
@@ -172,10 +179,21 @@ setMethod("GInteractions", c("GRanges", "GRanges", "missing_OR_GRanges"),
    }
 )
 
-setMethod("GInteractions", c("missing", "missing", "missing_OR_GRanges"),
+setMethod("GInteractions", c("missing", "missing", "GenomicRangesORmissing"),
     function(anchor1, anchor2, regions, metadata=list()) {
         if (missing(regions)) { regions <- GRanges() }
         .new_GInteractions(integer(0), integer(0), regions, metadata)
+})
+
+###############################################################
+# Subsetting. Mostly automatically taken care of by extractROWS from Vector
+# with new parallel slots of anchor1 and anchor2, but we need to handle NAMES.
+
+setMethod("extractROWS", "GInteractions", function(x, i) {
+    if (!is.null(x@NAMES)) { 
+        x@NAMES <- extractROWS(names(x), i)
+    }
+    callNextMethod()
 })
 
 ###############################################################
@@ -202,6 +220,16 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     ans@anchor1 <- unlist(all.anchor1)
     ans@anchor2 <- unlist(all.anchor2)
     ans@elementMetadata <- do.call(rbind, all.mcols)
+
+    # Checking what to do with names.
+    all.names <- lapply(args, FUN=names)
+    unnamed <- sapply(all.names, is.null)
+    if (!all(unnamed)) { 
+        for (u in which(unnamed)) {
+            all.names[[u]] <- character(length(args[[u]]))
+        }
+        ans@NAMES <- unlist(all.names)
+    }
     return(ans)
 })
 
@@ -242,6 +270,7 @@ setMethod("as.data.frame", "GInteractions", function (x, row.names=NULL, optiona
     regs.dframe <- as.data.frame(regions(x)[used], optional=optional, ...)
     a1.dframe <- regs.dframe[new.index[all1],]
     a2.dframe <- regs.dframe[new.index[all2],]
+    if (missing(row.names)) { row.names <- names(x) }
     data.frame(anchor1=a1.dframe, anchor2=a2.dframe, mcols(x), row.names=row.names, ...)
 })
 

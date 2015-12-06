@@ -61,8 +61,7 @@ setMethod("ContactMatrix", c("ANY", "numeric", "numeric", "GRanges"),
     }
 )
 
-setClassUnion("missing_OR_GRanges", c("missing", "GRanges"))
-setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "missing_OR_GRanges"), 
+setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "GenomicRangesORmissing"), 
     function(matrix, anchor1, anchor2, regions, metadata=list()) { 
 
         if (missing(regions)) { 
@@ -82,42 +81,12 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "missing_OR_GRanges"),
     }
 )
 
-setMethod("ContactMatrix", c("missing", "missing", "missing", "missing_OR_GRanges"),
+setMethod("ContactMatrix", c("missing", "missing", "missing", "GenomicRangesORmissing"),
     function(matrix, anchor1, anchor2, regions, metadata=list()) {
         if (missing(regions)) { regions <- GRanges() }
         .new_ContactMatrix(base::matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
     } 
 )
-
-##############################################
-# Matrix dimensions
-
-setMethod("dim", "ContactMatrix", function(x) { 
-    dim(x@matrix)
-})
-
-setMethod("length", "ContactMatrix", function(x) { 
-    length(x@matrix)
-})
-
-setMethod("dimnames", "ContactMatrix", function(x) {
-    dimnames(x@matrix)
-})
-
-setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
-    dimnames(x@matrix) <- value
-    return(x)
-})
-
-setMethod("as.matrix", "ContactMatrix", function(x) {
-    return(x@matrix)
-}) 
-
-setGeneric("as.matrix<-", function(x, ..., value) { standardGeneric("as.matrix<-") });
-setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
-    x@matrix[] <- value
-    return(x)
-}) 
 
 ##############################################
 # Subsetting
