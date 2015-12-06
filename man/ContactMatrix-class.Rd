@@ -4,8 +4,8 @@
 \alias{ContactMatrix-class}
 \alias{ContactMatrix}
 \alias{ContactMatrix,ANY,numeric,numeric,GRanges-method}
-\alias{ContactMatrix,ANY,GRanges,GRanges,missing_OR_GRanges-method}
-\alias{ContactMatrix,missing,missing,missing,missing_OR_GRanges-method}
+\alias{ContactMatrix,ANY,GRanges,GRanges,GenomicRangesORmissing-method}
+\alias{ContactMatrix,missing,missing,missing,GenomicRangesORmissing-method}
 
 \title{ContactMatrix class and constructors}
 
@@ -18,9 +18,9 @@ Coordinates of the loci are also contained within this class.
 \usage{
 \S4method{ContactMatrix}{ANY,numeric,numeric,GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
 
-\S4method{ContactMatrix}{ANY,GRanges,GRanges,missing_OR_GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
+\S4method{ContactMatrix}{ANY,GRanges,GRanges,GenomicRangesORmissing}(matrix, anchor1, anchor2, regions, metadata=list())
 
-\S4method{ContactMatrix}{missing,missing,missing,missing_OR_GRanges}(matrix, anchor1, anchor2, regions, metadata=list())
+\S4method{ContactMatrix}{missing,missing,missing,GenomicRangesORmissing}(matrix, anchor1, anchor2, regions, metadata=list())
 }
 
 \arguments{

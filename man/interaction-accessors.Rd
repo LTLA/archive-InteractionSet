@@ -48,6 +48,11 @@
 \alias{mcols,InteractionSet-method}
 \alias{mcols<-,InteractionSet-method}
 
+\alias{names,GInteractions-method}
+\alias{names<-,GInteractions-method}
+\alias{names,InteractionSet-method}
+\alias{names<-,InteractionSet-method}
+
 \title{Interaction accessors}
 
 \description{
@@ -67,6 +72,9 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{replaceRegions}{GInteractions}(x) <- value
 \S4method{appendRegions}{GInteractions}(x) <- value
 \S4method{reduceRegions}{GInteractions}(x)
+
+\S4method{names}{GInteractions}(x)
+\S4method{names}{GInteractions}(x) <- value
 
 ## Each above method has an identical equivalent for 
 ## InteractionSet objects (not shown here for brevity).
@@ -101,7 +109,8 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 
     For \code{seqinfo<-}, a SeqInfo object containing chromosome length data for all regions.
     For \code{interactions<-}, a GInteractions object of length equal to that of \code{interactions(x)}.  
-    For \code{mcols<-}, a DataFrame with number of rows equal to that in \code{x}.
+    For \code{mcols<-}, a DataFrame with number of rows equal to the length of \code{x}.
+    For \code{names<-}, a character vector of length equal to that of \code{x}.
 }
 
 \item{row.names, optional, ...}{
@@ -184,6 +193,7 @@ For InteractionSet objects, the \code{mcols} getter and setter functions operate
     rather than accessing the \code{elementMetadata} slot of the SummarizedExperiment0 base class.
 This makes no difference for practical usage in the vast majority of cases, 
     except that any metadata stored in this manner is carried over when the GInteractions object is extracted with \code{interactions(x)}.
+Similarly, the \code{names} getter and setter will operate the names of the internal GInteractions object.
 }
 
 \examples{
@@ -261,6 +271,10 @@ mcols(iset) # untouched by "$" operator
 mcols(iset)$whee <- runif(nrow(iset))
 mcols(iset)
 mcols(interactions(iset)) # preserved
+
+names(iset) <- paste0("X", seq_along(iset))
+names(iset)
+names(interactions(iset))
 }
 
 \author{
