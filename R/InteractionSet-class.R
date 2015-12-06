@@ -78,8 +78,11 @@ setMethod("subset", "InteractionSet", function(x, i, j) {
 setMethod("cbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
     ans <- args[[1]]
+    ref.inters <- interactions(ans)
+    ref.length <- length(ans)
+
     for (x in args[-1]) {
-        if (!identical(interactions(x), interactions(ans))) { 
+        if (ref.length!=length(x) || any(interactions(x)!=ref.inters)) { 
             # Possible to cbind for different metadata here, but I doubt that gets much use.
             stop("interactions must be identical in 'cbind'") 
         }

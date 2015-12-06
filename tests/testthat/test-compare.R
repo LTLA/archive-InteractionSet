@@ -56,7 +56,10 @@ expect_identical(S4Vectors::compare(sub.x, another.x), ifelse(sub.x@anchor1==ano
 expect_identical(S4Vectors::compare(another.x, sub.x), -S4Vectors::compare(sub.x, another.x))
 expect_identical(S4Vectors::compare(x[0], another.x[0]), integer(0))
 
+old <- S4Vectors::compare(x, another.x)
 regions(another.x)$whee <- 1
+expect_identical(S4Vectors::compare(x, another.x), old) # This should be okay, as metadata is ignored.
+regions(another.x) <- resize(regions(another.x), width(regions(another.x))*2L)
 expect_error(S4Vectors::compare(x, another.x), "'regions' must be identical")
 
 

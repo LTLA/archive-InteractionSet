@@ -42,7 +42,7 @@ setMethod("match", c("InteractionSet", "InteractionSet"),
 # Defining the compare function (only for two GInteractions, it wouldn't make sense otherwise).
 
 setMethod("compare",  c("GInteractions", "GInteractions"), function(x, y) { 
-    if (!identical(regions(x), regions(y))) { 
+    if (length(regions(x))!=length(regions(y)) || any(regions(x)!=regions(y))) { 
         stop("'regions' must be identical for arguments to 'compare'")
     }
     output <- x@anchor1 - y@anchor1
