@@ -288,3 +288,21 @@ for (i in seq_along(flen)) {
     expect_equal(out[[i]], x[f==i])
 }
 
+# Checking what happens with names.
+
+temp.x <- x
+ref.names <- paste0("X", seq_along(temp.x))
+names(temp.x) <- ref.names
+expect_identical(names(temp.x), ref.names)
+expect_identical(names(temp.x), names(interactions(temp.x)))
+expect_identical(names(temp.x[2:5]), ref.names[2:5])
+expect_identical(names(temp.x[2:5]), names(interactions(temp.x[2:5])))
+expect_identical(names(temp.x[2:5]), names(interactions(temp.x)[2:5]))
+
+combined <- rbind(temp.x, temp.x)
+expect_identical(names(combined), names(interactions(combined)))
+expect_identical(names(combined), names(c(interactions(temp.x), interactions(temp.x))))
+combined <- c(temp.x, x)
+expect_identical(names(combined), c(ref.names, character(length(x))))
+expect_identical(names(interactions(combined)), c(ref.names, character(length(x))))
+

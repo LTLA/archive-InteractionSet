@@ -330,3 +330,20 @@ expect_identical(anchors(x), anchors(temp.x2))
 expect_identical(regions(x), regions(temp.x2))
 expect_identical(mcols(temp.x), mcols(temp.x2))
 
+# Checking what happens with names.
+
+temp.x <- x
+ref.names <- paste0("X", seq_along(temp.x))
+names(temp.x) <- ref.names
+expect_identical(names(temp.x), ref.names)
+expect_identical(names(temp.x[2:5]), ref.names[2:5])
+expect_identical(names(c(temp.x, temp.x)), c(ref.names, ref.names))
+expect_identical(names(c(temp.x, x)), c(ref.names, character(length(x))))
+
+for (id in c(TRUE, FALSE)) {
+    expect_identical(names(anchors(temp.x, id=id)[[1]]), ref.names)
+    expect_identical(names(anchors(temp.x, id=id)[[2]]), ref.names)
+    expect_identical(names(anchors(temp.x, id=id, type="first")), ref.names)
+    expect_identical(names(anchors(temp.x, id=id, type="second")), ref.names)
+}
+

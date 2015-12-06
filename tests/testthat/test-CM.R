@@ -271,3 +271,30 @@ expect_identical(anchors(x, type="column"), anchors(tx, type="row"))
 expect_identical(t(x[0,]), tx[,0])
 expect_identical(t(x[,0]), tx[0,])
 
+# Testing name setting and extraction.
+
+temp.x <- x
+rowref <- paste0("X", seq_len(nrow(temp.x)))
+rownames(temp.x) <- rowref
+colref <- paste0("Y", seq_len(ncol(temp.x)))
+colnames(temp.x) <- colref
+expect_identical(rownames(temp.x), rowref)
+expect_identical(rownames(temp.x[1:5,]), rowref[1:5])
+expect_identical(colnames(temp.x[,1:3]), colref[1:3])
+
+rcombined <- cbind(x, temp.x)
+expect_identical(rownames(rcombined), rowref)
+expect_identical(colnames(rcombined), c(character(ncol(x)), colref))
+ccombined <- rbind(x, temp.x)
+expect_identical(rownames(ccombined), c(character(nrow(x)), rowref))
+expect_identical(colnames(ccombined), colref)
+
+for (id in c(TRUE, FALSE)) {
+    expect_identical(names(anchors(temp.x, id=id)[[1]]), rowref)
+    expect_identical(names(anchors(temp.x, id=id)[[2]]), colref)
+    expect_identical(names(anchors(temp.x, id=id, type="row")), rowref)
+    expect_identical(names(anchors(temp.x, id=id, type="column")), colref)
+}
+
+
+
