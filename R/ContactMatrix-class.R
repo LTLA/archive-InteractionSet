@@ -132,36 +132,40 @@ setMethod("subset", "ContactMatrix", function(x, i, j) {
 setMethod("cbind", "ContactMatrix", function(..., deparse.level=1) {
     incoming <- list(...)
     ref <- incoming[[1]]
+    ref.rows <- ref@anchor1
+    ref.regs <- regions(ref)
+
     for (x in incoming[-1]) {
-        if (!identical(regions(ref), regions(x))) { 
+        if (!identical(ref.regs, regions(x))) { 
             stop("'regions' must be identical for 'cbind'")
         }
-        if (!identical(anchors(ref, type="row", id=TRUE),
-                       anchors(x, type="row", id=TRUE))) {
+        if (!identical(ref.rows, x@anchor1)) {
             stop("row anchor indices must be identical for 'cbind'")
         }    
     }
     
     ref@matrix <- do.call(cbind, lapply(incoming, as.matrix))
-    ref@anchor2 <- unlist(lapply(incoming, anchors, id=TRUE, type="column"))
+    ref@anchor2 <- unlist(lapply(incoming, FUN=slot, name="anchor2"))
     return(ref)
 })
 
 setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
     incoming <- list(...)
     ref <- incoming[[1]]
+    ref.cols <- ref@anchor2
+    ref.regs <- regions(ref)
+
     for (x in incoming[-1]) {
         if (!identical(regions(ref), regions(x))) { 
             stop("'regions' must be identical for 'rbind'")
         }
-        if (!identical(anchors(ref, type="column", id=TRUE),
-                       anchors(x, type="column", id=TRUE))) {
+        if (!identical(ref.cols, x@anchor2)) { 
             stop("column anchor indices must be identical for 'rbind'")
         }    
     }
     
     ref@matrix <- do.call(rbind, lapply(incoming, as.matrix))
-    ref@anchor1 <- unlist(lapply(incoming, anchors, id=TRUE, type="row"))
+    ref@anchor1 <- unlist(lapply(incoming, FUN=slot, name="anchor1"))
     return(ref)
 })
 
