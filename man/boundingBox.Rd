@@ -36,9 +36,9 @@ This contains the coordinates for the sides of the bounding box across the first
 The internal GRanges are named according to the levels of \code{f}, 
     such that the entries with matching names across \code{first} and \code{second} constitute the bounding box for the group corresponding to that level of \code{f}.
 
-It should be noted that reflection around the diagonal does not need to be considered. 
-Because \code{anchor1 >= anchor2} in the GInteractions class, all interactions lie on one side of the diagonal of the intra-chromosomal interaction space.
-This already results in the smallest possible minimum bounding box, which will only increase in size if interactions are placed on the other side of the diagonal.
+It is recommended to run \code{\link{swapAnchors}} prior to computing the bounding box for intra-chromosomal groups.
+If all \code{anchor1 >= anchor2} or all \code{anchor1 <= anchor2}, all interactions will lie on one side of the diagonal of the intra-chromosomal interaction space.
+This results in the smallest possible minimum bounding box, which will only increase in size if interactions are placed on the other side of the diagonal.
 
 % Bit of a pain to prove, but basically, if you flip a point to be above the diagonal, the Chebyshev distance to a point below the diagonal will always increase.
 % This means that you must increase the size of one of your sides of your bounding box.
@@ -61,7 +61,8 @@ all.chrs <- as.character(seqnames(regions(gi)))
 f <- paste0(all.chrs[anchors(gi, type="first", id=TRUE)], ".",
             all.chrs[anchors(gi, type="second", id=TRUE)])
 
-out <- boundingBox(gi, f)
+boundingBox(gi, f)
+boundingBox(swapAnchors(gi), f)
 
 # Fails for multiple chromosomes
 try(out <- boundingBox(gi))

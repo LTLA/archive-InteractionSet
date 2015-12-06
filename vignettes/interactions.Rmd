@@ -374,13 +374,22 @@ Here, both `subject1` and `subject2` refer to linked entries in `all.genes`.
 Groups of interactions can be summarized by identifying the minimum bounding box.
 This refers to the smallest rectangle that can contain all interactions in the interaction space.
 We can then save the coordinates of the bounding box, rather than having to deal with the coordinates of the individual interactions.
-Bounding box identification can be done using the `boundingBox` function, as shown below:
+To illustrate, we'll set up a grouping vector based on chromosome pairings:
 
 ```{r}
 all.chrs <- as.character(seqnames(regions(gi)))
 group.by.chr <- paste0(all.chrs[anchors(gi, type="first", id=TRUE)], "+",
                        all.chrs[anchors(gi, type="second", id=TRUE)])
-boundingBox(gi, group.by.chr)
+```
+
+Bounding box identification can be performed using the `boundingBox` function.
+For any intra-chromosomal groups, it is generally recommended to run `swapAnchors` prior to running `boundingBox`.
+This puts all interactions on the same side of the diagonal and results in smaller minimum bounding boxes 
+    (assuming we're not interested in the permutation of anchors in each interaction).
+
+```{r}
+swap.gi <- swapAnchors(gi)                       
+boundingBox(swap.gi, group.by.chr)
 ```
 
 This function returns a `GRangesList` object where the constituent `GRanges` contain the coordinates for the sides of each bounding box.
