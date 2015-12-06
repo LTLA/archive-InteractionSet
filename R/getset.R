@@ -162,6 +162,13 @@ anchor.repfun.gen <- function(is.GI) {
 setReplaceMethod("anchors", "GInteractions", anchor.repfun.gen(TRUE))
 setReplaceMethod("anchors", "ContactMatrix", anchor.repfun.gen(FALSE))
 
+setReplaceMethod("anchors", "StrictGInteractions", function(x, type="both", ..., value) {
+    x <- as(x, "GInteractions")
+    anchors(x, type=type, ...) <- value
+    x <- swapAnchors(x, mode="reverse")
+    as(x, "StrictGInteractions")
+})
+
 ###############################################################
 # Methods on InteractionSet that operate on GInteractions.
 

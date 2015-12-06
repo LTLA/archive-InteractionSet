@@ -44,7 +44,8 @@ setMethod("swapAnchors", "GInteractions", function(x, mode=c("order", "reverse",
         out <- list(x@anchor2, x@anchor1)
     }
     x@anchor1 <- out[[1]]        
-    x@anchor2 <- out[[2]]        
+    x@anchor2 <- out[[2]]
+    validObject(x)
     return(x)
 })
 

@@ -84,6 +84,17 @@ setMethod("show", signature("GInteractions"), function(object) {
 })
 
 ###############################################################
+# Ordered equivalents, where swap state is enforced.
+
+setClass("StrictGInteractions", contains="GInteractions")
+setValidity2("StrictGInteractions", function(object) {
+    if (any(object@anchor1 < object@anchor2)) { 
+        stop("'anchor1' cannot be less than 'anchor2'")
+    }
+    return(TRUE)
+})
+
+###############################################################
 # Constructors
 
 .enforce_order <- function(anchor1, anchor2) {
@@ -108,7 +119,8 @@ setMethod("show", signature("GInteractions"), function(object) {
     return(list(anchor1=anchor1, anchor2=anchor2, regions=regions)) 
 }
 
-.new_GInteractions <- function(anchor1, anchor2, regions, metadata) {
+.new_GInteractions <- function(anchor1, anchor2, regions, metadata, mode=c("normal", "strict")) {
+    mode <- match.arg(mode)
     elementMetadata <- new("DataFrame", nrows=length(anchor1))
 
     # Checking odds and ends.
@@ -122,7 +134,17 @@ setMethod("show", signature("GInteractions"), function(object) {
     anchor2 <- out$anchor2
     regions <- out$regions
 
-    new("GInteractions", 
+    # Checking what the mode should be.
+    if (mode=="normal") {
+        cls <- "GInteractions"
+    } else {
+        cls <- "StrictGInteractions"
+        out <- .enforce_order(anchor1, anchor2)
+        anchor1 <- out$anchor2 # Flipped on purpose. 
+        anchor2 <- out$anchor1
+    }
+
+    new(cls, 
         anchor1=anchor1,
         anchor2=anchor2,
         regions=regions,
@@ -132,8 +154,8 @@ setMethod("show", signature("GInteractions"), function(object) {
 
 setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) { standardGeneric("GInteractions") })
 setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
-    function(anchor1, anchor2, regions, metadata=list()) {
-        .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata)
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
+        .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
 })
 
 .collate_GRanges <- function(...) {
@@ -158,7 +180,7 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
 }
 
 setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"), 
-    function(anchor1, anchor2, regions, metadata=list()) {
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
 
         if (missing(regions)) {
             # Making unique regions to save space (metadata is ignored)
@@ -175,14 +197,14 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
         }
 
        .new_GInteractions(anchor1=anchor1, anchor2=anchor2, 
-            regions=regions, metadata=metadata)
+            regions=regions, metadata=metadata, mode=mode)
    }
 )
 
 setMethod("GInteractions", c("missing", "missing", "GenomicRangesORmissing"),
-    function(anchor1, anchor2, regions, metadata=list()) {
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
         if (missing(regions)) { regions <- GRanges() }
-        .new_GInteractions(integer(0), integer(0), regions, metadata)
+        .new_GInteractions(integer(0), integer(0), regions, metadata, mode=mode)
 })
 
 ###############################################################
