@@ -13,6 +13,7 @@ x <- GInteractions(all.anchor1, all.anchor2, all.regions)
 
 expect_output(show(x), "class: GInteractions 
 length: 20 
+names: NULL
 metadata(0):
 metadata column names(0):
 regions: 30", 
@@ -138,6 +139,7 @@ rchosen <- 1:10
 xsub <- x[rchosen,]
 expect_output(show(xsub), "class: GInteractions 
 length: 10 
+names: NULL
 metadata(0):
 metadata column names(0):
 regions: 30", 
@@ -335,6 +337,14 @@ expect_identical(mcols(temp.x), mcols(temp.x2))
 temp.x <- x
 ref.names <- paste0("X", seq_along(temp.x))
 names(temp.x) <- ref.names
+expect_output(show(temp.x), "class: GInteractions 
+length: 20 
+names(20): X1 X2 ... X19 X20
+metadata(0):
+metadata column names(0):
+regions: 30", 
+fixed=TRUE)
+
 expect_identical(names(temp.x), ref.names)
 expect_identical(names(temp.x[2:5]), ref.names[2:5])
 expect_identical(names(c(temp.x, temp.x)), c(ref.names, ref.names))

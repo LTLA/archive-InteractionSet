@@ -30,7 +30,15 @@ setValidity2("ContactMatrix", function(object) {
 setMethod("show", signature("ContactMatrix"), function(object) {
     cat("class:", class(object), "\n")
     cat("dim:", dim(object@matrix), "\n")
-    
+
+    rnames <- rownames(object)
+    if (!is.null(rnames)) scat("rownames(%d): %s\n", rnames)
+    else scat("rownames: NULL\n")
+
+    cnames <- colnames(object)
+    if (!is.null(cnames)) scat("colnames(%d): %s\n", cnames)
+    else cat("colnames: NULL\n")
+
     expt <- names(metadata(object))
     if (is.null(expt))
         expt <- character(length(metadata(object)))

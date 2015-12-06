@@ -71,6 +71,10 @@ setMethod("show", signature("GInteractions"), function(object) {
     cat("class:", class(object), "\n")
     cat("length:", length(object@anchor1), "\n")
 
+    my.names <- object@NAMES
+    if (!is.null(my.names)) scat("names(%d): %s\n", my.names)
+    else scat("names: NULL\n")
+    
     expt <- names(metadata(object))
     if (is.null(expt))
         expt <- character(length(metadata(object)))

@@ -16,6 +16,8 @@ x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions)
 
 expect_output(show(x), sprintf("class: ContactMatrix 
 dim: %i %i 
+rownames: NULL
+colnames: NULL
 metadata(0):
 regions: %i", Nr, Nc, N), 
 fixed=TRUE)
@@ -23,6 +25,8 @@ fixed=TRUE)
 temp.x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions, metadata=list("whee"=1))
 expect_output(show(temp.x), sprintf("class: ContactMatrix 
 dim: %i %i 
+rownames: NULL
+colnames: NULL
 metadata(1): whee
 regions: %i", Nr, Nc, N), 
 fixed=TRUE)
@@ -137,6 +141,8 @@ rchosen <- 1:5
 xsub <- x[rchosen,]
 expect_output(show(xsub), "class: ContactMatrix 
 dim: 5 20 
+rownames: NULL
+colnames: NULL
 metadata(0):
 regions: 30", 
 fixed=TRUE)
@@ -150,6 +156,8 @@ cchosen <- 10:20
 xsub <- x[,cchosen]
 expect_output(show(xsub), "class: ContactMatrix 
 dim: 10 11 
+rownames: NULL
+colnames: NULL
 metadata(0):
 regions: 30", 
 fixed=TRUE)
@@ -162,6 +170,8 @@ expect_that(anchors(xsub, type="column"), is_identical_to(new.regions[new.anchor
 xsub <- subset(x,rchosen,cchosen)
 expect_output(show(xsub), "class: ContactMatrix 
 dim: 5 11 
+rownames: NULL
+colnames: NULL
 metadata(0):
 regions: 30", 
 fixed=TRUE)
@@ -278,6 +288,14 @@ rowref <- paste0("X", seq_len(nrow(temp.x)))
 rownames(temp.x) <- rowref
 colref <- paste0("Y", seq_len(ncol(temp.x)))
 colnames(temp.x) <- colref
+expect_output(show(temp.x), sprintf("class: ContactMatrix 
+dim: %i %i 
+rownames(10): X1 X2 ... X9 X10
+colnames(20): Y1 Y2 ... Y19 Y20
+metadata(0):
+regions: %i", nrow(temp.x), ncol(temp.x), length(regions(temp.x))), 
+fixed=TRUE)
+
 expect_identical(rownames(temp.x), rowref)
 expect_identical(rownames(temp.x[1:5,]), rowref[1:5])
 expect_identical(colnames(temp.x[,1:3]), colref[1:3])
