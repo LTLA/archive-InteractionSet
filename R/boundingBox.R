@@ -34,8 +34,8 @@
     bound2 <- .Call(cxx_get_box_bounds, f, ref.fac, a2, chrs, starts, ends)
     if (is.character(bound2)) { stop(bound2) }
 
-    gr1 <- GRanges(ref.chr[bound1[[2]]], IRanges(bound1[[3]], bound1[[4]])) 
-    gr2 <- GRanges(ref.chr[bound2[[2]]], IRanges(bound2[[3]], bound2[[4]]))
+    gr1 <- GRanges(ref.chr[bound1[[2]]], IRanges(bound1[[3]], bound1[[4]]), seqinfo=seqinfo(x)) 
+    gr2 <- GRanges(ref.chr[bound2[[2]]], IRanges(bound2[[3]], bound2[[4]]), seqinfo=seqinfo(x))
     seqinfo(gr1) <- seqinfo(gr2) <- seqinfo(regions(x))
     names(gr1) <- names(gr2) <- ref.fac[bound1[[1]]+1L]
     return(GRangesList(first=gr1, second=gr2))
