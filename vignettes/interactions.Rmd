@@ -397,6 +397,36 @@ The example above identifies the bounding box for all interactions on each pair 
 Note that it is only defined when all interactions in a group lie on the same pair of chromosomes.
 The function will fail if, e.g., the group contains both inter- and intra-chromosomal interactions.
 
+## Enforcing anchor ordering in `StrictGInteractions`
+
+It is somewhat tedious to have to run `swapAnchors` prior to every call to `sort`, `unique`, `boundingBox`, etc. 
+An alternative is to use a subclass named `StrictGInteractions`, for which the first anchor index is always greater than or equal to the second anchor index.
+This ensures that the interactions are all standardized prior to comparison within or between objects.
+Objects of this subclass can be constructed by setting the `mode` argument in the `GInteractions` constructor:
+
+```{r}
+sgi <- GInteractions(index.1, index.2, all.regions, mode="strict")
+class(sgi)
+```
+
+Alternatively, an existing `GInteractions` object can be easily turned into a `StrictGInteractions` object.
+This requires little effort as all of the slots are identical between the two classes.
+The only difference lies in the enforcement of the anchor permutation within each interaction.
+
+```{r}
+sgi <- as(gi, "StrictGInteractions") 
+```
+
+All methods that apply to `GInteractions` can also be used for a `StrictGInteractions`. 
+The only difference is that anchor assignments will automatically enforce the standard permutation, by shuffling values between the first and second anchor indices.
+
+```{r}
+anchors(sgi) <- list(1:6, 7:12)
+anchors(sgi, id=TRUE)
+```
+
+In general, this subclass is more convenient to use if the permutation of anchor indices is not considered to be informative.
+
 # Description of the `InteractionSet` class
 
 ## Construction
