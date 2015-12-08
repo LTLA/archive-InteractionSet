@@ -51,6 +51,14 @@ x3 <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], was.used
 expect_identical(anchors(x3, id=TRUE), anchors(x2, id=TRUE))
 expect_identical(regions(x3), regions(x2))
 
+anno.regions <- all.regions
+anno.regions$score <- seq_along(anno.regions) # Seeing what happens with annotation.
+anno.regions$revscore <- rev(seq_along(anno.regions))
+x4 <- GInteractions(anno.regions[all.anchor1], anno.regions[all.anchor2])
+expect_identical(regions(x2), regions(x4))
+expect_identical(mcols(x4), DataFrame(anchor1.score=anno.regions$score[all.anchor1], anchor1.revscore=anno.regions$revscore[all.anchor1],
+                                      anchor2.score=anno.regions$score[all.anchor2], anchor2.revscore=anno.regions$revscore[all.anchor2]))
+
 # Testing with crappy inputs:
 
 empty <- GInteractions(integer(0), numeric(0), GRanges())

@@ -185,6 +185,13 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
 
 setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"), 
     function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
+        # Stripping metadata and putting it somewhere else.
+        mcol1 <- mcols(anchor1)
+        mcols(anchor1) <- NULL
+        colnames(mcol1) <- sprintf("anchor1.%s", colnames(mcol1))
+        mcol2 <- mcols(anchor2)
+        mcols(anchor2) <- NULL
+        colnames(mcol2) <- sprintf("anchor2.%s", colnames(mcol2))
 
         if (missing(regions)) {
             # Making unique regions to save space (metadata is ignored)
@@ -200,8 +207,10 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
             }
         }
 
-       .new_GInteractions(anchor1=anchor1, anchor2=anchor2, 
+        out <- .new_GInteractions(anchor1=anchor1, anchor2=anchor2, 
             regions=regions, metadata=metadata, mode=mode)
+        mcols(out) <- DataFrame(mcol1, mcol2)
+        out
    }
 )
 

@@ -69,10 +69,9 @@ Any metadata in \code{regions} will be preserved.
 
 Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to the \code{GInteractions} function.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
-Both GRanges should have the same set of metadata fields, which will be retained in the constructed \code{regoins}.
 If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied anchor GRanges.
-Any metadata in the anchor GRanges will be ignored in favour of metadata in the supplied \code{regions}.
 Missing values are not tolerated and will cause an error to be raised.
+In both cases, any metadata in the input GRanges will be stored in the \code{mcols} of the output GInteractions object.
 
 All constructors will return a GInteractions (or StrictGInteractions) object containing all of the specified information.
 Sorting of \code{regions} is performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
