@@ -31,6 +31,7 @@ setMethod("parallelSlotNames", "InteractionSet", function(x) {
 
 setMethod("show", signature("InteractionSet"), function(object) {
     callNextMethod()
+    cat(sprintf("type: %s\n", class(object@interactions)))
     cat(sprintf("regions: %i\n", length(regions(object@interactions))))
 })
 

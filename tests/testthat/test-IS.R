@@ -22,6 +22,7 @@ rownames: NULL
 metadata column names(0):
 colnames(4): 1 2 3 4
 colData names(0):
+type: GInteractions
 regions: 30", 
 fixed=TRUE)
 
@@ -127,6 +128,7 @@ rownames: NULL
 metadata column names(0):
 colnames(4): 1 2 3 4
 colData names(1): totals
+type: GInteractions
 regions: 30", 
 fixed=TRUE)
 expect_equal(xsub, x[rchosen])
@@ -143,6 +145,7 @@ rownames: NULL
 metadata column names(0):
 colnames(2): 2 4
 colData names(1): totals
+type: GInteractions
 regions: 30", 
 fixed=TRUE)
 expect_identical(assay(xsub), assay(x)[,cchosen])
@@ -158,6 +161,7 @@ rownames: NULL
 metadata column names(0):
 colnames(2): 2 4
 colData names(1): totals
+type: GInteractions
 regions: 30", 
 fixed=TRUE)
 expect_equal(xsub, subset(x, rchosen, cchosen))
@@ -305,4 +309,24 @@ expect_identical(names(combined), names(c(interactions(temp.x), interactions(tem
 combined <- c(temp.x, x)
 expect_identical(names(combined), c(ref.names, character(length(x))))
 expect_identical(names(interactions(combined)), c(ref.names, character(length(x))))
+
+# Testing what happens with strictness.
+
+sx <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions, mode="strict"))
+
+expect_output(show(sx), "class: InteractionSet 
+dim: 20 4 
+metadata(0):
+assays(1): ''
+rownames: NULL
+metadata column names(0):
+colnames(4): 1 2 3 4
+colData names(0):
+type: StrictGInteractions
+regions: 30", 
+fixed=TRUE)
+
+expect_is(interactions(sx), "StrictGInteractions")
+expect_is(interactions(sx[,1:2]), "StrictGInteractions")
+expect_is(interactions(sx[1:3,]), "StrictGInteractions")
 
