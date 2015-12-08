@@ -365,3 +365,30 @@ for (id in c(TRUE, FALSE)) {
     expect_identical(names(anchors(temp.x, id=id, type="second")), ref.names)
 }
 
+# Testing strictness.
+
+sx <- GInteractions(all.anchor1, all.anchor2, all.regions, mode="strict")
+expect_that(sx, is_a("StrictGInteractions"))
+expect_identical(anchors(sx, id=TRUE, type="first"), do.call(pmax, anchors(x, id=TRUE)))
+expect_identical(anchors(sx, id=TRUE, type="second"), do.call(pmin, anchors(x, id=TRUE)))
+expect_identical(regions(sx), regions(x))
+
+temp.sx <- sx
+anchors(temp.sx, type="first") <- fresh.anchor1
+expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
+expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
+
+temp.sx <- sx
+anchors(temp.sx, type="second") <- fresh.anchor2
+expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
+expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
+
+temp.sx <- sx
+anchors(temp.sx) <- list(fresh.anchor1, fresh.anchor2)
+expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor1, fresh.anchor2))
+expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor1, fresh.anchor2))
+
+temp.sx2 <- sx
+anchors(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
+expect_identical(temp.sx2, temp.sx)
+
