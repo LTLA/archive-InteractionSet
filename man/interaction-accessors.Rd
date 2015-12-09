@@ -177,7 +177,7 @@ This slot can also be set by supplying a valid GInteractions object in \code{int
 The \code{show} method will print information equivalent to that done for a SummarizedExperiment object.
 An additional line is added indicating the number of regions in the \code{regions} slot of the object.
 
-For access and setting of all other slots, see \code{\link{SummarizedExperiment0-class}} for details on the appropriate methods.
+For access and setting of all other slots, see \code{\link{SummarizedExperiment-class}} for details on the appropriate methods.
 This includes \code{assays}, \code{colData}, \code{mcols} or \code{metadata}, which can all be applied to InteractionSet objects.
 }
 
@@ -194,7 +194,7 @@ For InteractionSet objects, this will access or modify fields in the \code{colDa
 The difference in behaviour is due to the concept of libraries in the InteractionSet, which is lacking in the GInteractions class.
 
 For InteractionSet objects, the \code{mcols} getter and setter functions operate on the GInteractions object stored in \code{interactions} slot,
-    rather than accessing the \code{elementMetadata} slot of the SummarizedExperiment0 base class.
+    rather than accessing the \code{elementMetadata} slot of the SummarizedExperiment base class.
 This makes no difference for practical usage in the vast majority of cases, 
     except that any metadata stored in this manner is carried over when the GInteractions object is extracted with \code{interactions(x)}.
 Similarly, the \code{names} getter and setter will operate the names of the internal GInteractions object.
@@ -288,6 +288,6 @@ Aaron Lun
 \seealso{
 \code{\link{GInteractions-class}},
 \code{\link{InteractionSet-class}},
-\code{\link{Vector-class}}
-\code{\link{SummarizedExperiment0-class}}
+\code{\link{Vector-class}},
+\code{\link{SummarizedExperiment-class}}
 }

@@ -34,14 +34,14 @@ Each InteractionSet also contains one or more assays, intended to hold experimen
 }
 
 \details{
-The InteractionSet class inherits from the SummarizedExperiment0 class and has access to all of its data members and methods 
-    (see \code{\link{SummarizedExperiment0-class}} for more details). 
+The InteractionSet class inherits from the SummarizedExperiment class and has access to all of its data members and methods 
+    (see \code{?\link{SummarizedExperiment-class}} for more details). 
 It also contains an additional \code{interactions} slot which holds a GInteractions object.
 Each row of the InteractionSet object corresponds to a pairwise interaction between two genomic loci in \code{interactions}.
 
 The constructor will return an InteractionSet object containing all of the specified information 
     - for \code{InteractionSet,missing,missing-method}, an empty InteractionSet object is returned.
-Note that any \code{metadata} arguments will be placed in the metadata of the SummarizedExperiment0 object, 
+Note that any \code{metadata} arguments will be placed in the metadata of the SummarizedExperiment object, 
     \emph{not} the metadata of the GInteractions object.
 }
 
@@ -68,6 +68,7 @@ Aaron Lun
 \code{\link{SummarizedExperiment}},
 \code{\link{interaction-access}},
 \code{\link{interaction-subset}},
-\code{\link{interaction-compare}}
+\code{\link{interaction-compare}},
+\code{\link{SummarizedExperiment-class}}
 }
 

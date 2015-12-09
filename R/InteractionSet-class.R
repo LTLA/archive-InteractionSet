@@ -3,7 +3,7 @@
 # This allows us to avoid re-defining various standard functions.
 
 setClass("InteractionSet", 
-    contains="SummarizedExperiment0",
+    contains="SummarizedExperiment",
     representation(
         interactions="GInteractions"
     ),
@@ -57,7 +57,7 @@ setMethod("InteractionSet", c("missing", "missing"), function(assays, interactio
 ###############################################################
 # Subsetting
 
-# Need to define these because SummarizedExperiment0 doesn't use extract/replaceROWS directly;
+# Need to define these because SummarizedExperiment doesn't use extract/replaceROWS directly;
 # they divert to these functions anyway.
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) { x@interactions <- x@interactions[i] }
@@ -89,13 +89,13 @@ setMethod("cbind", "InteractionSet", function(..., deparse.level=1) {
         }
     }
     
-    base <- do.call(cbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
+    base <- do.call(cbind, lapply(args, function(x) { as(x, "SummarizedExperiment") }))
     new("InteractionSet", base, interactions=interactions(ans))
 })
 
 setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
-    base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment0") }))
+    base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment") }))
     new("InteractionSet", base, interactions=do.call(rbind, lapply(args, FUN=interactions)))
 })
 

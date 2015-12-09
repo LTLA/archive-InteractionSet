@@ -98,18 +98,18 @@ Each GInteractions object contains all rows associated with the corresponding le
 }
 
 \section{Details for InteractionSet}{
-Subsetting behaves in much the same way as that for the SummarizedExperiment0 class.
+Subsetting behaves in much the same way as that for the SummarizedExperiment class.
 Interactions are treated as rows and will be subsetted as such.
 All subsetting operations will return an InteractionSet with the specified interactions (rows) or samples (columns).
 Again, note that the value of \code{regions} will not be modified by subsetting.
 
 \code{cbind} will combine objects with the same interactions but different samples.
 Errors will occur if the interactions are not identical between objects (i.e., must have same values in the \code{interactions} slots).
-Additional restrictions apply on the column and assay names - see \code{\link{cbind,SummarizedExperiment0-method}} for details.
+Additional restrictions apply on the column and assay names - see \code{\link{cbind,SummarizedExperiment-method}} for details.
 
 \code{rbind} and \code{c} will combine objects with the same samples but different interactions.
 In this case, the interactions need not be identical, and will be combined using the methods described above for GInteractions objects.
-Again, additional restrictions apply - see \code{\link{rbind,SummarizedExperiment0-method}} for details.
+Again, additional restrictions apply - see \code{\link{rbind,SummarizedExperiment-method}} for details.
 
 \code{split} produces a list of InteractionSet objects, where each entry of the list corresponds to a level of \code{f}.
 Each InteractionSet object contains all rows associated with the corresponding level of \code{f}. 
