@@ -27,7 +27,7 @@ expect_identical(anchors(out, type="column"), regions(x)[chosen.cols])
 expect_identical(anchors(out, type="row", id=TRUE), chosen.rows)
 expect_identical(anchors(out, type="column", id=TRUE), chosen.cols)
 
-ref.fun <- function(x, rows, cols, fill, ass=1, sam=1) { # Slow and steady implementation.
+ref.fun <- function(x, rows, cols, fill, ass=1, sam=1, swap=TRUE) { # Slow and steady implementation.
     all.anchors <- anchors(x, id=TRUE)
     if (missing(fill)) { fill <- assay(x, ass)[,sam] }
     ref <- matrix(NA, length(rows), length(cols))
@@ -35,7 +35,7 @@ ref.fun <- function(x, rows, cols, fill, ass=1, sam=1) { # Slow and steady imple
         a1 <- all.anchors$first[i]
         a2 <- all.anchors$second[i]
         ref[rows==a1,cols==a2] <- fill[i]
-        ref[rows==a2,cols==a1] <- fill[i]
+        if (swap) { ref[rows==a2,cols==a1] <- fill[i] }
     }
     return(ref)
 }
@@ -48,6 +48,13 @@ expect_equal(as.matrix(out), ref.fun(x, chosen.rows, chosen.cols, sam=4))
 blah <- runif(Np)
 out <- inflate(x, chosen.rows, chosen.cols, fill=blah)
 expect_equal(as.matrix(out), ref.fun(x, chosen.rows, chosen.cols, fill=blah))
+
+out2 <- inflate(x, chosen.rows, chosen.cols, fill=blah, sparse=TRUE) # Trying out a sparse matrix.
+expect_is(as.matrix(out2), "dgCMatrix")
+expect_equal(dim(out), dim(out2))
+ref <- as.matrix(out)
+expect_equal(as.matrix(as.matrix(out2))[!is.na(ref)], ref[!is.na(ref)])
+expect_true(all(as.matrix(as.matrix(out2))[is.na(ref)]==0))
 
 # Dealing with duplication and resorting:
 chosen.rows <- c(1:10, 1:10)
@@ -63,6 +70,13 @@ out <- inflate(x, chosen.rows, chosen.cols)
 expect_identical(anchors(out, type="row", id=TRUE), chosen.rows)
 expect_identical(anchors(out, type="column", id=TRUE), chosen.cols)
 expect_equal(as.matrix(out), ref.fun(x, chosen.rows, chosen.cols))
+
+out2 <- inflate(x, chosen.rows, chosen.cols, sparse=TRUE) # Trying out a sparse matrix, again.
+expect_is(as.matrix(out2), "dgCMatrix")
+expect_equal(dim(out), dim(out2))
+ref <- as.matrix(out)
+expect_equal(as.matrix(as.matrix(out2))[!is.na(ref)], ref[!is.na(ref)])
+expect_true(all(as.matrix(as.matrix(out2))[is.na(ref)]==0))
 
 # What happens with silly inputs?
 expect_true(nrow(inflate(x, integer(0), 1:10))==0L)
@@ -80,6 +94,9 @@ chosen.cols <- which(seqnames(regions(out))=="chrA")
 expect_identical(anchors(out, type="row", id=TRUE), chosen.rows)
 expect_identical(anchors(out, type="column", id=TRUE), chosen.cols)
 expect_equal(as.matrix(out), ref.fun(x, chosen.rows, chosen.cols))
+
+out <- inflate(x, chosen.rows, chosen.cols, fill=blah, swap=FALSE) # Symmetric space, so there's guaranteed to swapping.
+expect_equal(as.matrix(out), ref.fun(x, chosen.rows, chosen.cols, fill=blah, swap=FALSE))
 
 out <- inflate(x, "chrA", "chrB")
 chosen.rows <- which(seqnames(regions(out))=="chrA")
@@ -138,16 +155,16 @@ y <- inflate(x, "chrA", "chrA")
 x2 <- deflate(y)
 x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[1])) 
-keep.x <- sort(swapAnchors(keep.x))
+keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
 expect_identical(anchors(x2), anchors(keep.x))
 expect_identical(assay(x2)[,1], assay(keep.x)[,1])
 
 # What happens when you turn off uniqueness (in this case, we have symmetry):
-x2 <- deflate(y, unique=FALSE)
+x2 <- deflate(y, collapse=FALSE)
 x2 <- sort(x2)
 not.diag <- anchors(keep.x, type="first", id=TRUE)!=anchors(keep.x, type="second", id=TRUE)
-keep.x <- rbind(keep.x[not.diag], keep.x[not.diag], keep.x[!not.diag])
-keep.x <- sort(swapAnchors(keep.x))
+keep.x <- rbind(keep.x[not.diag], swapAnchors(keep.x[not.diag], mode='all'), keep.x[!not.diag])
+keep.x <- sort(keep.x)
 expect_identical(anchors(x2), anchors(keep.x))
 expect_identical(assay(x2)[,1], assay(keep.x)[,1])
 
@@ -156,9 +173,23 @@ y <- inflate(x, "chrA", "chrB")
 x2 <- deflate(y)
 x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[2])) 
-keep.x <- sort(swapAnchors(keep.x))
+keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
 expect_identical(anchors(x2), anchors(keep.x))
 expect_identical(assay(x2)[,1], assay(keep.x)[,1])
+
+# Deflating a sparseMatrix (and other options).
+y <- inflate(x, "chrA", "chrA", sparse=TRUE)
+xref <- inflate(x, "chrA", "chrA")
+ref <- as.matrix(xref)
+ref[is.na(ref)] <- 0
+expect_identical(as.matrix(y), as(ref, "dgCMatrix"))
+expect_equal(deflate(y), deflate(xref, use.zero=FALSE, use.na=FALSE)) # Getting rid of genuine zeros in there.
+
+na.deflated <- deflate(xref, use.na=TRUE)
+expect_identical(length(na.deflated), sum(seq_len(nrow(ref))))
+xref2 <- xref
+as.matrix(xref2) <- ref
+expect_equal(deflate(y, use.zero=TRUE), deflate(xref2, use.zero=TRUE))
 
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 4, 0), 1:4, integer(0), all.regions)))==0L)
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 0, 4), integer(0), 1:4, all.regions)))==0L)

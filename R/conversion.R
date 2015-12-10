@@ -84,7 +84,7 @@ setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
 setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, use.zero, use.na, ...) {
     # Choosing the expansion strategy. 
-    is.sparse <- is(x, "sparseMatrix")
+    is.sparse <- is(as.matrix(x), "sparseMatrix")
     if (missing(use.zero)) {
         use.zero <- !is.sparse
     }
@@ -93,7 +93,7 @@ setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, use.zero, use.n
     }
 
     if (use.na && use.zero) { 
-        is.valid <- seq_along(x)
+        is.valid <- seq_along(as.matrix(x))
     } else {
         is.valid <- TRUE
         if (!use.zero) { 
