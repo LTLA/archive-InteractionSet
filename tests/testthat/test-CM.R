@@ -2,6 +2,15 @@
 
 ### Start of loop.
 for (type in c("normal", "sparse")) { 
+if (type=="sparse") { 
+    mattype <- "dgCMatrix"
+    makeMatrix <- function(x, r, c) {
+        Matrix::sparseMatrix(rep(seq_len(r), c), rep(seq_len(c), each=r), x=x, dims=c(r, c))
+    }
+} else {
+    makeMatrix <- Matrix::Matrix
+    mattype <- "dgeMatrix"
+}
 ###
 
 set.seed(4000)
@@ -15,16 +24,6 @@ Nr <- 10
 Nc <- 20
 all.anchor1 <- sample(N, Nr)
 all.anchor2 <- sample(N, Nc)
-
-if (type=="sparse") { 
-    mattype <- "dgCMatrix"
-    makeMatrix <- function(x, r, c) {
-        Matrix::sparseMatrix(rep(seq_len(r), c), rep(seq_len(c), each=r), x=x, dims=c(r, c))
-    }
-} else {
-    makeMatrix <- matrix
-    mattype <- "matrix"
-}
 counts <- makeMatrix(rpois(Nr*Nc, lambda=10), Nr, Nc)
 x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions)
 

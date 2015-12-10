@@ -326,12 +326,12 @@ olap <- overlapsAny(x, pairing)
 temp.iset <- deflate(x, collapse=TRUE)
 ref <- overlapsAny(temp.iset, pairing) # no NAs, everyone's represented here.
 ref <- inflate(temp.iset, anchors(x, type="row", id=TRUE), anchors(x, type="column", id=TRUE), fill=ref)
-expect_identical(olap, as.matrix(ref))
+expect_identical(olap, unname(as.matrix(as.matrix(ref))))
 
 olap <- overlapsAny(x, pairing, type="within")
 ref <- overlapsAny(temp.iset, pairing, type="within")
 ref <- inflate(temp.iset, anchors(x, type="row", id=TRUE), anchors(x, type="column", id=TRUE), fill=ref)
-expect_identical(olap, as.matrix(ref))
+expect_identical(olap, unname(as.matrix(as.matrix(ref))))
 
 olap <- overlapsAny(x, pairing)
 new.gi <- GInteractions(query.regions1, query.regions2)

@@ -30,7 +30,7 @@ expect_identical(anchors(out, type="column", id=TRUE), chosen.cols)
 ref.fun <- function(x, rows, cols, fill, ass=1, sam=1, swap=TRUE) { # Slow and steady implementation.
     all.anchors <- anchors(x, id=TRUE)
     if (missing(fill)) { fill <- assay(x, ass)[,sam] }
-    ref <- matrix(NA, length(rows), length(cols))
+    ref <- Matrix::Matrix(as(NA, typeof(fill)), length(rows), length(cols))
     for (i in seq_len(nrow(x))){ 
         a1 <- all.anchors$first[i]
         a2 <- all.anchors$second[i]
@@ -53,8 +53,9 @@ out2 <- inflate(x, chosen.rows, chosen.cols, fill=blah, sparse=TRUE) # Trying ou
 expect_is(as.matrix(out2), "dgCMatrix")
 expect_equal(dim(out), dim(out2))
 ref <- as.matrix(out)
-expect_equal(as.matrix(as.matrix(out2))[!is.na(ref)], ref[!is.na(ref)])
-expect_true(all(as.matrix(as.matrix(out2))[is.na(ref)]==0))
+not.missing <- which(!is.na(ref))
+expect_equal(as.matrix(out2)[not.missing], ref[not.missing])
+expect_true(all(as.matrix(as.matrix(out2))[!not.missing]==0))
 
 # Dealing with duplication and resorting:
 chosen.rows <- c(1:10, 1:10)
@@ -75,8 +76,9 @@ out2 <- inflate(x, chosen.rows, chosen.cols, sparse=TRUE) # Trying out a sparse 
 expect_is(as.matrix(out2), "dgCMatrix")
 expect_equal(dim(out), dim(out2))
 ref <- as.matrix(out)
-expect_equal(as.matrix(as.matrix(out2))[!is.na(ref)], ref[!is.na(ref)])
-expect_true(all(as.matrix(as.matrix(out2))[is.na(ref)]==0))
+not.missing <- which(!is.na(ref))
+expect_equal(as.matrix(out2)[not.missing], ref[not.missing])
+expect_true(all(as.matrix(as.matrix(out2))[!not.missing]==0))
 
 # What happens with silly inputs?
 expect_true(nrow(inflate(x, integer(0), 1:10))==0L)
@@ -157,7 +159,7 @@ x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[1])) 
 keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
 expect_identical(anchors(x2), anchors(keep.x))
-expect_identical(assay(x2)[,1], assay(keep.x)[,1])
+expect_equal(assay(x2)[,1], assay(keep.x)[,1]) # Not identical, due to coercion to double.
 
 # What happens when you turn off uniqueness (in this case, we have symmetry):
 x2 <- deflate(y, collapse=FALSE)
@@ -166,7 +168,7 @@ not.diag <- anchors(keep.x, type="first", id=TRUE)!=anchors(keep.x, type="second
 keep.x <- rbind(keep.x[not.diag], swapAnchors(keep.x[not.diag], mode='all'), keep.x[!not.diag])
 keep.x <- sort(keep.x)
 expect_identical(anchors(x2), anchors(keep.x))
-expect_identical(assay(x2)[,1], assay(keep.x)[,1])
+expect_equal(assay(x2)[,1], assay(keep.x)[,1])
 
 # Behaviour for different index sets:
 y <- inflate(x, "chrA", "chrB")
@@ -175,7 +177,7 @@ x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[2])) 
 keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
 expect_identical(anchors(x2), anchors(keep.x))
-expect_identical(assay(x2)[,1], assay(keep.x)[,1])
+expect_equal(assay(x2)[,1], assay(keep.x)[,1])
 
 # Deflating a sparseMatrix (and other options).
 y <- inflate(x, "chrA", "chrA", sparse=TRUE)
