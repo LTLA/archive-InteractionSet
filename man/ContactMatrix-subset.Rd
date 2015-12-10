@@ -3,6 +3,7 @@
 
 \alias{[,ContactMatrix,ANY-method}
 \alias{[,ContactMatrix,ANY,ANY-method}
+\alias{[,ContactMatrix,ANY,ANY,ANY-method}
 \alias{[<-,ContactMatrix,ANY,ANY,ContactMatrix-method}
 \alias{subset,ContactMatrix-method}
 

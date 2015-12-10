@@ -3,6 +3,7 @@
 
 \alias{[,InteractionSet,ANY-method}
 \alias{[,InteractionSet,ANY,ANY-method}
+\alias{[,InteractionSet,ANY,ANY,ANY-method}
 \alias{[<-,InteractionSet,ANY,ANY,InteractionSet-method}
 \alias{subset,InteractionSet-method}
 
