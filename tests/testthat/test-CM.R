@@ -1,5 +1,9 @@
 # Tests the construction and manipulation of ContactMatrix objects.
 
+### Start of loop.
+for (type in c("normal", "sparse")) { 
+###
+
 set.seed(4000)
 N <- 30
 all.starts <- round(runif(N, 1, 100))
@@ -11,24 +15,36 @@ Nr <- 10
 Nc <- 20
 all.anchor1 <- sample(N, Nr)
 all.anchor2 <- sample(N, Nc)
-counts <- matrix(rpois(Nr*Nc, lambda=10), Nr, Nc)
+
+if (type=="sparse") { 
+    mattype <- "dgCMatrix"
+    makeMatrix <- function(x, r, c) {
+        Matrix::sparseMatrix(rep(seq_len(r), c), rep(seq_len(c), each=r), x=x, dims=c(r, c))
+    }
+} else {
+    makeMatrix <- matrix
+    mattype <- "matrix"
+}
+counts <- makeMatrix(rpois(Nr*Nc, lambda=10), Nr, Nc)
 x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions)
 
 expect_output(show(x), sprintf("class: ContactMatrix 
 dim: %i %i 
+type: %s 
 rownames: NULL
 colnames: NULL
 metadata(0):
-regions: %i", Nr, Nc, N), 
+regions: %i", Nr, Nc, mattype, N), 
 fixed=TRUE)
 
 temp.x <- ContactMatrix(counts, all.anchor1, all.anchor2, all.regions, metadata=list("whee"=1))
 expect_output(show(temp.x), sprintf("class: ContactMatrix 
 dim: %i %i 
+type: %s 
 rownames: NULL
 colnames: NULL
 metadata(1): whee
-regions: %i", Nr, Nc, N), 
+regions: %i", Nr, Nc, mattype, N),
 fixed=TRUE)
 metadata(temp.x)$whee <- NULL
 expect_identical(temp.x, x)
@@ -69,19 +85,20 @@ expect_that(regions(x3), is_identical_to(regions(x2)))
 
 # Testing with crappy inputs:
 
-expect_that(ContactMatrix(matrix(0, 4, 0), 1:4, integer(0), all.regions), is_a("ContactMatrix")) # No columns.
+expect_that(ContactMatrix(makeMatrix(0, 4, 0), 1:4, integer(0), all.regions), is_a("ContactMatrix")) # No columns.
 four.peat <- GRanges("chrA", IRanges(1:4, 1:4))
-expect_that(ContactMatrix(matrix(0, 0, 4), integer(0), 1:4, four.peat), is_a("ContactMatrix")) # No rows.
-expect_that(ContactMatrix(matrix(0, 0, 4), GRanges(), four.peat), is_a("ContactMatrix")) # Nothing at all
+expect_that(ContactMatrix(makeMatrix(0, 0, 4), integer(0), 1:4, four.peat), is_a("ContactMatrix")) # No rows.
+expect_that(ContactMatrix(makeMatrix(0, 0, 4), GRanges(), four.peat), is_a("ContactMatrix")) # Nothing at all
 
-expect_error(ContactMatrix(matrix(0, 3, 1), 1:4, 1, all.regions), "'matrix' nrow must be equal to length of 'anchor1'")
-expect_error(ContactMatrix(matrix(0, 4, 0), 1:4, 1, all.regions), "'matrix' ncol must be equal to length of 'anchor2'")
-expect_error(ContactMatrix(matrix(0, 4, 0), 0:3, 1:4, all.regions), "all anchor indices must be positive integers")
-expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,NA), 1:4, all.regions), "all anchor indices must be finite integers")
-expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
-expect_error(ContactMatrix(matrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
+expect_error(ContactMatrix(makeMatrix(0, 3, 1), 1:4, 1, all.regions), "'matrix' nrow must be equal to length of 'anchor1'")
+expect_error(ContactMatrix(makeMatrix(0, 4, 0), 1:4, 1, all.regions), "'matrix' ncol must be equal to length of 'anchor2'")
+expect_error(ContactMatrix(makeMatrix(0, 4, 0), 0:3, 1:4, all.regions), "all anchor indices must be positive integers")
+expect_error(ContactMatrix(makeMatrix(0, 4, 0), c(1,2,3,NA), 1:4, all.regions), "all anchor indices must be finite integers")
+expect_error(ContactMatrix(makeMatrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), "all anchor indices must be positive integers")
+expect_error(ContactMatrix(makeMatrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
 
-expect_identical(ContactMatrix(), ContactMatrix(matrix(0L,0,0), integer(0), integer(0), GRanges()))
+expect_identical(dim(ContactMatrix()), integer(2))
+if (type!="sparse") { expect_identical(ContactMatrix(), ContactMatrix(makeMatrix(0L,0,0), integer(0), integer(0), GRanges())) }
 
 # Testing setters.
 
@@ -129,22 +146,25 @@ expect_identical(anchors(x), anchors(x.dump))
 expect_identical(regions(x)[sort(unique(unlist(anchors(x, id=TRUE))))], regions(x.dump))
 
 x.dump <- x
-new.mat <- matrix(sample(N, Nr*Nc, replace=TRUE), Nr, Nc)
+new.mat <- makeMatrix(sample(N, Nr*Nc, replace=TRUE), Nr, Nc)
 as.matrix(x.dump) <- new.mat
 expect_identical(new.mat, as.matrix(x.dump))
 as.matrix(x.dump) <- 1:Nr
-expect_equal(as.matrix(x.dump), matrix(1:Nr, Nr, Nc))
+expect_equal(as.matrix(x.dump), makeMatrix(1:Nr, Nr, Nc))
+
+if (type=="sparse") { expect_error(as.matrix(x.dump) <- makeMatrix(1:Nr, Nr, 1), "replacement Matrix must have same dimensions as 'x'") }
 
 # Testing the subsetting.
 
 rchosen <- 1:5
 xsub <- x[rchosen,]
-expect_output(show(xsub), "class: ContactMatrix 
+expect_output(show(xsub), sprintf("class: ContactMatrix 
 dim: 5 20 
+type: %s 
 rownames: NULL
 colnames: NULL
 metadata(0):
-regions: 30", 
+regions: 30", mattype),
 fixed=TRUE)
 
 expect_that(as.matrix(xsub), is_identical_to(as.matrix(x)[rchosen,]))
@@ -154,12 +174,13 @@ expect_that(anchors(xsub, type="column"), is_identical_to(new.regions[new.anchor
 
 cchosen <- 10:20
 xsub <- x[,cchosen]
-expect_output(show(xsub), "class: ContactMatrix 
+expect_output(show(xsub), sprintf("class: ContactMatrix 
 dim: 10 11 
+type: %s 
 rownames: NULL
 colnames: NULL
 metadata(0):
-regions: 30", 
+regions: 30", mattype),
 fixed=TRUE)
 
 expect_that(as.matrix(xsub), is_identical_to(as.matrix(x)[,cchosen]))
@@ -168,12 +189,13 @@ expect_that(anchors(xsub, type="row"), is_identical_to(new.regions[new.anchor1])
 expect_that(anchors(xsub, type="column"), is_identical_to(new.regions[new.anchor2][cchosen]))
 
 xsub <- subset(x,rchosen,cchosen)
-expect_output(show(xsub), "class: ContactMatrix 
+expect_output(show(xsub), sprintf("class: ContactMatrix 
 dim: 5 11 
+type: %s 
 rownames: NULL
 colnames: NULL
 metadata(0):
-regions: 30", 
+regions: 30", mattype),
 fixed=TRUE)
 
 expect_that(as.matrix(xsub), is_identical_to(as.matrix(x)[rchosen,cchosen]))
@@ -290,10 +312,11 @@ colref <- paste0("Y", seq_len(ncol(temp.x)))
 colnames(temp.x) <- colref
 expect_output(show(temp.x), sprintf("class: ContactMatrix 
 dim: %i %i 
+type: %s 
 rownames(10): X1 X2 ... X9 X10
 colnames(20): Y1 Y2 ... Y19 Y20
 metadata(0):
-regions: %i", nrow(temp.x), ncol(temp.x), length(regions(temp.x))), 
+regions: %i", nrow(temp.x), ncol(temp.x), mattype, length(regions(temp.x))), 
 fixed=TRUE)
 
 expect_identical(rownames(temp.x), rowref)
@@ -314,5 +337,6 @@ for (id in c(TRUE, FALSE)) {
     expect_identical(names(anchors(temp.x, id=id, type="column")), colref)
 }
 
-
-
+### End of loop.
+}
+###

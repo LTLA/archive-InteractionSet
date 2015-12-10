@@ -310,7 +310,7 @@ setGeneric("as.matrix<-", function(x, ..., value) { standardGeneric("as.matrix<-
 setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
     if (is(value, "Matrix")) {
         if (!identical(dim(x), dim(value))) { 
-            stop("matrix replacement must have same dimensions as 'x'")
+            stop("replacement Matrix must have same dimensions as 'x'")
         }
         x@matrix <- value
     } else {
