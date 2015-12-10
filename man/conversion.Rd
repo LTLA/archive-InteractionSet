@@ -115,8 +115,7 @@ However, in other cases, it is not appropriate to fill entries corresponding to 
 If \code{fill} represents, e.g., log-fold changes, then setting missing entries to a value of zero will be misleading.
 One could simply ignore zeroes altogether, though this will also discard entries that are genuinely zero. 
 
-These problems are largely avoided with the default matrix, where missing entries are simply set to \code{NA}.
-In short, care is required when setting \code{sparse=TRUE}.
+These problems are largely avoided with the default denseMatrix classes, where missing entries are simply set to \code{NA}.
 }
 
 \examples{

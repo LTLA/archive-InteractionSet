@@ -1,11 +1,10 @@
 ##############################################
 # Defines the ContactMatrix class.
 
-setClassUnion("anyMatrix", c("matrix", "Matrix"))
 setClass("ContactMatrix",
     contains="Annotated", 
     slots=list(
-        matrix="anyMatrix", 
+        matrix="Matrix", 
         anchor1="integer",
         anchor2="integer",
         regions="GRanges"
@@ -60,6 +59,9 @@ setMethod("show", signature("ContactMatrix"), function(object) {
     if (is.character(msg)) { stop(msg) }
     out <- .resort_regions(anchor1, anchor2, regions)
 
+    if (!is(matrix, "Matrix")) { 
+        matrix <- Matrix(matrix)
+    }
     new("ContactMatrix", matrix=matrix, anchor1=out$anchor1, anchor2=out$anchor2, 
         regions=out$regions, metadata=metadata)
 }
@@ -94,7 +96,7 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "GenomicRangesORmissin
 setMethod("ContactMatrix", c("missing", "missing", "missing", "GenomicRangesORmissing"),
     function(matrix, anchor1, anchor2, regions, metadata=list()) {
         if (missing(regions)) { regions <- GRanges() }
-        .new_ContactMatrix(base::matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
+        .new_ContactMatrix(Matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
     } 
 )
 

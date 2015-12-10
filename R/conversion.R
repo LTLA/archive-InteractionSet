@@ -57,13 +57,13 @@ setMethod("inflate", "GInteractions", function(x, rows, columns, fill, swap=TRUE
     relevantB <- !is.na(ar2) & !is.na(ac1)
 
     if (!sparse) { 
-        out.mat <- matrix(NA, nR, nC)
-        out.mat[(ac2[relevantA] - 1L) * nR + ar1[relevantA]] <- fill[relevantA] 
+        out.mat <- Matrix(as(NA, typeof(fill)), nR, nC)
+        if (any(relevantA)) { out.mat[(ac2[relevantA] - 1L) * nR + ar1[relevantA]] <- fill[relevantA] } # Preserve class as dsyMatrix if empty.
     } else {
         out.mat <- sparseMatrix(i=ar1[relevantA], j=ac2[relevantA], 
                                 x=fill[relevantA], dims=c(nR, nC))
     }
-    if (swap) { out.mat[(ac1[relevantB] - 1L) * nR + ar2[relevantB]] <- fill[relevantB] }
+    if (swap && any(relevantB)) { out.mat[(ac1[relevantB] - 1L) * nR + ar2[relevantB]] <- fill[relevantB] }
 
     # Restoring the original order.
     original.rows <- cumsum(rnd)
