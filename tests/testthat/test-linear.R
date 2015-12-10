@@ -35,7 +35,7 @@ dim: %i 4
 metadata(0):
 assays(1): ''
 rownames: NULL
-rowRanges metadata column names(0):
+rowData names(0):
 colnames(4): 1 2 3 4
 colData names(0):", sum(chosen)), fixed=TRUE)
 

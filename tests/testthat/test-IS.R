@@ -19,7 +19,7 @@ dim: 20 4
 metadata(0):
 assays(1): ''
 rownames: NULL
-metadata column names(0):
+rowData names(0):
 colnames(4): 1 2 3 4
 colData names(0):
 type: GInteractions
@@ -125,7 +125,7 @@ dim: 10 4
 metadata(0):
 assays(1): ''
 rownames: NULL
-metadata column names(0):
+rowData names(0):
 colnames(4): 1 2 3 4
 colData names(1): totals
 type: GInteractions
@@ -142,7 +142,7 @@ dim: 20 2
 metadata(0):
 assays(1): ''
 rownames: NULL
-metadata column names(0):
+rowData names(0):
 colnames(2): 2 4
 colData names(1): totals
 type: GInteractions
@@ -158,7 +158,7 @@ dim: 10 2
 metadata(0):
 assays(1): ''
 rownames: NULL
-metadata column names(0):
+rowData names(0):
 colnames(2): 2 4
 colData names(1): totals
 type: GInteractions
@@ -319,7 +319,7 @@ dim: 20 4
 metadata(0):
 assays(1): ''
 rownames: NULL
-metadata column names(0):
+rowData names(0):
 colnames(4): 1 2 3 4
 colData names(0):
 type: StrictGInteractions
