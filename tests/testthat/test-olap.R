@@ -323,7 +323,7 @@ query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq3/2), IRanges(query.starts, q
 pairing <- GRangesList(first=query.regions1, second=query.regions2)
 
 olap <- overlapsAny(x, pairing)
-temp.iset <- deflate(x, unique=TRUE)
+temp.iset <- deflate(x, collapse=TRUE)
 ref <- overlapsAny(temp.iset, pairing) # no NAs, everyone's represented here.
 ref <- inflate(temp.iset, anchors(x, type="row", id=TRUE), anchors(x, type="column", id=TRUE), fill=ref)
 expect_identical(olap, as.matrix(ref))
