@@ -25,7 +25,7 @@ Coordinates of the loci are also contained within this class.
 
 \arguments{
 \item{matrix}{
-    A matrix containing interaction data.
+    A matrix or Matrix object containing interaction data.
 }
 
 \item{anchor1,anchor2}{
@@ -46,7 +46,7 @@ Coordinates of the loci are also contained within this class.
 \details{
 The ContactMatrix class inherits from the \code{\link[S4Vectors]{Annotated}} class, with several additional slots:
 \describe{
-\item{\code{matrix}:}{A matrix.}
+\item{\code{matrix}:}{A standard matrix or a Matrix object.}
 \item{\code{anchor1}:}{An integer vector specifying the index of the first interacting region.}
 \item{\code{anchor2}:}{An integer vector specifying the index of the second interacting region.}
 \item{\code{regions}:}{A sorted GRanges object containing the coordinates of all interacting regions.}
@@ -69,6 +69,22 @@ Both methods will return an ContactMatrix object containing all of the specified
 Sorting of \code{regions} is also performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
 }
 
+\section{Choosing between matrix and Matrix}{
+The ContactMatrix class provides support for both standard R matrices as well as Matrix objects from the Matrix package.
+The latter stores sparse and symmetric matrices in a more memory-efficient manner, e.g., via the sparseMatrix class.
+They may be preferable for handling very large matrices spanning substantial areas in the interaction space.
+
+There are, however, some limitations with using Matrix objects.
+All numeric values are double-precision, so in some cases, this will more memory than integer storage with a standard matrix.
+More generally, the types of values that can be stored is limited.
+For example, character data is not supported and cannot be stored (yet) in a Matrix.
+Another issue is how missing values should be interpreted in the sparseMatrix -- see \code{?\link{inflate}} for more details.
+
+In general, the choice between the two classes depends on the application.
+The standard matrix is often sufficient for most use cases where small or dense regions of the interaction space are being examined.
+Switching to sparseMatrix may be desirable in emptier parts of the space.
+}
+
 \examples{
 set.seed(1000)
 N <- 30
@@ -89,6 +105,12 @@ x <- ContactMatrix(counts, all.regions[all.anchor1],
         all.regions[all.anchor2])
 x <- ContactMatrix(counts, all.regions[all.anchor1], 
         all.regions[all.anchor2], all.regions)
+
+# Also works with Matrix objects.
+counts2 <- Matrix::Matrix(counts)
+x2 <- ContactMatrix(counts2, all.anchor1, all.anchor2, all.regions)
+counts2 <- as(counts2, "dgCMatrix")
+x2 <- ContactMatrix(counts2, all.anchor1, all.anchor2, all.regions)
 }
 
 \author{
@@ -99,6 +121,7 @@ Aaron Lun
 \code{\link{ContactMatrix-access}},
 \code{\link{ContactMatrix-subset}},
 \code{\link{ContactMatrix-sort}},
-\code{\link{Annotated}}
+\code{\link{Annotated-class}},
+\code{\link{Matrix-class}}
 }
 

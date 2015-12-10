@@ -270,7 +270,6 @@ setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
 ###############################################################
 
 for (siglist in c("GInteractions", "ContactMatrix")) { 
-
     setMethod("seqinfo", siglist, function(x) {
         seqinfo(x@regions)
     })
@@ -309,7 +308,14 @@ setMethod("as.matrix", "ContactMatrix", function(x) {
 
 setGeneric("as.matrix<-", function(x, ..., value) { standardGeneric("as.matrix<-") });
 setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
-    x@matrix[] <- value
+    if (is(value, "Matrix")) {
+        if (!identical(dim(x), dim(value))) { 
+            stop("matrix replacement must have same dimensions as 'x'")
+        }
+        x@matrix <- value
+    } else {
+        x@matrix[] <- value
+    }
     return(x)
 }) 
 

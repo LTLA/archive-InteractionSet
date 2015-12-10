@@ -808,7 +808,7 @@ In most cases, duplicate removal is sensible as the values of the matrix should 
 However, if this is not the case, we can preserve duplicates for later processing:
 
 ```{r}
-deflate(cm, unique=FALSE)
+deflate(cm, collapse=FALSE)
 ```
 
 ## Linearizing an `InteractionSet` into a `RangedSummarizedExperiment`

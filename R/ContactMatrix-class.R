@@ -1,10 +1,11 @@
 ##############################################
 # Defines the ContactMatrix class.
 
+setClassUnion("anyMatrix", c("matrix", "Matrix"))
 setClass("ContactMatrix",
     contains="Annotated", 
     slots=list(
-        matrix="matrix", 
+        matrix="anyMatrix", 
         anchor1="integer",
         anchor2="integer",
         regions="GRanges"
@@ -30,6 +31,7 @@ setValidity2("ContactMatrix", function(object) {
 setMethod("show", signature("ContactMatrix"), function(object) {
     cat("class:", class(object), "\n")
     cat("dim:", dim(object@matrix), "\n")
+    cat("type:", class(object@matrix), "\n")
 
     rnames <- rownames(object)
     if (!is.null(rnames)) scat("rownames(%d): %s\n", rnames)
@@ -102,11 +104,12 @@ setMethod("ContactMatrix", c("missing", "missing", "missing", "GenomicRangesORmi
 setMethod("[", c("ContactMatrix", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
     if (!missing(i)) { 
         x@anchor1 <- x@anchor1[i]
+        x@matrix <- x@matrix[i,,drop=FALSE]
     }
     if (!missing(j)) {
         x@anchor2 <- x@anchor2[j]
+        x@matrix <- x@matrix[,j,drop=FALSE]
     }
-    x@matrix <- x@matrix[i,j,drop=FALSE]
     return(x)
 }) 
 
@@ -121,12 +124,14 @@ setMethod("[<-", c("ContactMatrix", "ANY", "ANY", "ContactMatrix"), function(x, 
         if (!identical(x@anchor2[j], value@anchor2)) {
             stop("cannot modify column indices for a subset of rows")
         }
+        x@matrix[i,j] <- value@matrix
     } else if (!missing(i)) { 
         x@anchor1[i] <- value@anchor1
+        x@matrix[i,] <- value@matrix
     } else if (!missing(j)) { 
         x@anchor2[j] <- value@anchor2
+        x@matrix[,j] <- value@matrix
     }
-    x@matrix[i,j] <- value@matrix
     return(x)
 })
 

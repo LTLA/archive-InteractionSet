@@ -19,7 +19,7 @@ setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
     }
 }
 
-setMethod("inflate", "GInteractions", function(x, rows, columns, fill, ...) {
+setMethod("inflate", "GInteractions", function(x, rows, columns, fill, swap=TRUE, sparse=FALSE, ...) {
     row.chosen <- .make_to_indices(regions(x), rows, ...)
     col.chosen <- .make_to_indices(regions(x), columns, ...)
     fill <- rep(fill, length.out=nrow(x))
@@ -53,12 +53,17 @@ setMethod("inflate", "GInteractions", function(x, rows, columns, fill, ...) {
     # Filling.
     nR <- length(row.chosen)
     nC <- length(col.chosen)
-    out.mat <- matrix(NA, nR, nC)
-
     relevantA <- !is.na(ar1) & !is.na(ac2)
-    out.mat[(ac2[relevantA] - 1L) * nR + ar1[relevantA]] <- fill[relevantA] 
     relevantB <- !is.na(ar2) & !is.na(ac1)
-    out.mat[(ac1[relevantB] - 1L) * nR + ar2[relevantB]] <- fill[relevantB] 
+
+    if (!sparse) { 
+        out.mat <- matrix(NA, nR, nC)
+        out.mat[(ac2[relevantA] - 1L) * nR + ar1[relevantA]] <- fill[relevantA] 
+    } else {
+        out.mat <- sparseMatrix(i=ar1[relevantA], j=ac2[relevantA], 
+                                x=fill[relevantA], dims=c(nR, nC))
+    }
+    if (swap) { out.mat[(ac1[relevantB] - 1L) * nR + ar2[relevantB]] <- fill[relevantB] }
 
     # Restoring the original order.
     original.rows <- cumsum(rnd)
@@ -70,26 +75,49 @@ setMethod("inflate", "GInteractions", function(x, rows, columns, fill, ...) {
                 row.chosen[original.rows], col.chosen[original.cols], regions(x)))
 })
  
-setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, ...) {
+setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sample=1, fill=NULL, swap=TRUE, sparse=FALSE, ...) {
     if (length(fill)==0L) { fill <- assay(x, assay)[,sample] }
-    inflate(interactions(x), rows, columns, fill=fill, ...)
+    inflate(interactions(x), rows, columns, fill=fill, swap=swap, sparse=sparse, ...)
 })
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
-setMethod("deflate", "ContactMatrix", function(x, unique=TRUE, ...) {
-    is.valid <- !is.na(as.matrix(x))
-    valid.coords <- which(is.valid, arr.ind=TRUE)
+setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, use.zero, use.na, ...) {
+    # Choosing the expansion strategy. 
+    is.sparse <- is(x, "sparseMatrix")
+    if (missing(use.zero)) {
+        use.zero <- !is.sparse
+    }
+    if (missing(use.na)) { 
+        use.na <- is.sparse
+    }
+
+    if (use.na && use.zero) { 
+        is.valid <- seq_along(x)
+    } else {
+        is.valid <- TRUE
+        if (!use.zero) { 
+            is.valid <- is.valid & as.matrix(x)!=0
+        } 
+        if (!use.na) { 
+            is.valid <- is.valid & !is.na(as.matrix(x))
+        }
+        is.valid <- which(is.valid)
+    }
+
+    valid.coords <- arrayInd(is.valid, dim(x))
     row.index <- anchors(x, type="row", id=TRUE)[valid.coords[,1]]
     col.index <- anchors(x, type="column", id=TRUE)[valid.coords[,2]]
 
-    out <- .enforce_order(row.index, col.index)
     all.values <- as.matrix(x)[is.valid]
     dim(all.values) <- c(length(all.values), 1L)
     colnames(all.values) <- "1"
-    final <- InteractionSet(all.values, GInteractions(out$anchor1, out$anchor2, regions(x)), ...)
-
-    if (unique) { final <- unique(final) }
+        
+    final <- InteractionSet(all.values, GInteractions(row.index, col.index, regions(x), 
+                mode=ifelse(collapse, "strict", "normal")), ...)
+    if (collapse) {
+        final <- unique(final)
+    }
     return(final)
 })
 
