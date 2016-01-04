@@ -7,8 +7,8 @@
     a2 <- anchors(query, id=TRUE, type="second")
     nregs <- length(regions(query))
 
-    olap1 <- .fast_overlap(query, subject1, ..., IS.query=TRUE)
-    bounds1 <- .get_iset_bounds(olap1, nregs)
+    olap1 <- .fast_overlap(query, subject1, ..., gi.is.query=TRUE)
+    bounds1 <- .get_olap_bounds(olap1, nregs)
     nregs1 <- length(subject1)
     if (missing(subject2)) { 
         olap2 <- olap1
@@ -16,8 +16,8 @@
         is.same <- TRUE
         nregs2 <- nregs1
     } else {
-        olap2 <- .fast_overlap(query, subject2, ..., IS.query=TRUE)
-        bounds2 <- .get_iset_bounds(olap2, nregs)
+        olap2 <- .fast_overlap(query, subject2, ..., gi.is.query=TRUE)
+        bounds2 <- .get_olap_bounds(olap2, nregs)
         is.same <- FALSE
         nregs2 <- length(subject2)
     }
