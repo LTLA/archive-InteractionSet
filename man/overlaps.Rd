@@ -72,19 +72,19 @@ Find overlaps between interactions and linear intervals, between interactions an
 \S4method{findOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    ignore.strand=FALSE)
 
 \S4method{overlapsAny}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    ignore.strand=FALSE)
 
 \S4method{countOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    ignore.strand=FALSE)
 
 \S4method{subsetByOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    ignore.strand=FALSE)
 
 # For brevity, only GInteractions,GRanges-methods are listed. Methods are
 # available for all pairwise combinations of GInteractions, InteractionSet,
@@ -102,7 +102,7 @@ Find overlaps between interactions and linear intervals, between interactions an
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
 
-\item{select, algorithm, ignore.strand}{
+\item{select, ignore.strand}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
 }
