@@ -1,7 +1,9 @@
 ###############################################################
 # This defines the findOverlaps method for GInteractions objects.
 
-.get_used <- function(gi) {
+.get_used <- function(gi) 
+# Gets the indices for all gi@regions that are actually used as anchors.
+{
     all1 <- anchors(gi, type="first", id=TRUE)
     all2 <- anchors(gi, type="second", id=TRUE)
     used <- logical(length(regions(gi)))
@@ -10,7 +12,9 @@
     which(used)
 }
 
-.fast_overlap <- function(gi, ranges, ..., gi.is.query=TRUE) {
+.fast_overlap <- function(gi, ranges, ..., gi.is.query=TRUE) 
+# Overlaps gi@regions with ranges, but only for those regions used as anchors.
+{
     regs <- regions(gi)
     subset <- .get_used(gi)
     if (length(subset)!=length(regs)) { regs <- regs[subset] }
@@ -32,7 +36,9 @@
     return(list(gi.dex=gi.dex, ranges.dex=ranges.dex))
 }
 
-.get_olap_bounds <- function(olap, N) {
+.get_olap_bounds <- function(olap, N) 
+# Gets the first and last index of the overlap vector for each GI index.
+{
     current.rle <- rle(olap$gi.dex)
     first.in.rle <- rep(1L, N)
     last.in.rle <- integer(N)
@@ -42,7 +48,10 @@
     return(list(first=first.in.rle, last=last.in.rle))
 }
 
-.linear_olap_finder <- function(gi, ranges, cxxfun, ..., gi.is.query=TRUE) {
+.linear_olap_finder <- function(gi, ranges, cxxfun, ..., gi.is.query=TRUE) 
+# Identifies linear overlaps, with differing C++ function depending on whether
+# all overlaps are desired, or counting should be performed, etc.
+{
     olap <- .fast_overlap(gi, ranges, ..., gi.is.query=gi.is.query)
     a1 <- anchors(gi, type="first", id=TRUE)
     a2 <- anchors(gi, type="second", id=TRUE)
@@ -87,8 +96,8 @@ setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
 ###############################################################
 
 .paired_overlap_finder <- function(gi, pairings, cxxfun, ..., gi.is.query=TRUE) 
-# This is split into a separate function, because we'll re-use 
-# the code to run 'overlapsAny'.
+# Identifies overlaps between interactions in GIs and paired regions,
+# with different C++ functions for different behaviours as before.
 {
     if (length(pairings)!=2L) { stop("input GRangesList must be of length 2") }
     npairs <- length(pairings[[1]])
@@ -145,7 +154,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
 
 .reindex_by_anchor <- function(ref.list, all.anchors) 
 # 'ref.list' stores the map from indices of region(subject) -> multiple indices of region(query) 
-# We want to get the map from indices of anchor(subject) -> multiple indices of region(query)
+# This function generates the map from indices of anchor(subject) -> multiple indices of region(query)
 {
     ref.list <- ref.list[all.anchors]
     left.indices <- as.integer(unlist(ref.list)) # coerces to 'integer(0)' if all.anchors is empty.
@@ -155,7 +164,8 @@ setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
 }
 
 .paired_overlap_finder2 <- function(gi.left, gi.right, cxxfun, ...) 
-# Again, splitting the code for re-use in 'overlapsAny'.
+# Identifies overlaps between two GI objects (left and right),
+# with different C++ functions for different behaviours as before.
 {
     used2 <- .get_used(gi.right)
     olap <- .fast_overlap(gi.left, regions(gi.right)[used2], ..., gi.is.query=TRUE)
@@ -332,7 +342,11 @@ setMethod("subsetByOverlaps", c(query="GRangesList", subject="GInteractions"),
 ###############################################################
 # Defining corresponding functions for InteractionSet objects.
     
-olap.fun.gen <- function(first, second, fun, other.args) {
+olap.fun.gen <- function(first, second, fun, other.args) 
+# A function to generate overlap functions for InteractionSet objects.
+# Basically replaces query/subject with interactions(...) as appropriate.
+# Avoids the need to manually write out each function again.
+{
     if (first && second) {
         internals <- "query=interactions(query), subject=interactions(subject)"
     } else if (first) { 
