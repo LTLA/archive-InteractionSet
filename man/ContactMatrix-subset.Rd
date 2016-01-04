@@ -60,6 +60,8 @@ However, note that the value of \code{regions} will not be modified by subsettin
 Errors will occur if the rows are not identical between objects (i.e., must have same values in the slots for \code{regions} and \code{anchor1}).
 Conversely, \code{rbind} will combines objects with the same columns but different rows.
 Again, errors will occur if the columns are not identical (i.e., must have same values in the slots for \code{regions} and \code{anchor2}).
+
+Also see \code{?"\link{interaction-subset}"} for why subsetting should be done before calling the \code{\link{anchors}} method.
 }
 
 \examples{

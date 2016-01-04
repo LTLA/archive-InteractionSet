@@ -96,6 +96,11 @@ The column names of \code{mcols} for the \code{regions} slot must also be identi
 
 \code{split} produces a list of GInteractions objects, where each entry of the list corresponds to a level of \code{f}.
 Each GInteractions object contains all rows associated with the corresponding level of \code{f}. 
+
+For short index vectors, subsetting a GInteractions object prior to calling \code{\link{anchors}} may be much faster than the reverse procedure.
+This is because the \code{\link{anchors}} getter will construct a GRanges(List) containing the genomic loci for all pairwise interactions.
+Subsetting beforehand ensures that only loci for the desired interactions are included.
+This avoids constructing the entire object just to subset it later.
 }
 
 \section{Details for InteractionSet}{
