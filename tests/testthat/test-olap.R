@@ -1,4 +1,5 @@
 # Testing the various overlap methods for InteractionSet objects.
+# This implicitly tests the GInteractions methods, because one calls the other.
 
 set.seed(300)
 N <- 50
@@ -270,6 +271,34 @@ for (param in seq_len(4)) {
     expect_equal(subsetByOverlaps(x, x2, type=type, maxgap=maxgap, minoverlap=minoverlap), x[out,])
 
     # Note: No need to flip, it's the same method.
+    # However, we do test self-overlaps as well.
+
+    expected1.A <- findOverlaps(anchors(x, type="first"), anchors(x, type="first"), type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expected1.B <- findOverlaps(anchors(x, type="first"), anchors(x, type="second"), type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expected2.B <- findOverlaps(anchors(x, type="second"), anchors(x, type="first"), type=type, maxgap=maxgap, minoverlap=minoverlap) # Yes, the A/B switch is deliberate.
+    expected2.A <- findOverlaps(anchors(x, type="second"), anchors(x, type="second"), type=type, maxgap=maxgap, minoverlap=minoverlap)
+
+    expected1 <- c(paste0(queryHits(expected1.A), ".", subjectHits(expected1.A), ".A"), 
+                   paste0(queryHits(expected1.B), ".", subjectHits(expected1.B), ".B"))
+    expected2 <- c(paste0(queryHits(expected2.A), ".", subjectHits(expected2.A), ".A"), 
+                   paste0(queryHits(expected2.B), ".", subjectHits(expected2.B), ".B"))
+    expected <- intersect(expected1, expected2)
+    harvest <- do.call(rbind, strsplit(expected, "\\."))
+    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), queryLength=length(x), subjectLength=length(x2))
+    ref <- sort(unique(ref))
+    
+    self.olap <- findOverlaps(x, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_that(self.olap, is_identical_to(ref))
+
+    for (select in c("first", "last", "arbitrary")) { 
+        selected <- findOverlaps(x, type=type, maxgap=maxgap, minoverlap=minoverlap, select=select)
+        expect_that(selected, is_identical_to(selectHits(self.olap, select)))
+    }
+
+    count.lap <- countOverlaps(x, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(count.lap, selectHits(self.olap, "count"))
+    out <- overlapsAny(x, type=type, maxgap=maxgap, minoverlap=minoverlap)
+    expect_identical(out, rep(TRUE, length(x)))
 }
 
 # What happens with silly inputs?
