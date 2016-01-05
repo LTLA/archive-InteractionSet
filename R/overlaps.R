@@ -214,7 +214,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="missing"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE) {
         findOverlaps(query, query, maxgap=maxgap, minoverlap=minoverlap, 
-                     type=type, ignore.strand=ignore.strand)
+                     type=type, select=select, ignore.strand=ignore.strand)
     }
 )
 
