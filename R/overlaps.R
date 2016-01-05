@@ -208,6 +208,16 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
     }
 )
 
+setMethod("findOverlaps", c(query="GInteractions", subject="missing"),
+    function(query, subject, maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             select=c("all", "first", "last", "arbitrary"),
+             ignore.strand=FALSE) {
+        findOverlaps(query, query, maxgap=maxgap, minoverlap=minoverlap, 
+                     type=type, ignore.strand=ignore.strand)
+    }
+)
+
 ###############################################################
 # This defines the countOverlaps method.
 
@@ -266,6 +276,15 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
     }
 )
 
+setMethod("countOverlaps", c(query="GInteractions", subject="missing"),
+    function(query, subject, maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             ignore.strand=FALSE) {
+        countOverlaps(query, query, maxgap=maxgap, minoverlap=minoverlap,
+                        type=type, ignore.strand=ignore.strand)
+    }
+)
+
 ###############################################################
 # This defines the overlapsAny method.
 
@@ -291,6 +310,14 @@ setMethod("overlapsAny", c(query="GRanges", subject="GInteractions"),
         subset <- .get_used(subject)
         overlapsAny(query, regions(subject)[subset], maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand) 
+    }
+)
+
+setMethod("overlapsAny", c(query="GInteractions", subject="missing"),
+    function(query, subject, maxgap=0L, minoverlap=1L, 
+             type=c("any", "start", "end", "within", "equal"),
+             ignore.strand=FALSE) {
+        return(!logical(length(query)))
     }
 )
 
@@ -347,7 +374,10 @@ olap.fun.gen <- function(first, second, fun, other.args)
 # Basically replaces query/subject with interactions(...) as appropriate.
 # Avoids the need to manually write out each function again.
 {
-    if (first && second) {
+    if (is.na(second)) {
+        if (!first) { stop("first should be IS if second is NA") }
+        internals <- "query=interactions(query)"
+    } else if (first && second) {
         internals <- "query=interactions(query), subject=interactions(subject)"
     } else if (first) { 
         internals <- "query=interactions(query), subject=subject"
@@ -380,10 +410,15 @@ for (siglist in list(
         c(query="GRangesList", subject="InteractionSet"),
         c(query="InteractionSet", subject="InteractionSet"),
         c(query="InteractionSet", subject="GInteractions"),
-        c(query="GInteractions", subject="InteractionSet")
+        c(query="GInteractions", subject="InteractionSet"),
+        c(query="InteractionSet", subject="missing")
     )) {
     first.IS <- siglist[["query"]]=="InteractionSet"
     second.IS <- siglist[["subject"]]=="InteractionSet"
+    if (!second.IS) { 
+        if (siglist[["subject"]]=="missing") { second.IS <- NA }
+    }
+
     setMethod("overlapsAny", siglist, olap.fun.gen(first.IS, second.IS, "overlapsAny", 
              alist(maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
@@ -398,6 +433,7 @@ for (siglist in list(
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE)))
 
+    if (is.na(second.IS)) { next }
     if (first.IS) {
         # Special treatment here, otherwise it'll return a GInteractions.
         setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 

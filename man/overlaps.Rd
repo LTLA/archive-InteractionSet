@@ -6,18 +6,21 @@
 \alias{findOverlaps,GInteractions,GRangesList-method}
 \alias{findOverlaps,GRangesList,GInteractions-method}
 \alias{findOverlaps,GInteractions,GInteractions-method}
+\alias{findOverlaps,GInteractions,missing-method}
 
 \alias{countOverlaps,GInteractions,GRanges-method}
 \alias{countOverlaps,GRanges,GInteractions-method}
 \alias{countOverlaps,GInteractions,GRangesList-method}
 \alias{countOverlaps,GRangesList,GInteractions-method}
 \alias{countOverlaps,GInteractions,GInteractions-method}
+\alias{countOverlaps,GInteractions,missing-method}
 
 \alias{overlapsAny,GInteractions,GRanges-method}
 \alias{overlapsAny,GRanges,GInteractions-method}
 \alias{overlapsAny,GInteractions,GRangesList-method}
 \alias{overlapsAny,GRangesList,GInteractions-method}
 \alias{overlapsAny,GInteractions,GInteractions-method}
+\alias{overlapsAny,GInteractions,missing-method}
 
 \alias{subsetByOverlaps,GInteractions,GRanges-method}
 \alias{subsetByOverlaps,GRanges,GInteractions-method}
@@ -30,18 +33,21 @@
 \alias{findOverlaps,InteractionSet,GRangesList-method}
 \alias{findOverlaps,GRangesList,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,InteractionSet-method}
+\alias{findOverlaps,InteractionSet,missing-method}
 
 \alias{countOverlaps,InteractionSet,GRanges-method}
 \alias{countOverlaps,GRanges,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,GRangesList-method}
 \alias{countOverlaps,GRangesList,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,InteractionSet-method}
+\alias{countOverlaps,InteractionSet,missing-method}
 
 \alias{overlapsAny,InteractionSet,GRanges-method}
 \alias{overlapsAny,GRanges,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,GRangesList-method}
 \alias{overlapsAny,GRangesList,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,InteractionSet-method}
+\alias{overlapsAny,InteractionSet,missing-method}
 
 \alias{subsetByOverlaps,InteractionSet,GRanges-method}
 \alias{subsetByOverlaps,GRanges,InteractionSet-method}
@@ -86,16 +92,19 @@ Find overlaps between interactions and linear intervals, between interactions an
     type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE)
 
-# For brevity, only GInteractions,GRanges-methods are listed. Methods are
+# For brevity, only 'GInteractions,GRanges-methods' are listed. Methods are
 # available for all pairwise combinations of GInteractions, InteractionSet,
 # GRanges and GRangesList objects, so long as at least one InteractionSet or
 # GInteractions object is present. In all cases, function calls are identical.
+# 'subject' can also be missing for all functions except for 'subsetByOverlaps',
+# as long as 'query' is a GInteractions or an InteractionSet.
 }
 
 \arguments{
 \item{query, subject}{
     A GRanges object, a GRangesList object of length 2, a GInteractions object or an InteractionSet object, depending on the specified method.
     At least one of these must be a GInteractions or InteractionSet object.
+    Also, \code{subject} can be missing if \code{query} is a GInteractions or InteractionSet object.
 }
 
 \item{maxgap, minoverlap, type}{
@@ -118,6 +127,7 @@ An overlap is defined between each pair of target regions and an GInteractions i
 
 Overlaps between two GInteractions objects are computed in a similar manner.
 Interactions from one object are used to define pairs of target regions, which are overlapped with the interactions from the other object in two-dimensional space.
+If \code{subject} is missing, overlaps will be computed between interactions in \code{query}.
 
 When \code{select="all"}, \code{findOverlaps} returns a Hits object containing overlapping pairs of queries and subjects (or more specifically, their indices in the supplied objects 
     - see \code{?\link[GenomicRanges]{findOverlaps}} for more details).
@@ -172,7 +182,7 @@ countOverlaps(pairing, gi)
 subsetByOverlaps(gi, pairing)
 subsetByOverlaps(pairing, gi)
 
-# InteractionSet overlaps (split into two):
+# GInteractions overlaps (split into two):
 first.half <- gi[1:(Np/2)]
 second.half <- gi[Np/2+1:(Np/2)]
 findOverlaps(first.half, second.half)
@@ -180,6 +190,10 @@ findOverlaps(first.half, second.half, select="arbitrary")
 overlapsAny(first.half, second.half)
 countOverlaps(first.half, second.half)
 subsetByOverlaps(first.half, second.half)
+
+findOverlaps(gi)
+countOverlaps(gi)
+overlapsAny(gi) # trivial result
 
 #################
 # Same can be done for an InteractionSet object:
@@ -197,6 +211,11 @@ findOverlaps(iset[1:(Np/2),], iset[Np/2+1:(Np/2),])
 subsetByOverlaps(of.interest, iset)
 subsetByOverlaps(iset, pairing)
 subsetByOverlaps(iset[1:(Np/2),], iset[Np/2+1:(Np/2),])
+
+# Self-overlaps
+findOverlaps(iset)
+countOverlaps(iset)
+overlapsAny(iset) # trivial result
 }
 
 \author{
