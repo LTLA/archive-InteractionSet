@@ -194,8 +194,14 @@ setValidity2("ReverseStrictGInteractions", function(object) {
 
 setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) { standardGeneric("GInteractions") })
 setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
-    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
-        .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
+        out <- .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
+        mcols(out) <- DataFrame(...)
+        if (ncol(mcols) == 0L)
+            mcols = new("DataFrame", nrows = length(anchor1))
+        if (nrow(mcols) == 1L)
+            mcols = mcols[rep(1, length(anchor1)), ]
+        out
 })
 
 .collate_GRanges <- function(...) {
@@ -219,8 +225,8 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
     return(list(indices=split(refdex, obj.dex), ranges=combined))
 }
 
-setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"), 
-    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
+setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
         # Stripping metadata and putting it somewhere else.
         mcol1 <- mcols(anchor1)
         mcols(anchor1) <- NULL
@@ -228,6 +234,12 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
         mcol2 <- mcols(anchor2)
         mcols(anchor2) <- NULL
         colnames(mcol2) <- sprintf("anchor2.%s", colnames(mcol2))
+        # Additional Interaction-specific metadata
+        mcol3 <- DataFrame(...)
+        if (ncol(mcol3) == 0L)
+            mcol3 = new("DataFrame", nrows = length(anchor1))
+        if (nrow(mcol3) == 1L)
+            mcol3 = mcol3[rep(1, length(anchor1)), ]
 
         if (missing(regions)) {
             # Making unique regions to save space (metadata is ignored)
@@ -244,8 +256,8 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
         }
 
         out <- .new_GInteractions(anchor1=anchor1, anchor2=anchor2, 
-            regions=regions, metadata=metadata, mode=mode)
-        mcols(out) <- DataFrame(mcol1, mcol2)
+                                  regions=regions, metadata=metadata, mode=mode)
+        mcols(out) <- DataFrame(mcol1, mcol2, mcol3)
         out
    }
 )
