@@ -76,7 +76,7 @@ In both cases, any metadata in the input GRanges will be stored in the \code{mco
 
 All constructors will return a GInteractions (or StrictGInteractions) object containing all of the specified information.
 Sorting of \code{regions} is performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
-If \code{mode="strict"}, a StrictGInterctions object is returned with anchor indices swapped such that \code{anchor1 >= anchor2} for all interactions.
+If \code{mode="strict"}, a StrictGInterctions object is returned with anchor indices swapped such that \code{anchor1 <= anchor2} for all interactions.
 If both anchors are missing, the constructor will return an empty GInteractions object.
 }
 

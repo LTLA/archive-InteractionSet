@@ -157,7 +157,7 @@ y <- inflate(x, "chrA", "chrA")
 x2 <- deflate(y)
 x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[1])) 
-keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
+keep.x <- sort(swapAnchors(keep.x))
 expect_identical(anchors(x2), anchors(keep.x))
 expect_equal(assay(x2)[,1], assay(keep.x)[,1]) # Not identical, due to coercion to double.
 
@@ -175,7 +175,7 @@ y <- inflate(x, "chrA", "chrB")
 x2 <- deflate(y)
 x2 <- sort(x2)
 keep.x <- subsetByOverlaps(x, GRangesList(all.chr[1], all.chr[2])) 
-keep.x <- sort(swapAnchors(keep.x, mode="reverse"))
+keep.x <- sort(swapAnchors(keep.x))
 expect_identical(anchors(x2), anchors(keep.x))
 expect_equal(assay(x2)[,1], assay(keep.x)[,1])
 

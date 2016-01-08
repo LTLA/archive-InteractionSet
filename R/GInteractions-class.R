@@ -92,8 +92,8 @@ setMethod("show", signature("GInteractions"), function(object) {
 
 setClass("StrictGInteractions", contains="GInteractions")
 setValidity2("StrictGInteractions", function(object) {
-    if (any(object@anchor1 < object@anchor2)) { 
-        stop("'anchor1' cannot be less than 'anchor2'")
+    if (any(object@anchor1 > object@anchor2)) { 
+        stop("'anchor1' cannot be greater than 'anchor2'")
     }
     return(TRUE)
 })
@@ -144,8 +144,8 @@ setValidity2("StrictGInteractions", function(object) {
     } else {
         cls <- "StrictGInteractions"
         out <- .enforce_order(anchor1, anchor2)
-        anchor1 <- out$anchor2 # Flipped on purpose. 
-        anchor2 <- out$anchor1
+        anchor1 <- out$anchor1
+        anchor2 <- out$anchor2
     }
 
     new(cls, 

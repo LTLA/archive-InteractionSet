@@ -165,7 +165,7 @@ setReplaceMethod("anchors", "ContactMatrix", anchor.repfun.gen(FALSE))
 setReplaceMethod("anchors", "StrictGInteractions", function(x, type="both", ..., value) {
     x <- as(x, "GInteractions")
     anchors(x, type=type, ...) <- value
-    x <- swapAnchors(x, mode="reverse")
+    x <- swapAnchors(x)
     as(x, "StrictGInteractions")
 })
 
