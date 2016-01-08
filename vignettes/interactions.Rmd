@@ -109,6 +109,7 @@ From a developer's perspective, this is useful as it is often more efficient to 
 For example, common operations can be applied to the output of `regions(gi)`, and the relevant results retrieved with the anchor indices.
 This is usually faster than applying those operations on repeated instances of the regions in `anchors(gi)`.
 Also note that `regions(gi)` is sorted -- this is automatically performed within the `GInteractions` class, and is enforced throughout for consistency.
+(Anchor indices are similarly adjusted to account for this sorting, so the indices supplied to the constructor may not be the same as that returned by `anchors`.)
 
 Finally, it's worth pointing out that the `GInteractions` object inherits from the `Vector` base class in the `r Biocpkg("S4Vectors")` package, 
     and subsequently has access to all of its methods.

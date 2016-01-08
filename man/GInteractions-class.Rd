@@ -66,6 +66,7 @@ GInteractions objects can be constructed by specifying integer vectors to define
 For entry \code{x}, the corresponding interaction is defined between \code{regions[anchor1[x]]} and \code{regions[anchor2[x]]}.
 Obviously, coordinates of all of the interacting loci must be specified in the \code{regions} argument.
 Any metadata in \code{regions} will be preserved.
+Note that \code{regions} will be resorted in the returned object, so the anchor indices may not be equal to the input \code{anchor1} and \code{anchor2}.
 
 Alternatively, GInteractions objects can be constructed by directly supplying the GRanges of the interacting loci to the \code{GInteractions} function.
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
