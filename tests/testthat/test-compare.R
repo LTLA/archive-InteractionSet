@@ -66,4 +66,10 @@ expect_identical(S4Vectors::compare(x, another.x), old) # This should be okay, a
 regions(another.x) <- resize(regions(another.x), width(regions(another.x))*2L)
 expect_error(S4Vectors::compare(x, another.x), "'regions' must be identical")
 
+sx <- as(swapAnchors(x), "StrictGInteractions")
+expect_warning(sx==x, "comparison between GInteractions objects of different strictness")
+rsx <- as(swapAnchors(x, mode="reverse"), "ReverseStrictGInteractions")
+expect_warning(rsx==sx, "comparison between GInteractions objects of different strictness")
+expect_warning(rsx==x, "comparison between GInteractions objects of different strictness")
+expect_warning(match(rsx, x), "comparison between GInteractions objects of different strictness")
 

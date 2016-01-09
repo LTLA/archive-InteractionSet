@@ -392,28 +392,31 @@ temp.sx2 <- sx
 anchors(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
 expect_identical(temp.sx2, temp.sx)
 
-sx <- GInteractions(all.anchor1, all.anchor2, all.regions, mode="reverse")
-expect_that(sx, is_a("ReverseStrictGInteractions"))
-expect_identical(anchors(sx, id=TRUE, type="first"), do.call(pmax, anchors(x, id=TRUE)))
-expect_identical(anchors(sx, id=TRUE, type="second"), do.call(pmin, anchors(x, id=TRUE)))
-expect_identical(regions(sx), regions(x))
+rsx <- GInteractions(all.anchor1, all.anchor2, all.regions, mode="reverse")
+expect_that(rsx, is_a("ReverseStrictGInteractions"))
+expect_identical(anchors(rsx, id=TRUE, type="first"), do.call(pmax, anchors(x, id=TRUE)))
+expect_identical(anchors(rsx, id=TRUE, type="second"), do.call(pmin, anchors(x, id=TRUE)))
+expect_identical(regions(rsx), regions(x))
 
-temp.sx <- sx
-anchors(temp.sx, type="first") <- fresh.anchor1
-expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
-expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
+temp.rsx <- rsx
+anchors(temp.rsx, type="first") <- fresh.anchor1
+expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor1, anchors(rsx, id=TRUE, type="second")))
+expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor1, anchors(rsx, id=TRUE, type="second")))
 
-temp.sx <- sx
-anchors(temp.sx, type="second") <- fresh.anchor2
-expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
-expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
+temp.rsx <- rsx
+anchors(temp.rsx, type="second") <- fresh.anchor2
+expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor2, anchors(rsx, id=TRUE, type="first")))
+expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor2, anchors(rsx, id=TRUE, type="first")))
 
-temp.sx <- sx
-anchors(temp.sx) <- list(fresh.anchor1, fresh.anchor2)
-expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmax(fresh.anchor1, fresh.anchor2))
-expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmin(fresh.anchor1, fresh.anchor2))
+temp.rsx <- rsx
+anchors(temp.rsx) <- list(fresh.anchor1, fresh.anchor2)
+expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor1, fresh.anchor2))
+expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor1, fresh.anchor2))
 
-temp.sx2 <- sx
-anchors(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
-expect_identical(temp.sx2, temp.sx)
+temp.rsx2 <- rsx
+anchors(temp.rsx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
+expect_identical(temp.rsx2, temp.rsx)
+
+expect_error(c(sx, rsx), "'anchor1' cannot be greater than 'anchor2'")
+expect_error(c(rsx, sx), "'anchor1' cannot be less than 'anchor2'")
 

@@ -278,6 +278,9 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
         }
         ans@NAMES <- unlist(all.names)
     }
+
+    # Throw errors upon rbinding objects of different strictness.
+    validObject(ans)
     return(ans)
 })
 

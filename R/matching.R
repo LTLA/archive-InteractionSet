@@ -3,6 +3,7 @@
 setMethod("match", c("GInteractions", "GInteractions"), 
     function(x, table, nomatch = NA_integer_, incomparables = NULL, ...) {
 
+        .strict_check(x, table)
         if (!identical(regions(x), regions(table))) { 
             stop("'regions' must be identical for arguments to 'match'")
         }
@@ -42,6 +43,7 @@ setMethod("match", c("InteractionSet", "InteractionSet"),
 # Defining the compare function (only for two GInteractions, it wouldn't make sense otherwise).
 
 setMethod("compare",  c("GInteractions", "GInteractions"), function(x, y) { 
+    .strict_check(x, y)
     if (length(regions(x))!=length(regions(y)) || any(regions(x)!=regions(y))) { 
         stop("'regions' must be identical for arguments to 'compare'")
     }
@@ -51,3 +53,9 @@ setMethod("compare",  c("GInteractions", "GInteractions"), function(x, y) {
     return(output)
 })
 
+.strict_check <- function(x, y) {
+    if (is(x, "StrictGInteractions")!=is(y, "StrictGInteractions") 
+        || is(x, "ReverseStrictGInteractions")!=is(y, "ReverseStrictGInteractions")) { 
+        warning("comparison between GInteractions objects of different strictness")
+    }
+}
