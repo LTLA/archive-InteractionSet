@@ -3,6 +3,7 @@
 
 \alias{GInteractions-class}
 \alias{StrictGInteractions-class}
+\alias{ReverseStrictGInteractions-class}
 \alias{GInteractions}
 \alias{GInteractions,numeric,numeric,GRanges-method}
 \alias{GInteractions,GRanges,GRanges,GenomicRangesORmissing-method}
@@ -55,10 +56,11 @@ It also contains several additional slots:
 Each interaction is defined by the corresponding entries in the \code{anchor1} and \code{anchor2} slots, which point to the relevant coordinates in \code{regions} for each locus.
 
 The StrictGInteractions class inherits from the GInteractions class and has the same slots.
-The only difference is that, for each interaction, \code{anchor1} must be greater than or equal to \code{anchor2}.
-This means that the first interacting region has a start position that is "higher" than the second interacting region.
+The only difference is that, for each interaction, \code{anchor1} must be less than or equal to \code{anchor2}.
+This means that the first interacting region has a start position that is "lower" than the second interacting region.
 This condition is useful for comparing interactions within and between objects, as it ensures that redundant permutations of the same interaction are not being overlooked.
 However, it is not used by default as there may conceivably be instances where the order of interactions is informative.
+The ReverseStrictGInteractions class has the opposite behaviour, where \code{anchor1} must be greater than or equal to \code{anchor2}.
 }
 
 \section{Class construction}{
@@ -106,6 +108,8 @@ mcols(temp.gi)$score <- runif(Np)
 # Strict construction
 sgi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], 
         all.regions, mode="strict")
+rsgi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], 
+        all.regions, mode="reverse")
 }
 
 \author{

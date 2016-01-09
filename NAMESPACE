@@ -2,7 +2,7 @@ useDynLib(InteractionSet, .registration=TRUE, .fixes="cxx_")
 
 # Exporting the InteractionSet class.
 exportClasses(
-    GInteractions, StrictGInteractions,
+    GInteractions, StrictGInteractions, ReverseStrictGInteractions,
     InteractionSet, 
     ContactMatrix
 )

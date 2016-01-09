@@ -98,6 +98,14 @@ setValidity2("StrictGInteractions", function(object) {
     return(TRUE)
 })
 
+setClass("ReverseStrictGInteractions", contains="GInteractions")
+setValidity2("ReverseStrictGInteractions", function(object) {
+    if (any(object@anchor1 < object@anchor2)) { 
+        stop("'anchor1' cannot be less than 'anchor2'")
+    }
+    return(TRUE)
+})
+
 ###############################################################
 # Constructors
 
@@ -123,7 +131,7 @@ setValidity2("StrictGInteractions", function(object) {
     return(list(anchor1=anchor1, anchor2=anchor2, regions=regions)) 
 }
 
-.new_GInteractions <- function(anchor1, anchor2, regions, metadata, mode=c("normal", "strict")) {
+.new_GInteractions <- function(anchor1, anchor2, regions, metadata, mode=c("normal", "strict", "reverse")) {
     mode <- match.arg(mode)
     elementMetadata <- new("DataFrame", nrows=length(anchor1))
 
@@ -142,10 +150,15 @@ setValidity2("StrictGInteractions", function(object) {
     if (mode=="normal") {
         cls <- "GInteractions"
     } else {
-        cls <- "StrictGInteractions"
-        out <- .enforce_order(anchor1, anchor2)
-        anchor1 <- out$anchor1
-        anchor2 <- out$anchor2
+        if (mode=="strict") {
+            cls <- "StrictGInteractions"
+            out <- .enforce_order(anchor1, anchor2)
+        } else {
+            cls <- "ReverseStrictGInteractions"
+            out <- rev(.enforce_order(anchor1, anchor2))
+        }
+        anchor1 <- out[[1]]
+        anchor2 <- out[[2]]
     }
 
     new(cls, 

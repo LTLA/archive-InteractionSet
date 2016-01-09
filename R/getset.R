@@ -169,6 +169,13 @@ setReplaceMethod("anchors", "StrictGInteractions", function(x, type="both", ...,
     as(x, "StrictGInteractions")
 })
 
+setReplaceMethod("anchors", "ReverseStrictGInteractions", function(x, type="both", ..., value) {
+    x <- as(x, "GInteractions")
+    anchors(x, type=type, ...) <- value
+    x <- swapAnchors(x, mode="reverse")
+    as(x, "ReverseStrictGInteractions")
+})
+
 ###############################################################
 # Methods on InteractionSet that operate on GInteractions.
 
