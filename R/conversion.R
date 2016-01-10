@@ -121,3 +121,19 @@ setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, use.zero, use.n
     return(final)
 })
 
+# Convert between GInteractions objects of different strictness.
+
+setAs("GInteractions", "StrictGInteractions", function(from) {
+    old_val <- S4Vectors:::disableValidity() # just in case we convert from reverse to strict.
+    on.exit(S4Vectors:::disableValidity(old_val))
+    S4Vectors:::disableValidity(TRUE)
+    new("StrictGInteractions", swapAnchors(from, mode="order"))
+})
+
+setAs("GInteractions", "ReverseStrictGInteractions", function(from) {
+    old_val <- S4Vectors:::disableValidity()
+    on.exit(S4Vectors:::disableValidity(old_val))
+    S4Vectors:::disableValidity(TRUE)
+    new("ReverseStrictGInteractions", swapAnchors(from, mode="reverse"))
+})
+
