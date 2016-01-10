@@ -369,6 +369,7 @@ for (id in c(TRUE, FALSE)) {
 
 sx <- GInteractions(all.anchor1, all.anchor2, all.regions, mode="strict")
 expect_that(sx, is_a("StrictGInteractions"))
+expect_identical(sx, as(x, "StrictGInteractions"))
 expect_identical(anchors(sx, id=TRUE, type="first"), do.call(pmin, anchors(x, id=TRUE)))
 expect_identical(anchors(sx, id=TRUE, type="second"), do.call(pmax, anchors(x, id=TRUE)))
 expect_identical(regions(sx), regions(x))
@@ -392,8 +393,13 @@ temp.sx2 <- sx
 anchors(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
 expect_identical(temp.sx2, temp.sx)
 
+# Testing reverse strictness.
+
 rsx <- GInteractions(all.anchor1, all.anchor2, all.regions, mode="reverse")
 expect_that(rsx, is_a("ReverseStrictGInteractions"))
+expect_identical(rsx, as(x, "ReverseStrictGInteractions"))
+expect_identical(rsx, as(sx, "ReverseStrictGInteractions"))
+expect_identical(sx, as(rsx, "StrictGInteractions"))
 expect_identical(anchors(rsx, id=TRUE, type="first"), do.call(pmax, anchors(x, id=TRUE)))
 expect_identical(anchors(rsx, id=TRUE, type="second"), do.call(pmin, anchors(x, id=TRUE)))
 expect_identical(regions(rsx), regions(x))
@@ -417,6 +423,9 @@ temp.rsx2 <- rsx
 anchors(temp.rsx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
 expect_identical(temp.rsx2, temp.rsx)
 
-expect_error(c(sx, rsx), "'anchor1' cannot be greater than 'anchor2'")
-expect_error(c(rsx, sx), "'anchor1' cannot be less than 'anchor2'")
+# Testing r'binding of objects of different strictness.
+
+expect_identical(c(rsx, sx, x), as(c(x, x, x), "ReverseStrictGInteractions"))
+expect_identical(c(x, sx, rsx), as(c(x, swapAnchors(x), swapAnchors(x, mode="reverse")), "GInteractions"))
+expect_identical(c(sx, rsx, x), as(c(x, x, x), "StrictGInteractions"))
 
