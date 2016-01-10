@@ -91,8 +91,11 @@ However, note that the value of \code{regions} will not be modified by subsettin
 These methods will check whether the \code{regions} slot of all supplied objects are the same, in which case the regions and anchor indices are used directly.
 Otherwise, a new GRanges is constructed containing the (sorted) union of all \code{regions} across the input objects.
 Anchor indices in each object are refactored appropriately to refer to the relevant entries in this new object.
-Note that the column names in \code{mcols} must be identical across all supplied objects.
+
+Note that the column names in \code{mcols} must be identical across all supplied objects in \code{rbind} and \code{c}.
 The column names of \code{mcols} for the \code{regions} slot must also be identical across objects.
+If GInteractions objects of different strictness (i.e., StrictGInteractions and ReverseGInteractions) are concatenated,
+    the returned object will be of the same class as the first supplied object.
 
 \code{split} produces a list of GInteractions objects, where each entry of the list corresponds to a level of \code{f}.
 Each GInteractions object contains all rows associated with the corresponding level of \code{f}. 

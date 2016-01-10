@@ -279,8 +279,12 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
         ans@NAMES <- unlist(all.names)
     }
 
-    # Throw errors upon rbinding objects of different strictness.
-    validObject(ans)
+    # Coerce to the same strictness, if different inputs were supplied.
+    if (is(ans, "StrictGInteractions")) { 
+        ans <- swapAnchors(ans, mode="order")
+    } else if (is(ans, "ReverseStrictGInteractions")) { 
+        ans <- swapAnchors(ans, mode="reverse")
+    }
     return(ans)
 })
 
