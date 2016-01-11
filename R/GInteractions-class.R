@@ -71,7 +71,7 @@ setMethod("show", "GInteractions", function(object){
     showGInteractions(object, margin="  ", print.seqinfo=TRUE)
 })
 
-showGInteractions = function(x, margin="", print.seqinfo=FALSE) {
+showGInteractions <- function(x, margin="", print.seqinfo=FALSE) {
     lx <- length(x)
     nr <- length(x@regions)
     nc <- ncol(mcols(x))
@@ -80,23 +80,23 @@ showGInteractions = function(x, margin="", print.seqinfo=FALSE) {
         nr, " ", ifelse(lx == 1L, "region", "regions"), " and ",
         nc, " metadata ", ifelse(nc == 1L, "column", "columns"),
         ":\n", sep="")
-    out = S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromGInteractions)
-    if (nrow(out) != 0L)
-        rownames(out) = paste0(margin, rownames(out))
+    out <- S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromGInteractions)
+    if (nrow(out) != 0L) {
+        rownames(out) <- paste0(margin, rownames(out))
+    }
     print(out, quote=FALSE, right=TRUE, max=length(out))
     if (print.seqinfo) {
-        cat(margin, "-------\n")
+        cat(margin, "-------\n", sep="")
         cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
     }
 }
 
-.makeNakedMatFromGInteractions = function(x) {
+.makeNakedMatFromGInteractions <- function(x) {
     lx <- length(x)
     nc <- ncol(mcols(x))
-    anchors_list = anchors(x)
-    ans <- cbind("Anchor One"=.pasteAnchor(anchors_list$first),
+    ans <- cbind(.pasteAnchor(anchors(x, type="first"), append="1"),
                  "   "=rep.int("---", lx),
-                 "Anchor Two"=.pasteAnchor(anchors_list$second))
+                 .pasteAnchor(anchors(x, type="second"), append="2"))
     if (nc > 0L) {
         tmp <- do.call(data.frame, c(lapply(mcols(x), showAsCell), list(check.names=FALSE)))
         ans <- cbind(ans, `|`=rep.int("|", lx), as.matrix(tmp))
@@ -104,8 +104,10 @@ showGInteractions = function(x, margin="", print.seqinfo=FALSE) {
     ans
 }
 
-.pasteAnchor = function(x) {
-    paste(paste(seqnames(x), start(x), sep=":"), end(x), sep="..")
+.pasteAnchor <- function(x, append) {
+    out <- cbind(as.character(seqnames(x)), showAsCell(ranges(x)))
+    colnames(out) <- paste0(c("seqnames", "ranges"), append)
+    out
 }
 
 ###############################################################
