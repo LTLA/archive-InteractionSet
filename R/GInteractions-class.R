@@ -67,25 +67,48 @@ scat <- function(fmt, vals=character(), exdent=2, ...) {
     cat(strwrap(txt, exdent=exdent, ...), sep="\n")
 }
 
-setMethod("show", signature("GInteractions"), function(object) {
-    cat("class:", class(object), "\n")
-    cat("length:", length(object@anchor1), "\n")
-
-    my.names <- object@NAMES
-    if (!is.null(my.names)) scat("names(%d): %s\n", my.names)
-    else scat("names: NULL\n")
-    
-    expt <- names(metadata(object))
-    if (is.null(expt))
-        expt <- character(length(metadata(object)))
-    scat("metadata(%d): %s\n", expt)
-
-    mcolnames <- names(mcols(object))
-    fmt <- "metadata column names(%d): %s\n"
-    scat(fmt, mcolnames)
-    
-    cat("regions:", length(object@regions), "\n")
+setMethod("show", "GInteractions", function(object){
+    showGInteractions(object, margin="  ", print.seqinfo=TRUE)
 })
+
+showGInteractions <- function(x, margin="", print.seqinfo=FALSE) {
+    lx <- length(x)
+    nr <- length(x@regions)
+    nc <- ncol(mcols(x))
+    cat(class(x), " object with ",
+        lx, " ", ifelse(lx == 1L, "interaction", "interactions"), " between ",
+        nr, " ", ifelse(lx == 1L, "region", "regions"), " and ",
+        nc, " metadata ", ifelse(nc == 1L, "column", "columns"),
+        ":\n", sep="")
+    out <- S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromGInteractions)
+    if (nrow(out) != 0L) {
+        rownames(out) <- paste0(margin, rownames(out))
+    }
+    print(out, quote=FALSE, right=TRUE, max=length(out))
+    if (print.seqinfo) {
+        cat(margin, "-------\n", sep="")
+        cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
+    }
+}
+
+.makeNakedMatFromGInteractions <- function(x) {
+    lx <- length(x)
+    nc <- ncol(mcols(x))
+    ans <- cbind(.pasteAnchor(anchors(x, type="first"), append="1"),
+                 "   "=rep.int("---", lx),
+                 .pasteAnchor(anchors(x, type="second"), append="2"))
+    if (nc > 0L) {
+        tmp <- do.call(data.frame, c(lapply(mcols(x), showAsCell), list(check.names=FALSE)))
+        ans <- cbind(ans, `|`=rep.int("|", lx), as.matrix(tmp))
+    }
+    ans
+}
+
+.pasteAnchor <- function(x, append) {
+    out <- cbind(as.character(seqnames(x)), showAsCell(ranges(x)))
+    colnames(out) <- paste0(c("seqnames", "ranges"), append)
+    out
+}
 
 ###############################################################
 # Ordered equivalents, where swap state is enforced.
