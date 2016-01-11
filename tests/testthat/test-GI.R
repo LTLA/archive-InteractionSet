@@ -11,13 +11,21 @@ all.anchor1 <- sample(N, Np)
 all.anchor2 <- sample(N, Np)
 x <- GInteractions(all.anchor1, all.anchor2, all.regions)
 
-expect_output(show(x), "class: GInteractions 
-length: 20 
-names: NULL
-metadata(0):
-metadata column names(0):
-regions: 30", 
-fixed=TRUE)
+expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
+       seqnames1   ranges1     seqnames2   ranges2
+   [1]      chrA [82, 100] ---      chrB [67,  84]
+   [2]      chrA [76,  95] ---      chrB [64,  78]
+   [3]      chrA [87, 104] ---      chrA [ 3,  23]
+   [4]      chrB [67,  84] ---      chrA [41,  59]
+   [5]      chrA [14,  19] ---      chrA [87, 104]
+   ...       ...       ... ...       ...       ...
+  [16]      chrA [59,  72] ---      chrA [68,  78]
+  [17]      chrA [84, 103] ---      chrB [94, 113]
+  [18]      chrB [89,  97] ---      chrA [20,  33]
+  [19]      chrA [41,  59] ---      chrA [84, 103]
+  [20]      chrA [86, 105] ---      chrA [76,  95]
+  -------
+  seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 
 # Testing all of our new slots:
 
@@ -134,6 +142,21 @@ new.score <- runif(Np)
 x$stuff <- new.score
 expect_identical(x$stuff, mcols(x)$stuff)
 expect_identical(colnames(mcols(x)), "stuff")
+expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 1 metadata column:
+       seqnames1   ranges1     seqnames2   ranges2   |              stuff
+   [1]      chrA [82, 100] ---      chrB [67,  84]   |  0.685012309812009
+   [2]      chrA [76,  95] ---      chrB [64,  78]   |  0.895816484699026
+   [3]      chrA [87, 104] ---      chrA [ 3,  23]   |  0.618890272220597
+   [4]      chrB [67,  84] ---      chrA [41,  59]   | 0.0507488863077015
+   [5]      chrA [14,  19] ---      chrA [87, 104]   |  0.621526781003922
+   ...       ...       ... ...       ...       ... ...                ...
+  [16]      chrA [59,  72] ---      chrA [68,  78]   |  0.727361923549324
+  [17]      chrA [84, 103] ---      chrB [94, 113]   |  0.402884092880413
+  [18]      chrB [89,  97] ---      chrA [20,  33]   |  0.906575692584738
+  [19]      chrA [41,  59] ---      chrA [84, 103]   |  0.582026617834345
+  [20]      chrA [86, 105] ---      chrA [76,  95]   |  0.863604818237945
+  -------
+  seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 x$stuff <- NULL
 
 new.si <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
@@ -145,13 +168,20 @@ expect_identical(seqinfo(new.x), new.si)
 
 rchosen <- 1:10
 xsub <- x[rchosen,]
-expect_output(show(xsub), "class: GInteractions 
-length: 10 
-names: NULL
-metadata(0):
-metadata column names(0):
-regions: 30", 
-fixed=TRUE)
+expect_output(show(xsub), "GInteractions object with 10 interactions between 30 regions and 0 metadata columns:
+       seqnames1   ranges1     seqnames2   ranges2
+   [1]      chrA [82, 100] ---      chrB [67,  84]
+   [2]      chrA [76,  95] ---      chrB [64,  78]
+   [3]      chrA [87, 104] ---      chrA [ 3,  23]
+   [4]      chrB [67,  84] ---      chrA [41,  59]
+   [5]      chrA [14,  19] ---      chrA [87, 104]
+   [6]      chrB [42,  54] ---      chrB [91,  98]
+   [7]      chrB [64,  78] ---      chrA [55,  68]
+   [8]      chrA [ 3,  23] ---      chrB [81,  98]
+   [9]      chrA [61,  67] ---      chrA [46,  66]
+  [10]      chrA [41,  49] ---      chrA [59,  72]
+  -------
+  seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 expect_identical(xsub, x[rchosen])
 
 log.chosen <- logical(length(x))
@@ -345,13 +375,21 @@ expect_identical(mcols(temp.x), mcols(temp.x2))
 temp.x <- x
 ref.names <- paste0("X", seq_along(temp.x))
 names(temp.x) <- ref.names
-expect_output(show(temp.x), "class: GInteractions 
-length: 20 
-names(20): X1 X2 ... X19 X20
-metadata(0):
-metadata column names(0):
-regions: 30", 
-fixed=TRUE)
+expect_output(show(temp.x), "GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
+      seqnames1   ranges1     seqnames2   ranges2
+   X1      chrA [82, 100] ---      chrB [67,  84]
+   X2      chrA [76,  95] ---      chrB [64,  78]
+   X3      chrA [87, 104] ---      chrA [ 3,  23]
+   X4      chrB [67,  84] ---      chrA [41,  59]
+   X5      chrA [14,  19] ---      chrA [87, 104]
+  ...       ...       ... ...       ...       ...
+  X16      chrA [59,  72] ---      chrA [68,  78]
+  X17      chrA [84, 103] ---      chrB [94, 113]
+  X18      chrB [89,  97] ---      chrA [20,  33]
+  X19      chrA [41,  59] ---      chrA [84, 103]
+  X20      chrA [86, 105] ---      chrA [76,  95]
+  -------
+  seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 
 expect_identical(names(temp.x), ref.names)
 expect_identical(names(temp.x[2:5]), ref.names[2:5])
