@@ -21,7 +21,7 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 
 \S4method{GInteractions}{GRanges,GRanges,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal", ...)
 
-\S4method{GInteractions}{missing,missing,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal")
+\S4method{GInteractions}{missing,missing,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal", ...)
 }
 
 \arguments{
