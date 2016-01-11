@@ -17,9 +17,9 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 }
 
 \usage{
-\S4method{GInteractions}{numeric,numeric,GRanges}(anchor1, anchor2, regions, metadata=list(), mode="normal")
+\S4method{GInteractions}{numeric,numeric,GRanges}(anchor1, anchor2, regions, metadata=list(), mode="normal", ...)
 
-\S4method{GInteractions}{GRanges,GRanges,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal")
+\S4method{GInteractions}{GRanges,GRanges,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal", ...)
 
 \S4method{GInteractions}{missing,missing,GenomicRangesORmissing}(anchor1, anchor2, regions, metadata=list(), mode="normal")
 }
@@ -41,6 +41,10 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 
 \item{mode}{
     A string indicating what type of GInteractions object should be constructed.
+}
+
+\item{...}{
+    Optional metadata columns.
 }
 }
 

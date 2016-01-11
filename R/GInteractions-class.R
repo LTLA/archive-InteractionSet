@@ -206,8 +206,14 @@ setValidity2("ReverseStrictGInteractions", function(object) {
 
 setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) { standardGeneric("GInteractions") })
 setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
-    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
-        .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
+        out <- .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
+        extraCols <- DataFrame(...)
+        if (ncol(extraCols) == 0L) {
+            extraCols <- new("DataFrame", nrows = length(anchor1))
+        }
+        mcols(out) <- extraCols
+        out
 })
 
 .collate_GRanges <- function(...) {
@@ -231,8 +237,8 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
     return(list(indices=split(refdex, obj.dex), ranges=combined))
 }
 
-setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"), 
-    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
+setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
         # Stripping metadata and putting it somewhere else.
         mcol1 <- mcols(anchor1)
         mcols(anchor1) <- NULL
@@ -240,7 +246,11 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
         mcol2 <- mcols(anchor2)
         mcols(anchor2) <- NULL
         colnames(mcol2) <- sprintf("anchor2.%s", colnames(mcol2))
-
+        # Additional Interaction-specific metadata
+        extraCols <- DataFrame(...)
+        if (ncol(extraCols) == 0L) {
+            extraCols <- new("DataFrame", nrows = length(anchor1))
+        } 
         if (missing(regions)) {
             # Making unique regions to save space (metadata is ignored)
             collated <- .collate_GRanges(anchor1, anchor2)
@@ -254,10 +264,10 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
                 stop("anchor regions missing in specified 'regions'")
             }
         }
-
         out <- .new_GInteractions(anchor1=anchor1, anchor2=anchor2, 
-            regions=regions, metadata=metadata, mode=mode)
-        mcols(out) <- DataFrame(mcol1, mcol2)
+                                  regions=regions, metadata=metadata, mode=mode)
+        mcols(out) <- DataFrame(extraCols)
+        mcols(out) <- cbind(mcols(out), mcol1, mcol2)
         out
    }
 )
