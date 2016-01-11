@@ -68,10 +68,10 @@ scat <- function(fmt, vals=character(), exdent=2, ...) {
 }
 
 setMethod("show", "GInteractions", function(object){
-    showGInteractions(object, margin="  ", print.seqinfo=TRUE)
+    showGInteractions(object, margin="  ", print.seqinfo=TRUE, print.classinfo=TRUE)
 })
 
-showGInteractions <- function(x, margin="", print.seqinfo=FALSE) {
+showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo=FALSE) {
     lx <- length(x)
     nr <- length(x@regions)
     nc <- ncol(mcols(x))
@@ -81,6 +81,18 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE) {
         nc, " metadata ", ifelse(nc == 1L, "column", "columns"),
         ":\n", sep="")
     out <- S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromGInteractions)
+   
+    # Ripped from GenomicRanges:::showGenomicRanges (with some mods).
+    if (print.classinfo) { 
+        .COL2CLASS <- c(seqnames1 = "Rle", ranges1 = "IRanges", "   "="", seqnames2="Rle", ranges2="IRanges")
+        extraColumnNames <- GenomicRanges:::extraColumnSlotNames(x)
+        .COL2CLASS <- c(.COL2CLASS, getSlots(class(x))[extraColumnNames])
+        classinfo <- S4Vectors:::makeClassinfoRowForCompactPrinting(x, .COL2CLASS)
+        classinfo[,"   "] <- ""
+        stopifnot(identical(colnames(classinfo), colnames(out)))
+        out <- rbind(classinfo, out)
+    }
+
     if (nrow(out) != 0L) {
         rownames(out) <- paste0(margin, rownames(out))
     }

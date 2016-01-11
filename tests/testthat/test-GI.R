@@ -13,6 +13,7 @@ x <- GInteractions(all.anchor1, all.anchor2, all.regions)
 
 expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
        seqnames1   ranges1     seqnames2   ranges2
+           <Rle> <IRanges>         <Rle> <IRanges>
    [1]      chrA [82, 100] ---      chrB [67,  84]
    [2]      chrA [76,  95] ---      chrB [64,  78]
    [3]      chrA [87, 104] ---      chrA [ 3,  23]
@@ -144,6 +145,7 @@ expect_identical(x$stuff, mcols(x)$stuff)
 expect_identical(colnames(mcols(x)), "stuff")
 expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 1 metadata column:
        seqnames1   ranges1     seqnames2   ranges2   |              stuff
+           <Rle> <IRanges>         <Rle> <IRanges>   |          <numeric>
    [1]      chrA [82, 100] ---      chrB [67,  84]   |  0.685012309812009
    [2]      chrA [76,  95] ---      chrB [64,  78]   |  0.895816484699026
    [3]      chrA [87, 104] ---      chrA [ 3,  23]   |  0.618890272220597
@@ -170,6 +172,7 @@ rchosen <- 1:10
 xsub <- x[rchosen,]
 expect_output(show(xsub), "GInteractions object with 10 interactions between 30 regions and 0 metadata columns:
        seqnames1   ranges1     seqnames2   ranges2
+           <Rle> <IRanges>         <Rle> <IRanges>
    [1]      chrA [82, 100] ---      chrB [67,  84]
    [2]      chrA [76,  95] ---      chrB [64,  78]
    [3]      chrA [87, 104] ---      chrA [ 3,  23]
@@ -375,8 +378,9 @@ expect_identical(mcols(temp.x), mcols(temp.x2))
 temp.x <- x
 ref.names <- paste0("X", seq_along(temp.x))
 names(temp.x) <- ref.names
-expect_output(show(temp.x), "GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
+expect_output(show(temp.x),"GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
       seqnames1   ranges1     seqnames2   ranges2
+          <Rle> <IRanges>         <Rle> <IRanges>
    X1      chrA [82, 100] ---      chrB [67,  84]
    X2      chrA [76,  95] ---      chrB [64,  78]
    X3      chrA [87, 104] ---      chrA [ 3,  23]
