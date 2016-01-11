@@ -92,6 +92,39 @@ expect_error(GInteractions(c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "
 missing.value <- GRanges("chrB", IRanges(1000,1000))
 expect_error(GInteractions(missing.value, missing.value, all.regions), "anchor regions missing in specified 'regions'")
 
+# Testing metadata inclusion:
+
+m.x <- GInteractions(all.anchor1, all.anchor2, all.regions, score=1L)
+expect_identical(m.x$score, rep(1L, length(m.x)))
+m.x <- GInteractions(all.anchor1, all.anchor2, all.regions, score=seq_along(all.anchor1))
+expect_identical(m.x$score, seq_along(m.x))
+
+m.x <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], all.regions, score=1L)
+expect_identical(m.x$score, rep(1L, length(m.x)))
+m.x <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], all.regions, score=seq_along(all.anchor1))
+expect_identical(m.x$score, seq_along(m.x))
+
+m.x <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], score=1L)
+expect_identical(m.x$score, rep(1L, length(m.x)))
+m.x <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2], score=seq_along(all.anchor1))
+expect_identical(m.x$score, seq_along(m.x))
+
+m.regions <- all.regions
+m.regions$GC <- rev(seq_along(m.regions))
+m.x <- GInteractions(m.regions[all.anchor1], m.regions[all.anchor2], score=seq_along(all.anchor1))
+expect_identical(m.x$score, seq_along(m.x))
+expect_identical(m.x$anchor1.GC, m.regions$GC[all.anchor1])
+expect_identical(m.x$anchor2.GC, m.regions$GC[all.anchor2])
+
+m.x <- GInteractions(integer(0), integer(0), all.regions, score=1)
+expect_identical(m.x$score, numeric(0))
+m.x <- GInteractions(regions=all.regions, score=numeric(0))
+expect_identical(m.x$score, numeric(0))
+m.x <- GInteractions(regions=all.regions, score=1)
+expect_identical(m.x$score, numeric(0))
+m.x <- GInteractions(regions=all.regions, score=1:2)
+expect_identical(m.x$score, integer(0))
+
 # Testing setters.
 
 set.seed(7001)

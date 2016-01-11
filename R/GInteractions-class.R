@@ -273,9 +273,11 @@ setMethod("GInteractions", c("GRanges", "GRanges", "GenomicRangesORmissing"),
 )
 
 setMethod("GInteractions", c("missing", "missing", "GenomicRangesORmissing"),
-    function(anchor1, anchor2, regions, metadata=list(), mode="normal") {
+    function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
         if (missing(regions)) { regions <- GRanges() }
-        .new_GInteractions(integer(0), integer(0), regions, metadata, mode=mode)
+        out <- .new_GInteractions(integer(0), integer(0), regions, metadata, mode=mode)
+        mcols(out) <- DataFrame(...)[integer(0),,drop=FALSE]
+        out
 })
 
 ###############################################################
