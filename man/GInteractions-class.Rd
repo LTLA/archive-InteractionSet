@@ -118,7 +118,7 @@ rsgi <- GInteractions(all.regions[all.anchor1], all.regions[all.anchor2],
 
 \author{
 Aaron Lun,
-based on suggestions from Malcolm Perry and Liz Ing-Simmons.
+with contributions from Malcolm Perry and Liz Ing-Simmons.
 }
 
 \seealso{
