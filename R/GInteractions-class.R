@@ -371,9 +371,11 @@ setMethod("as.data.frame", "GInteractions", function (x, row.names=NULL, optiona
 
     regs.dframe <- as.data.frame(regions(x)[used], optional=optional, ...)
     a1.dframe <- regs.dframe[new.index[all1],]
+    colnames(a1.dframe) <- paste0(colnames(a1.dframe), "1")
     a2.dframe <- regs.dframe[new.index[all2],]
+    colnames(a2.dframe) <- paste0(colnames(a2.dframe), "2")
     if (missing(row.names)) { row.names <- names(x) }
-    data.frame(anchor1=a1.dframe, anchor2=a2.dframe, mcols(x), row.names=row.names, ...)
+    data.frame(a1.dframe, a2.dframe, mcols(x), row.names=row.names)
 })
 
 ###############################################################

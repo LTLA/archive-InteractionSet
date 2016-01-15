@@ -373,15 +373,20 @@ for (i in seq_along(flen)) {
 # Testing data.frame generation.
 
 out <- as.data.frame(x)
-expect_identical(out, data.frame(anchor1=as.data.frame(anchors(x, type="first")),
-                                 anchor2=as.data.frame(anchors(x, type="second"))))
+ref1 <- as.data.frame(anchors(x, type="first"))
+colnames(ref1) <- paste0(colnames(ref1), "1")
+ref2 <- as.data.frame(anchors(x, type="second"))
+colnames(ref2) <- paste0(colnames(ref2), "2")
+expect_identical(out, data.frame(ref1, ref2))
 
 temp.x <- x
 temp.x$stuff <- new.score
 out <- as.data.frame(temp.x)
-expect_identical(out, data.frame(anchor1=as.data.frame(anchors(temp.x, type="first")),
-                                 anchor2=as.data.frame(anchors(temp.x, type="second")),
-                                 stuff=new.score))
+expect_identical(out, data.frame(ref1, ref2, stuff=new.score))
+
+names(temp.x) <- paste0("X", seq_along(temp.x))
+out <- as.data.frame(temp.x)
+expect_identical(out, data.frame(ref1, ref2, stuff=new.score, row.names=names(temp.x)))
 
 empty <- as.data.frame(x[0,])
 expect_identical(colnames(empty), colnames(as.data.frame(x)))
