@@ -2,7 +2,7 @@
 # to link any two sets of regions together; to figure out which ones are
 # linked, and to identify the interactions linking them.
 
-.linkOverlap <- function(query, subject1, subject2, ...) {
+.linkOverlap <- function(query, subject1, subject2, ..., use.region="both") {
     a1 <- anchors(query, id=TRUE, type="first")
     a2 <- anchors(query, id=TRUE, type="second")
     nregs <- length(regions(query))
@@ -25,7 +25,7 @@
     out <- .Call(cxx_expand_pair_links, a1 - 1L, a2 - 1L, 
                  bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, nregs1,
                  bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L, nregs2,
-                 is.same)
+                 is.same, .decode_region_mode(use.region, c("both", "same", "reverse")))
     if (is.character(out)) { stop(out) }
     return(data.frame(query=out[[1]]+1L, subject1=out[[2]]+1L, subject2=out[[3]]+1L))    
 }
