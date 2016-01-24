@@ -32,16 +32,21 @@ for (cls in 1:2) {
         obj <- InteractionSet(matrix(0, Np, 4, dimnames=list(NULL, seq_len(4))), x)
     }
     
-    for (param in seq_len(4)) {
+    for (param in seq_len(6)) {
         type <- "any"
         maxgap <- 0L
         minoverlap <- 1L
+        use.region <- "both"
         if (param==2L) { 
             maxgap <- 10L
         } else if (param==3L) {
             minoverlap <- 10L
         } else if (param==4L) {
             type <- "within"
+        } else if (param==5L) {
+            use.region <- "same"
+        } else if (param==6L) {
+            use.region <- "reverse"
         }
 
         # Getting the reference results by doing it manually via 'merge'.
@@ -50,7 +55,15 @@ for (cls in 1:2) {
         olap1.e <- findOverlaps(anchors(obj, type="first"), enh.regions, maxgap=maxgap, minoverlap=minoverlap, type=type)
         olap2.e <- findOverlaps(anchors(obj, type="second"), enh.regions, maxgap=maxgap, minoverlap=minoverlap, type=type)
 
-        combo <- rbind(merge(olap1.g, olap2.e, by.x=1, by.y=1), merge(olap2.g, olap1.e, by.x=1, by.y=1))
+        combo1 <- merge(olap1.g, olap2.e, by.x=1, by.y=1)
+        combo2 <- merge(olap2.g, olap1.e, by.x=1, by.y=1)
+        if (use.region=="both") { 
+            combo <- rbind(combo1, combo2)
+        } else if (use.region=="same") {
+            combo <- combo1
+        } else {
+            combo <- combo2
+        }
         colnames(combo) <- c("query", "subject1", "subject2")
         is.dup <- duplicated(paste0(combo$query, ".", combo$subject1, ".", combo$subject2))
         combo <- combo[!is.dup,]
@@ -58,23 +71,23 @@ for (cls in 1:2) {
         combo <- combo[o,]
         rownames(combo) <- NULL
 
-        expect_identical(combo, linkOverlaps(obj, gene.regions, enh.regions, type=type, maxgap=maxgap, minoverlap=minoverlap))
+        expect_identical(combo, linkOverlaps(obj, gene.regions, enh.regions, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region))
 
         # Testing against self-interactions.
-        combo2 <- merge(olap1.g, olap2.g, by.x=1, by.y=1)
-        colnames(combo2) <- c("query", "subject1", "subject2")
-        new.s1 <- pmax(combo2$subject1, combo2$subject2)
-        new.s2 <- pmin(combo2$subject1, combo2$subject2)
-        combo2$subject1 <- new.s1
-        combo2$subject2 <- new.s2
+        combo.S <- merge(olap1.g, olap2.g, by.x=1, by.y=1)
+        colnames(combo.S) <- c("query", "subject1", "subject2")
+        new.s1 <- pmax(combo.S$subject1, combo.S$subject2)
+        new.s2 <- pmin(combo.S$subject1, combo.S$subject2)
+        combo.S$subject1 <- new.s1
+        combo.S$subject2 <- new.s2
 
-        is.dup <- duplicated(paste0(combo2$query, ".", combo2$subject1, ".", combo2$subject2)) | is.na(combo2$query)
-        combo2 <- combo2[!is.dup,]
-        o <- order(combo2$query, combo2$subject1, combo2$subject2)
-        combo2 <- combo2[o,]
-        rownames(combo2) <- NULL
+        is.dup <- duplicated(paste0(combo.S$query, ".", combo.S$subject1, ".", combo.S$subject2)) | is.na(combo.S$query)
+        combo.S <- combo.S[!is.dup,]
+        o <- order(combo.S$query, combo.S$subject1, combo.S$subject2)
+        combo.S <- combo.S[o,]
+        rownames(combo.S) <- NULL
 
-        expect_identical(combo2, linkOverlaps(obj, gene.regions, type=type, maxgap=maxgap, minoverlap=minoverlap))
+        expect_identical(combo.S, linkOverlaps(obj, gene.regions, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region))
     }
 
     # Testing against empty slots.
