@@ -33,7 +33,7 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 
     If it is a character vector, it is assumed to contain the names of the reference sequences of interest (i.e., chromosome names).
 
-    If it is a GRanges object, \code{\link[GenomicRanges]{overlapsAny}} will be called to identify the overlapping intervals of the \code{regions} slot.
+    If it is a GRanges object, \code{\link{overlapsAny}} will be called to identify the overlapping intervals of the \code{regions} slot.
 }
 
 \item{assay}{
@@ -66,7 +66,7 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 }
 
 \item{...}{
-    For \code{inflate}, additional arguments to pass to \code{\link[GenomicRanges]{overlapsAny}} when \code{rows} or \code{columns} is a GRanges.
+    For \code{inflate}, additional arguments to pass to \code{\link{overlapsAny}} when \code{rows} or \code{columns} is a GRanges.
 
     For \code{deflate}, additional arguments to pass to the InteractionSet constructor.
 }

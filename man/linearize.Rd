@@ -25,7 +25,7 @@ Convert interactions in two-dimensional space to one-dimensional ranges on the l
 }
 
 \item{...}{
-    Other arguments, passed to \code{\link[GenomicRanges]{overlapsAny}} in \code{linearize,InteractionSet,GRanges-method}.
+    Other arguments, passed to \code{\link{overlapsAny}} in \code{linearize,InteractionSet,GRanges-method}.
 }
 }
 
