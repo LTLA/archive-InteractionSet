@@ -24,6 +24,21 @@ void check_indices (const int* qsptr, const int* qeptr, const int Nq, const int*
     return;
 }
 
+void set_mode_values (SEXP use_both, int& start, int& end) {
+    if (!isInteger(use_both) || LENGTH(use_both)!=1) { throw std::runtime_error("'use_both' specifier should be an integer scalar"); }
+    switch (asInteger(use_both)) {
+        case 1:
+            start=0; end=2; break;
+        case 2:
+            start=0; end=1; break;
+        case 3:
+            start=1; end=2; break;
+        default:
+            throw std::runtime_error("invalid specification for 'use_both'");
+    }
+    return;
+}  
+
 /* Useful classes to get different outputs from the same code. */
 
 class output_store {
@@ -139,7 +154,7 @@ private:
 
 /* Base function, to detect all overlaps between linear ranges and either interacting loci in a pair */
 
-void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) {
+void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both) {
     if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
     const int Npairs = LENGTH(anchor1);
     if (Npairs != LENGTH(anchor2)) { throw std::runtime_error("anchor vectors must be of equal length"); } 
@@ -155,7 +170,10 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
     const int *sjptr=INTEGER(subject);
     if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
     const int Ns_all = asInteger(nsubjects);
-   
+
+    int true_mode_start, true_mode_end;
+    set_mode_values(use_both, true_mode_start, true_mode_end);
+
     // Checking indices. 
     check_indices(qsptr, qeptr, Nq, sjptr, Ns, Ns_all);
 
@@ -164,15 +182,16 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
     int* latest_pair=(int*)R_alloc(Ns_all, sizeof(int));
     for (int checkdex=0; checkdex < Ns_all; ++checkdex) { latest_pair[checkdex] = -1; }
 
-    int curpair=0, mode=0, curq=0, curindex=0, curs=0;
+    int curpair=0, mode=0, maxmode, curq=0, curindex=0, curs=0;
     for (curpair=0; curpair<Npairs; ++curpair) {
+        maxmode=(a1ptr[curpair]==a2ptr[curpair] ? true_mode_start+1 : true_mode_end); // just check one or the other, if they're the same.
 
-        for (mode=0; mode<2;  ++mode) { 
+        for (mode=true_mode_start; mode<maxmode; ++mode) { 
             if (mode == 0) {
                 curq = a1ptr[curpair];
-            } else if (curq != a2ptr[curpair]) {
+            } else {
                 curq = a2ptr[curpair];
-            } else { break; }
+            }
 
             if (curq >= Nq || curq < 0 || curq==NA_INTEGER) { throw std::runtime_error("region index out of bounds"); }
             for (curindex=qsptr[curq]; curindex<qeptr[curq]; ++curindex) {
@@ -193,7 +212,7 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
 /* Base function, to detect all overlaps between paired ranges and both interacting loci in a pair */
 
 void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects) {
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) {
 
     if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
     const int Npairs = LENGTH(anchor1);
@@ -219,7 +238,10 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
 
     if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
     const int Ns_all = asInteger(nsubjects);
-   
+  
+    int true_mode_start, true_mode_end;
+    set_mode_values(use_both, true_mode_start, true_mode_end);
+ 
     // Check indices.
     check_indices(qsptr1, qeptr1, Nq, sjptr1, Ns1, Ns_all);
     check_indices(qsptr2, qeptr2, Nq, sjptr2, Ns2, Ns_all);
@@ -239,13 +261,13 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
     int * latest_pair;
     bool * is_stored;
     for (curpair=0; curpair<Npairs; ++curpair) {
-        maxmode = (a1ptr[curpair] == a2ptr[curpair] ? 1 : 2);
+        maxmode = (a1ptr[curpair] == a2ptr[curpair] ? true_mode_start+1 : true_mode_end);
 
         /* Checking whether the first and second anchor overlaps anything in the opposing query sets.
          * Doing this twice; first and second anchors to the first and second query sets (A), then
          * the first and second anchors to the second and first query sets (B).
          */
-        for (mode=0; mode<maxmode; ++mode) { 
+        for (mode=true_mode_start; mode<maxmode; ++mode) { 
             if (mode==0) { 
                 curq1 = a1ptr[curpair];
                 curq2 = a2ptr[curpair];
@@ -289,55 +311,55 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
 
 /* Functions based on derived classes. */
 
-SEXP expand_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+SEXP expand_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both) try {
     expanded_overlap x;
-    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) {
     return mkString(e.what());
 }
 
-SEXP queryhit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+SEXP queryhit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both) try {
     query_overlap x;
-    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) {
     return mkString(e.what());
 }
 
-SEXP subjecthit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects) try {
+SEXP subjecthit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both) try {
     subject_overlap x;
-    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects);
+    detect_olaps(&x, anchor1, anchor2, querystarts, queryends, subject, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) {
     return mkString(e.what());
 }
 
 SEXP expand_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects) try {
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
     expanded_overlap x;
     detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects);
+            querystarts2, queryends2, subject2, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());
 }
 
 SEXP queryhit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects) try {
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
     query_overlap x;
     detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects);
+            querystarts2, queryends2, subject2, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());
 }
 
 SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects) try {
+        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
     subject_overlap x;
     detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects);
+            querystarts2, queryends2, subject2, nsubjects, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());
