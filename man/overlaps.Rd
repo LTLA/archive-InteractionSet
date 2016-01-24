@@ -78,19 +78,19 @@ Find overlaps between interactions and linear intervals, between interactions an
 \S4method{findOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    ignore.strand=FALSE)
+    ignore.strand=FALSE, use.region="both")
 
 \S4method{overlapsAny}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    ignore.strand=FALSE)
+    ignore.strand=FALSE, use.region="both")
 
 \S4method{countOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    ignore.strand=FALSE)
+    ignore.strand=FALSE, use.region="both")
 
 \S4method{subsetByOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    ignore.strand=FALSE)
+    ignore.strand=FALSE, use.region="both")
 
 # For brevity, only 'GInteractions,GRanges-methods' are listed. Methods are
 # available for all pairwise combinations of GInteractions, InteractionSet,
@@ -114,11 +114,17 @@ Find overlaps between interactions and linear intervals, between interactions an
 \item{select, ignore.strand}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
+
+\item{use.region}{
+A string specifying the regions to be used to identify overlaps.
 }
 
-\section{Details for GInteractions}{
+}
+
+\section{Overview of overlaps for GInteractions}{
 For all methods taking a GRanges and an GInteractions, 
-    an overlap will be defined between a GRanges interval and an GInteractions interaction if either interacting region of the latter overlaps that interval.
+    an overlap will be defined between a GRanges interval and an GInteractions interaction if either interacting region of the latter overlaps the former interval.
+This is considered to be a one-dimensional overlap, i.e., on the linear genome.
 
 If a GRangesList is supplied, it must be of length 2.
 Corresponding entries in the constituent GRanges objects are treated as pairs of regions (referred to here as target regions, to distinguish them from the interacting regions).
@@ -128,7 +134,9 @@ An overlap is defined between each pair of target regions and an GInteractions i
 Overlaps between two GInteractions objects are computed in a similar manner.
 Interactions from one object are used to define pairs of target regions, which are overlapped with the interactions from the other object in two-dimensional space.
 If \code{subject} is missing, overlaps will be computed between interactions in \code{query}.
+}
 
+\section{Description of overlap methods}{
 When \code{select="all"}, \code{findOverlaps} returns a Hits object containing overlapping pairs of queries and subjects (or more specifically, their indices in the supplied objects 
     - see \code{?\link[GenomicRanges]{findOverlaps}} for more details).
 For other values of \code{select}, an integer vector is returned with one entry for each element of \code{query},
@@ -141,6 +149,17 @@ For the other methods, \code{countOverlaps} returns an integer vector indicating
 For GRangesList queries, the constituent GRanges objects are subsetted rather than the GRangesList itself.
 }
 
+\section{Choice of regions to define overlaps}{
+For one-dimensional overlaps, \code{use.region="both"} by default such that overlaps with either interacting region are considered.
+If \code{use.region="first"}, overlaps are only considered between the interval and the first interacting region.
+Similarly, if \code{use.region="second"}, only the second interaction region is used.
+
+For two-dimensional overlaps, \code{use.region="both"} by default such that the order of first/second interacting/target regions is ignored.
+This means that an overlap will be considered between, e.g., the first interacting region and the second target region.
+If \code{use.region="same"}, overlaps are only considered between the set of first regions for the GInteractions object and the first regions for the target pairs, and similarly for the second regions.
+If \code{use.region="reverse"}, overlaps are only considered between the set of first regions for the GInteractions object and the second regions for the target pairs, and vice versa.
+These options are only useful if the order of first/second regions are informative.
+}
 \section{Details for InteractionSet}{
 The behaviour of each method for InteractionSet objects is largely the same as that described for GInteractions objects.
 For a given InteractionSet object \code{x}, the corresponding method is called on the GInteractions object in the \code{interactions} slot of \code{x}.

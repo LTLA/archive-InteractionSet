@@ -124,7 +124,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
     out <- .Call(cxxfun, a1 - 1L, a2 - 1L, 
                  bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
                  bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
-                 npairs, .decode_region_mode(use.region))
+                 npairs, .decode_region_mode(use.region, c("both", "same", "reverse")))
     if (is.character(out)) { stop(out) }
     return(out)
 }
@@ -202,7 +202,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
     out <- .Call(cxxfun, aq1 - 1L, aq2 - 1L, 
                  bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
                  bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
-                 npairs, .decode_region_mode(use.region))
+                 npairs, .decode_region_mode(use.region, c("both", "same", "reverse")))
     if (is.character(out)) { stop(out) }
     return(out)
 }
@@ -341,9 +341,9 @@ setMethod("overlapsAny", c(query="GRanges", subject="GInteractions"),
         if (out==1L) { 
             subset <- .get_used(subject)
         } else if (out==2L) {
-            subset <- unique(anchors(subject, type="first"))
+            subset <- unique(anchors(subject, type="first", id=TRUE))
         } else { 
-            subset <- unique(anchors(subject, type="second"))
+            subset <- unique(anchors(subject, type="second", id=TRUE))
         }
         overlapsAny(query, regions(subject)[subset], maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand) 
@@ -516,7 +516,6 @@ for (siglist in list(
         function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region='both') {
-    
         # It's possible to do this more efficiently by avoiding instantiation of the full object.
         # But it would require a total re-implementation at the C++ level, which is a pain.
         row.a <- rep(anchors(query, type="row", id=TRUE), ncol(query))
