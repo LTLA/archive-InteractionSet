@@ -14,8 +14,11 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
 \usage{
 \S4method{overlapsAny}{ContactMatrix,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=TRUE)
+
+\S4method{overlapsAny}{ContactMatrix,GRangesList}(query, subject, maxgap=0L, minoverlap=1L,
+    type=c("any", "start", "end", "within", "equal"),
+    ignore.strand=TRUE, use.region="both")
 
 # The same call is used for the methods taking GRangesList, GInteractions and
 # InteractionSet objects as 'subject'. For brevity, these will not be listed.
@@ -30,8 +33,12 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
 }
 
-\item{algorithm, ignore.strand}{
+\item{ignore.strand}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges} package.
+}
+
+\item{use.region}{
+    A string specifying how the interacting regions are to be matched to row/column regions.
 }
 }
 
@@ -46,6 +53,10 @@ For all other classes of \code{subject}, two-dimensional overlaps are identified
 A logical matrix is returned indicating which entries in the ContactMatrix have overlaps with the specified interactions.
 For any given entry, an overlap is only considered if the regions for the corresponding row and column both overlap anchor regions in the \code{subject}.
 See \code{?"\link{findOverlaps,GInteractions,GInteractions-method}"} for more details.
+
+If \code{use.region="both"}, overlaps between any row/column region and the first/second interacting region of \code{subject} are considered.
+If \code{use.region="same"}, only overlaps between row regions and the first interacting regions, or between column regions and the second interacting regions are considered.
+If \code{use.region="reverse"}, only overlaps between row regions and the second interacting regions, or between row regions and the first interacting regions are considered.
 }
 
 \examples{

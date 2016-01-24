@@ -432,14 +432,16 @@ olap <- overlapsAny(x, pairing)
 new.gi <- GInteractions(query.regions1, query.regions2)
 expect_identical(olap, overlapsAny(x, new.gi))
 
+new.iset <- InteractionSet(matrix(runif(10), dimnames=list(NULL, 1)), new.gi)
+expect_identical(olap, overlapsAny(x, new.iset))
+
+# Checking with order enforcement.
+
 olap <- overlapsAny(x, pairing, use.region="same")
 expect_identical(olap, overlapsAny(x, new.gi, use.region="same"))
 
 olap <- overlapsAny(x, pairing, use.region="reverse")
 expect_identical(olap, overlapsAny(x, new.gi, use.region="reverse"))
-
-new.iset <- InteractionSet(matrix(runif(10), dimnames=list(NULL, 1)), new.gi)
-expect_identical(olap, overlapsAny(x, new.iset))
 
 #######################################################
 # End
