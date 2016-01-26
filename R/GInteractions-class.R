@@ -76,8 +76,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
     nr <- length(x@regions)
     nc <- ncol(mcols(x))
     cat(class(x), " object with ",
-        lx, " ", ifelse(lx == 1L, "interaction", "interactions"), " between ",
-        nr, " ", ifelse(lx == 1L, "region", "regions"), " and ",
+        lx, " ", ifelse(lx == 1L, "interaction", "interactions"), " and ",
         nc, " metadata ", ifelse(nc == 1L, "column", "columns"),
         ":\n", sep="")
     out <- S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromGInteractions)
@@ -99,6 +98,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
     print(out, quote=FALSE, right=TRUE, max=length(out))
     if (print.seqinfo) {
         cat(margin, "-------\n", sep="")
+        cat(margin, "regions: ", nr, "\n", sep="")
         cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
     }
 }
