@@ -11,7 +11,7 @@ all.anchor1 <- sample(N, Np)
 all.anchor2 <- sample(N, Np)
 x <- GInteractions(all.anchor1, all.anchor2, all.regions)
 
-expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
+expect_output(show(x), "GInteractions object with 20 interactions and 0 metadata columns:
        seqnames1   ranges1     seqnames2   ranges2
            <Rle> <IRanges>         <Rle> <IRanges>
    [1]      chrA [82, 100] ---      chrB [67,  84]
@@ -26,6 +26,7 @@ expect_output(show(x), "GInteractions object with 20 interactions between 30 reg
   [19]      chrA [41,  59] ---      chrA [84, 103]
   [20]      chrA [86, 105] ---      chrA [76,  95]
   -------
+  regions: 30 ranges and 0 metadata columns
   seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 
 # Testing all of our new slots:
@@ -176,7 +177,7 @@ new.score <- runif(Np)
 x$stuff <- new.score
 expect_identical(x$stuff, mcols(x)$stuff)
 expect_identical(colnames(mcols(x)), "stuff")
-expect_output(show(x), "GInteractions object with 20 interactions between 30 regions and 1 metadata column:
+expect_output(show(x), "GInteractions object with 20 interactions and 1 metadata column:
        seqnames1   ranges1     seqnames2   ranges2   |              stuff
            <Rle> <IRanges>         <Rle> <IRanges>   |          <numeric>
    [1]      chrA [82, 100] ---      chrB [67,  84]   |  0.685012309812009
@@ -191,6 +192,7 @@ expect_output(show(x), "GInteractions object with 20 interactions between 30 reg
   [19]      chrA [41,  59] ---      chrA [84, 103]   |  0.582026617834345
   [20]      chrA [86, 105] ---      chrA [76,  95]   |  0.863604818237945
   -------
+  regions: 30 ranges and 0 metadata columns
   seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 x$stuff <- NULL
 
@@ -203,7 +205,7 @@ expect_identical(seqinfo(new.x), new.si)
 
 rchosen <- 1:10
 xsub <- x[rchosen,]
-expect_output(show(xsub), "GInteractions object with 10 interactions between 30 regions and 0 metadata columns:
+expect_output(show(xsub), "GInteractions object with 10 interactions and 0 metadata columns:
        seqnames1   ranges1     seqnames2   ranges2
            <Rle> <IRanges>         <Rle> <IRanges>
    [1]      chrA [82, 100] ---      chrB [67,  84]
@@ -217,6 +219,7 @@ expect_output(show(xsub), "GInteractions object with 10 interactions between 30 
    [9]      chrA [61,  67] ---      chrA [46,  66]
   [10]      chrA [41,  49] ---      chrA [59,  72]
   -------
+  regions: 30 ranges and 0 metadata columns
   seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 expect_identical(xsub, x[rchosen])
 
@@ -416,7 +419,7 @@ expect_identical(mcols(temp.x), mcols(temp.x2))
 temp.x <- x
 ref.names <- paste0("X", seq_along(temp.x))
 names(temp.x) <- ref.names
-expect_output(show(temp.x),"GInteractions object with 20 interactions between 30 regions and 0 metadata columns:
+expect_output(show(temp.x),"GInteractions object with 20 interactions and 0 metadata columns:
       seqnames1   ranges1     seqnames2   ranges2
           <Rle> <IRanges>         <Rle> <IRanges>
    X1      chrA [82, 100] ---      chrB [67,  84]
@@ -431,6 +434,7 @@ expect_output(show(temp.x),"GInteractions object with 20 interactions between 30
   X19      chrA [41,  59] ---      chrA [84, 103]
   X20      chrA [86, 105] ---      chrA [76,  95]
   -------
+  regions: 30 ranges and 0 metadata columns
   seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
 
 expect_identical(names(temp.x), ref.names)
