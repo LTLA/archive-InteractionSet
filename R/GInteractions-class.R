@@ -99,7 +99,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
     if (print.seqinfo) {
         cat(margin, "-------\n", sep="")
         ncr <- ncol(mcols(x@regions))
-        cat(margin, "regions: ", nr, "; ", ncr, " metadata ", ifelse(ncr==1L, "column", "columns"), "\n", sep="")
+        cat(margin, "regions: ", nr, " ranges and ", ncr, " metadata ", ifelse(ncr==1L, "column", "columns"), "\n", sep="")
         cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
     }
 }
