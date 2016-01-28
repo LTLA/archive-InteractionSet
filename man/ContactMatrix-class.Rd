@@ -44,7 +44,7 @@ Coordinates of the loci are also contained within this class.
 }
 
 \value{
-A ContactMatrix object.
+For the constructors, a ContactMatrix object is returned.
 }
 
 \details{

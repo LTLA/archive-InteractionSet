@@ -48,6 +48,10 @@ Each row of the GInteractions corresponds to a pairwise interaction between two 
 }
 }
 
+\value{
+For the constructors, a GInteractions (or StrictGInteractions, or ReverseStrictGInteractions) object is returned.
+}
+
 \section{Description of the class}{
 The GInteractions class inherits from the Vector class and has access to all of its data members and methods 
     (e.g, \code{metadata} and \code{elementMetadata} - see \code{\link{Vector-class}} for more details). 
@@ -78,11 +82,12 @@ Alternatively, GInteractions objects can be constructed by directly supplying th
 If \code{regions} is not specified, this will be constructed automatically from the two sets of supplied GRanges.
 If \code{regions} is supplied, exact matching will be performed to identify the indices in \code{regions} corresponding to the regions in the supplied anchor GRanges.
 Missing values are not tolerated and will cause an error to be raised.
-In both cases, any metadata in the input GRanges will be stored in the \code{mcols} of the output GInteractions object.
+In both cases, any metadata in the input GRanges will be transferred to the \code{mcols} of the output GInteractions object.
 
-All constructors will return a GInteractions (or StrictGInteractions) object containing all of the specified information.
+All constructors will return a GInteractions object containing all of the specified information.
 Sorting of \code{regions} is performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
 If \code{mode="strict"}, a StrictGInterctions object is returned with anchor indices swapped such that \code{anchor1 <= anchor2} for all interactions.
+If \code{mode="reverse"}, a ReverseStrictGInterctions object is returned with anchor indices swapped such that \code{anchor1 >= anchor2}.
 If both anchors are missing, the constructor will return an empty GInteractions object.
 }
 
