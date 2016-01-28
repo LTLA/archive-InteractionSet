@@ -30,6 +30,10 @@ Compute the distance between interacting regions on the linear genome, for each 
 }
 }
 
+\value{
+An integer or logical vector of distances.
+}
+
 \details{
 For each interaction in \code{x}, the \code{pairdist} method computes the distance between the two interacting regions.
 An integer vector is returned, with values computed according to the specified value of \code{type}:

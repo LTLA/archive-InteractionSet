@@ -84,7 +84,7 @@ Character data is not supported, though this is unlikely to be relevant in most 
 Another issue is how missing values should be interpreted in the sparseMatrix -- see \code{?\link{inflate}} for more details.
 
 In general, the choice of class depends on the type of data and the intended application.
-A standard Matrix is often sufficient for most use cases where small or dense regions of the interaction space are being examined.
+A dense Matrix is often sufficient for most use cases where small or dense regions of the interaction space are being examined.
 Switching to sparseMatrix may be desirable in emptier parts of the space, where there can be substantial memory savings.
 }
 

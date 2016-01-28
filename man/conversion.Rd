@@ -72,6 +72,12 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 }
 }
 
+\value{
+For \code{inflate}, a ContactMatrix is returned.
+
+For \code{deflate}, an InteractionSet object is returned.
+}
+
 \section{Inflating to a ContactMatrix}{
 The \code{inflate} method will return a ContactMatrix where the rows and columns correspond to specified regions of interest in \code{rows} and \code{columns}.
 For the GInteractions method, values in the matrix are filled based on user-supplied values in \code{fill}.
@@ -82,9 +88,9 @@ By default, filling is repeated after swapping the anchor indices.
 This means that the value of the matrix at (1, 2) will be the same as that at (2, 1), i.e., the matrix is symmetric around the diagonal of the interaction space.
 However, if \code{swap=FALSE}, filling is performed so that the first and second anchor indices correspond strictly to rows and columns, respectively.
 This may be preferable if the order of the anchors contains some relevant information. 
-In all cases, if duplicated interactions are present in \code{x} (and redundant permutations, when \code{swap=TRUE}), an arbitrary interaction will be used to fill the matrix.
+In all cases, if duplicated interactions are present in \code{x} (and redundant permutations, when \code{swap=TRUE}), one will be arbitrarily chosen to fill the matrix.
  
-For the InteractionSet \code{inflate} method, values in the matrix are filled in based on the assay values by default.
+For the InteractionSet \code{inflate} method, entries in the matrix are filled in based on the values in the first sample of the first assay by default.
 For more complex \code{x}, values from different assays and samples can be extracted using the \code{assay} and \code{sample} arguments.
 Note that if \code{fill} is specified, it will override any extraction of values from the assays.
 

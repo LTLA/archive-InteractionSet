@@ -6,8 +6,8 @@
 \title{Flip the arrangement of anchor regions}
 
 \description{
-Flip a GInteractions object so that each interaction is a GRanges of length 2, in a GRangesList.
-The opposing conversion is also provided.
+Flip a GInteractions object so that each interaction is represented as a GRanges of length 2, in a GRangesList of length equal to the number of interactions.
+The reverse conversion is also provided.
 }
 
 \usage{
@@ -21,8 +21,12 @@ The opposing conversion is also provided.
 \item{...}{Other arguments to be passed to \code{\link{GInteractions}}.}
 }
 
+\value{
+A GRangesList if \code{x} is a GInteractions, and a GInteractions if \code{x} is a GRangesList.
+}
+
 \details{
-The GInteractions object stores anchor regions for each interaction in two parallel GRanges, 
+Recall that the GInteractions object stores anchor regions for each interaction in two parallel GRanges, 
     where corresponding entries between the two GRanges constitute the pair of regions for one interaction.
 An alternative representation involves storing the two anchors for each interaction in a single GRanges of length 2.
 Multiple interactions are then stored as a GRangesList.
