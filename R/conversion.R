@@ -82,27 +82,34 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
 
 setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
 
-setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, use.zero, use.na, ...) {
-    # Choosing the expansion strategy. 
-    is.sparse <- is(as.matrix(x), "sparseMatrix")
-    if (missing(use.zero)) {
-        use.zero <- !is.sparse
-    }
-    if (missing(use.na)) { 
-        use.na <- is.sparse
-    }
-
-    if (use.na && use.zero) { 
-        is.valid <- seq_along(as.matrix(x))
-    } else {
-        is.valid <- TRUE
-        if (!use.zero) { 
-            is.valid <- is.valid & as.matrix(x)!=0
-        } 
-        if (!use.na) { 
-            is.valid <- is.valid & !is.na(as.matrix(x))
+setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, extract, use.zero, use.na, ...) {
+    # Choosing the expansion strategy.
+    if (missing(extract)) { 
+        is.sparse <- is(as.matrix(x), "sparseMatrix")
+        if (missing(use.zero)) {
+            use.zero <- !is.sparse
         }
-        is.valid <- which(is.valid)
+        if (missing(use.na)) { 
+            use.na <- is.sparse
+        }
+        
+        if (use.na && use.zero) { 
+            is.valid <- seq_along(as.matrix(x))
+        } else {
+            is.valid <- TRUE
+            if (!use.zero) { 
+                is.valid <- is.valid & as.matrix(x)!=0
+            } 
+            if (!use.na) { 
+                is.valid <- is.valid & !is.na(as.matrix(x))
+            }
+            is.valid <- which(is.valid)
+        }
+    } else {
+        if (!identical(length(extract), length(x))) { 
+            stop("extraction matrix must be of the same length as 'x'")
+        }
+        is.valid <- which(extract)
     }
 
     valid.coords <- arrayInd(is.valid, dim(x))

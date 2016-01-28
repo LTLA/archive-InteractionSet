@@ -193,6 +193,14 @@ xref2 <- xref
 as.matrix(xref2) <- ref
 expect_equal(deflate(y, use.zero=TRUE), deflate(xref2, use.zero=TRUE))
 
+ex <- !is.na(as.matrix(xref))
+alt <- deflate(xref, use.na=FALSE, use.zero=TRUE)
+expect_equal(deflate(xref, extract=ex), alt)
+expect_false(isTRUE(all.equal(alt, deflate(xref, use.na=TRUE)))) # definitely different
+expect_equal(deflate(xref, extract=ex, use.na=TRUE), alt) # ... but 'ex' overrides it.
+
+# Trying out some silliness.
+
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 4, 0), 1:4, integer(0), all.regions)))==0L)
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 0, 4), integer(0), 1:4, all.regions)))==0L)
 

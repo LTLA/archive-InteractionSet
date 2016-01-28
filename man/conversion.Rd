@@ -17,7 +17,7 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 
 \S4method{inflate}{InteractionSet}(x, rows, columns, assay=1L, sample=1L, fill=NULL, swap=TRUE, sparse=FALSE, ...)
 
-\S4method{deflate}{ContactMatrix}(x, collapse=TRUE, use.zero, use.na, ...)
+\S4method{deflate}{ContactMatrix}(x, collapse=TRUE, extract, use.zero, use.na, ...)
 }
 
 \arguments{
@@ -59,6 +59,10 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 
 \item{collapse}{
     A logical scalar indicating whether duplicated interactions should be removed from \code{x} prior to deflation.
+}
+
+\item{extract}{
+    A logical vector or matrix indicating which entries of \code{x} to convert into pairwise interactions.
 }
 
 \item{use.zero, use.na}{ 
@@ -103,6 +107,11 @@ The \code{deflate} method will return an InteractionSet where each relevant entr
 Relevant entries are defined as those that are non-zero, if \code{use.zero} is \code{FALSE}; and non-\code{NA}, if \code{use.na} is \code{FALSE}.
 If \code{x} contains a sparseMatrix representation, the former is set to \code{FALSE} while the latter is set to \code{TRUE}, if either are not specified.
 For all other matrices, \code{use.zero=TRUE} and \code{use.na=FALSE} by default.
+
+If \code{extract} is specified, this overrides all values of \code{use.zero} and \code{use.na}.
+A typical application would be to \code{deflate} a number of ContactMatrix objects with the same \code{extract} matrix.
+This ensures that the resulting InteractionSet objects can be easily combined with \code{cbind}, as the interactions are guaranteed to be the same.
+Otherwise, different interactions may be extracted depending on the presence of zero or \code{NA} values.
 
 The values of all matrix entries are stored as a one-sample assay, with each value corresponding to its pairwise interaction after conversion.
 Duplicate interactions are removed by default, along with redundant permutations of the anchor indices.
