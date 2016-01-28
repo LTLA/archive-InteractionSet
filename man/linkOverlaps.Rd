@@ -52,6 +52,10 @@ If \code{subject2} is not specified, links within \code{subject1} are identified
 In such cases, the returned dataframe is such that the first subject index is always greater than the second subject index, to avoid redundant permutations.
 }
 
+\value{
+A dataframe of integer indices indicating which elements of \code{query} link which elements of \code{subject1} and \code{subject2}.
+}
+
 \seealso{
 \code{\link{findOverlaps,GInteractions,GRanges-method}}
 }

@@ -146,8 +146,9 @@ The opposite applies if the object is a ReverseStrictGInteractions.
 
 \section{Region manipulations for GInteractions}{
 For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
-For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
-In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
+For \code{regions<-}, the GRanges in \code{value} is used to replace the \code{regions} slot.
+Resorting of the replacement GRanges is performed automatically, along with re-indexing of the anchors.    
+In addition, the replacement must be of the same length as the existing object in the \code{regions} slot.
 
 The \code{replaceRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 The \code{appendRegions} replacement method appends extra intervals to the existing \code{regions} slot of \code{x}.
@@ -156,7 +157,7 @@ This is more efficient than calling \code{replaceRegions} on a concatenated obje
 The \code{reduceRegions} method will return a GInteractions object where the \code{regions} slot is reduced to only those entries used in \code{anchors(x)}.
 This may save some memory in each object by removing unused regions.
 However, this is not recommended for large workflows with many GInteractions objects.
-R uses a copy-on-write memory management scheme, so only one copy of the GRanges in \code{regions} will be stored so long as it is not modified in different objects.
+R uses a copy-on-write memory management scheme, so only one copy of the GRanges in \code{regions} should be stored so long as it is not modified in different objects.
 }
 
 \section{Other methods for GInteractions}{
@@ -201,6 +202,7 @@ For InteractionSet objects, the \code{mcols} getter and setter functions operate
 This makes no difference for practical usage in the vast majority of cases, 
     except that any metadata stored in this manner is carried over when the GInteractions object is extracted with \code{interactions(x)}.
 Similarly, the \code{names} getter and setter will operate the names of the internal GInteractions object.
+However, the \code{metadata} getter and setter will operate on the SummarizedExperiment base class, \emph{not} on the internal GInteractions object.
 }
 
 \examples{

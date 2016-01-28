@@ -30,18 +30,22 @@ Convert interactions in two-dimensional space to one-dimensional ranges on the l
 }
 
 \details{
-This method identifies all interactions with at least one interacting locus overlapping the specified region.
-It returns a RangedSummarizedExperiment object with one entry per interaction, 
-    where the corresponding \code{rowRanges} is defined as the interacting locus for each interaction that does not overlap the reference region.
-If the interacting loci are identical such that both overlap the reference region, one is chosen and placed into \code{rowRanges}.
+This method identifies all interactions with at least one anchor region overlapping the specified region in \code{ref}.
+It returns a RangedSummarizedExperiment object with one entry per identified interaction, 
+    where the corresponding \code{rowRanges} is defined as the other anchor region, i.e., the one that does \emph{not} overlap the reference region.
+If the anchor regions are identical such that both overlap the reference region, one is chosen and placed into \code{rowRanges}.
 
 This effectively converts two-dimesional interaction data into one-dimensional coverage across the linear genome.
 It is useful when a particular genomic region is of interest - this can be used as \code{ref}, to examine the behaviour of all other regions relative to it.
 For example, Hi-C data in \code{x} can be converted into pseudo-4C contact frequencies after linearization.
 
 If \code{ref} is a GRanges object, it should only overlap a single region in \code{regions(x)}.
-A warning will be generated and the first region will be used if multiple overlaps are present.
+A warning will be generated and the first overlapping region in \code{regions(x)} will be used if multiple overlaps are present.
 If \code{ref} is a numeric scalar, it is assumed to refer to an entry in \code{regions(x)} to specify the reference region.
+}
+
+\value{
+A RangedSummarizedExperiment.
 }
 
 \examples{

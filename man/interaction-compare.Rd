@@ -92,6 +92,12 @@ Methods to order, compare and de-duplicate GInteractions or InteractionSet objec
 \item{y}{A GInteractions object, of the same length as \code{x}.}
 }
 
+\value{
+For \code{sort} and \code{unique}, a GInteractions or InteractionSet object is returned, depending on the class of \code{x}.
+
+For \code{order} and \code{duplicated}, an integer vector of permutations or a logical vector of duplicate specifications is returned, respectively.
+}
+
 \section{Sorting and ordering}{
 Sorting is performed based on the anchor indices of the GInteraction object.
 Rows are ordered for increasing values of the \code{anchor1} slot - if these are equal, ordering is performed with values of the \code{anchor2} slot.
@@ -110,7 +116,7 @@ This will sort or order for decreasing values of \code{anchor1} and \code{anchor
 \section{Removing duplicates}{
 The \code{duplicated} method returns a logical vector indicating whether the rows of \code{x} are duplicated.
 Duplicated rows are identified on the basis of identical entries in the \code{anchor1} and \code{anchor2} slots.
-It makes little sense to compare other slots (e.g., in \code{assays}) which may be numeric and inherently incomparable.
+Values in other slots (e.g., in \code{mcols}) are ignored.
 For a set of duplicated rows, the first occurrence in \code{x} is marked as the non-duplicate if \code{fromLast=FALSE}, and the last entry otherwise.
 
 \code{unique} returns a GInteractions object where all duplicate rows have been removed from \code{x}.
@@ -140,7 +146,7 @@ It is recommended to apply this method before running methods like \code{order} 
 This ensures that redundant permutations are coerced into the same format for a valid comparison.
 In many applications, permutations of pairwise interactions are not of interest, i.e., an interaction between regions 1 and 2 is the same as that between 2 and 1.
 Application of \code{swapAnchors} with \code{mode="order"} ensures that all indices are arranged in a comparable manner.
-Alternatively, users can use a StrictGInteractions object which enforces a consistent arrangement of indices across interactions.
+Alternatively, users can use a (Reverse)StrictGInteractions object which enforces a consistent arrangement of indices across interactions.
 }
 
 \section{Methods for InteractionSet objects}{
@@ -150,7 +156,7 @@ Return values for each InteractionSet method is the same as those for the corres
       and \code{swapAnchors}, which returns an InteractionSet object where the internal GInteractions has its anchor indices swapped around.      
 
 Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking,
-    i.e., the assay or metadata values for each interaction is \emph{not} used in distinguishing rows with the same interaction.
+    i.e., the assay or metadata values for each interaction are \emph{not} used in distinguishing rows with the same interaction.
 For this reason, the \code{compare} method is not implemented for InteractionSet objects.
 It makes little sense to do a parallel comparison in an InteractionSet without examining the data.
 }

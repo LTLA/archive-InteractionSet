@@ -118,7 +118,14 @@ Find overlaps between interactions and linear intervals, between interactions an
 \item{use.region}{
 A string specifying the regions to be used to identify overlaps.
 }
+}
 
+\value{
+For \code{findOverlaps}, a Hits object is returned if \code{select="all"}, and an integer vector of subject indices otherwise.
+
+For \code{countOverlaps} and \code{overlapsAny}, an integer or logical vector is returned, respectively.
+
+For \code{subsetByOverlaps}, a subsetted object of the same class as \code{query} is returned.
 }
 
 \section{Overview of overlaps for GInteractions}{
@@ -158,8 +165,9 @@ For two-dimensional overlaps, \code{use.region="both"} by default such that the 
 This means that an overlap will be considered between, e.g., the first interacting region and the second target region.
 If \code{use.region="same"}, overlaps are only considered between the set of first regions for the GInteractions object and the first regions for the target pairs, and similarly for the second regions.
 If \code{use.region="reverse"}, overlaps are only considered between the set of first regions for the GInteractions object and the second regions for the target pairs, and vice versa.
-These options are only useful if the order of first/second regions are informative.
+These options tend only to be useful if the order of first/second regions is informative.
 }
+
 \section{Details for InteractionSet}{
 The behaviour of each method for InteractionSet objects is largely the same as that described for GInteractions objects.
 For a given InteractionSet object \code{x}, the corresponding method is called on the GInteractions object in the \code{interactions} slot of \code{x}.
