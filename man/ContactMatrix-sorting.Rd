@@ -46,6 +46,14 @@ Also, methods to remove duplicate rows or columns in each ContactMatrix.
 }
 }
 
+\value{
+For \code{sort} and \code{unique}, a ContactMatrix object is returned with sorted or unique rows/columns, respectively.
+
+For \code{order}, a list of two integer vectors is returned containing row/column permutations.
+
+For \code{duplicated}, a list of logical vectors is returned specifying which rows/columns are duplicated.
+}
+
 \details{
 Sorting is performed based on the anchor indices of the ContactMatrix object.
 Rows are ordered for increasing values of the \code{anchor1} slot, while columns are ordered for increasing values of the \code{anchor2} slot.
