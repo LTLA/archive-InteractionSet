@@ -248,6 +248,22 @@ xsub2 <- x[,6:20]
 expect_that(cbind(xsub, xsub2), equals(x))
 expect_error(cbind(xsub, xsub2[1:5,]), "row anchor indices must be identical")
 
+xsub.mod <- xsub <- x[1:5,]
+chosen.cols <- setdiff(anchors(xsub.mod, type="column", id=TRUE), anchors(xsub.mod, type="row", id=TRUE))
+regions(xsub.mod)[chosen.cols] <- resize(regions(xsub.mod)[chosen.cols], width=5)
+byrow <- cbind(xsub, xsub.mod)
+expect_identical(anchors(byrow, type="row"), anchors(xsub, type="row"))
+expect_identical(anchors(byrow, type="column"), c(anchors(xsub, type="column"), anchors(xsub.mod, type="column")))
+expect_equal(as.matrix(byrow), cbind(as.matrix(xsub), as.matrix(xsub.mod)))
+
+xsub.mod <- xsub <- x[,1:5]
+chosen.cols <- setdiff(anchors(xsub.mod, type="row", id=TRUE), anchors(xsub.mod, type="column", id=TRUE))
+regions(xsub.mod)[chosen.cols] <- resize(regions(xsub.mod)[chosen.cols], width=5)
+bycol <- rbind(xsub, xsub.mod)
+expect_identical(anchors(bycol, type="row"), c(anchors(xsub, type="row"), anchors(xsub.mod, type="row")))
+expect_identical(anchors(bycol, type="column"), anchors(xsub, type="column"))
+expect_equal(as.matrix(bycol), rbind(as.matrix(xsub), as.matrix(xsub.mod)))
+
 expect_that(nrow(rbind(x[0,], x[0,])), is_identical_to(0L)) # Behaviour with empties.
 expect_that(ncol(rbind(x[0,], x[0,])), is_identical_to(ncol(x)))
 expect_that(rbind(x, x[0,]), equals(x))
