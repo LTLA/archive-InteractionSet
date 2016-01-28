@@ -43,6 +43,10 @@ Coordinates of the loci are also contained within this class.
 }
 }
 
+\value{
+A ContactMatrix object.
+}
+
 \details{
 The ContactMatrix class inherits from the \code{\link[S4Vectors]{Annotated}} class, with several additional slots:
 \describe{
@@ -55,7 +59,7 @@ Each entry of \code{anchor1} corresponds to a row in \code{matrix}, while each e
 Each entry of \code{matrix} represents an interaction between the corresponding entries in \code{anchor1} and \code{anchor2}, i
     which point to the relevant coordinates in \code{regions} for each locus.
 
-ContactMatrix objects can be constructed by specifying numeric vectors in \code{ContactMatrix}.
+ContactMatrix objects can be constructed by specifying numeric vectors as \code{anchor1} and \code{anchor2} in the \code{ContactMatrix} function.
 These vectors will define the regions corresponding to the rows and columns of the matrix.
 Specifically, each value of the vector acts as an index to specify the relevant coordinates from \code{regions}.
 This means that the range of entries must lie within \code{[1, length(regions)]}.

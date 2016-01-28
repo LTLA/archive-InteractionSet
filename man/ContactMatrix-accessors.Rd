@@ -70,7 +70,7 @@ Methods to get and set fields in an ContactMatrix object.
     For \code{newRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
     For \code{appendRegions<-}, a GRanges of any length containing additional regions.
 
-    For \code{as.matrix<-}, any value or vector that can be used to replace the existing matrix entries.
+    For \code{as.matrix<-}, a Matrix object of the same dimensions as that in the \code{matrix} slot.
     
     For \code{dimnames<-}, a list of two character vectors corresponding to the row and column names, respectively.
     These can also be passed separately via \code{rownames<-} and \code{colnames<-}.
@@ -90,14 +90,16 @@ If \code{type="both"}, a list of two integer vectors is required in \code{value}
 If \code{type="row"} or \code{"column"}, an integer vector is required to replace the existing row- or column-wise indices in the \code{anchor1} or \code{anchor2} slot, respectively.
    
 For \code{regions}, a GRanges is returned equal to the \code{regions} slot in \code{x}.
-For \code{regions<-}, resorting of the input GRanges in \code{value} is performed automatically, along with re-indexing of the anchors.    
+For \code{regions<-}, the GRanges in \code{value} is used to replace the \code{regions} slot.
+Resorting of the replacement GRanges is performed automatically, along with re-indexing of the anchors.    
 In addition, the input GRanges must be of the same length as the existing object in the \code{regions} slot.
 The \code{newRegions} replacement method can take variable length GRanges, but requires that the replacement contain (at least) all ranges contained in \code{anchors(x)}.
 The \code{appendRegions} replacement method appends extra intervals to the existing \code{regions} slot of \code{x}.
 The \code{reduceRegions} method removes unused entries in the \code{regions} slot, to save memory -- see \code{\link{reduceRegions,GInteractions-method}} for more details.
 
-The \code{show} method will print out the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
-The \code{as.matrix} method will return the value of the \code{matrix} slot, containing the matrix of interaction data.
+The \code{show} method will print out various details of the object, such as the dimensions of the \code{matrix} slot and the length of the \code{regions} slot.
+The \code{as.matrix} method will return the value of the \code{matrix} slot, containing the Matrix of interaction data.
+Replacement with a Matrix of the same dimensions can be performed using the \code{as.matrix<-} function.
 The \code{t} method will transpose the matrix, i.e., switch the rows and columns (and switch the vectors in the \code{anchor1} and \code{anchor2} slots).
 
 The \code{dim} method will return a vector of length 2, containing the dimensions of the \code{matrix} slot.

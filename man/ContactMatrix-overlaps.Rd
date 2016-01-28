@@ -42,6 +42,12 @@ Find overlaps between a set of linear intervals in a GRanges object, and the set
 }
 }
 
+\value{
+For \code{overlapsAny,ContactMatrix,GRanges-method}, a named list of two logical vectors is returned specifying the rows of columns of \code{query} overlapped by \code{subject}.
+
+For the other \code{overlapsAny} methods, a logical matrix is returned indicating which entries in \code{query} are overlapped by \code{subject}.
+}
+
 \details{
 When \code{subject} is a GRanges, overlaps are identified between the row regions of \code{query} and the regions in \code{subject}.
 This is repeated for the column regions of \code{query}.

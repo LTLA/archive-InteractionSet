@@ -57,11 +57,11 @@ All subsetting operations will return an ContactMatrix with the specified rows a
 However, note that the value of \code{regions} will not be modified by subsetting.
 
 \code{cbind} will combines objects with the same rows but different columns.
-Errors will occur if the rows are not identical between objects (i.e., must have same values in the slots for \code{regions} and \code{anchor1}).
+Errors will occur if the row regions are not identical between objects (i.e., must have same values in the slots for \code{regions} and \code{anchor1}).
 Conversely, \code{rbind} will combines objects with the same columns but different rows.
 Again, errors will occur if the columns are not identical (i.e., must have same values in the slots for \code{regions} and \code{anchor2}).
 
-Also see \code{?"\link{interaction-subset}"} for why subsetting should be done before calling the \code{\link{anchors}} method.
+If subsetted anchors are required, see \code{?"\link{interaction-subset}"} for why subsetting should be done before calling the \code{\link{anchors}} method.
 }
 
 \examples{
