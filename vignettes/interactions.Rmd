@@ -659,8 +659,8 @@ It is also possible to transpose a `ContactMatrix`, to obtain an object where th
 t(cm)
 ```
 
-Combining can be done with `rbind` to combine by row, for objects with the same column anchor indices; 
-    or with `cbind` to combine by column, for objects with the same row anchor indices.
+Combining can be done with `rbind` to combine by row, for objects with the same column anchor regions;
+    or with `cbind` to combine by column, for objects with the same row anchor regions.
 This forms a new matrix with the additional rows or columns, as one might expect for matrices.
 
 ```{r}
@@ -668,8 +668,9 @@ rbind(cm, cm[1:5,]) # extra rows
 cbind(cm, cm[,1:5]) # extra columns
 ```
 
-Note that the common regions must be the same in all objects to run `cbind` or `rbind`.
-If the common regions differ, they should be set to the same value (namely, a union of common regions from all objects) by using `replaceRegions` beforehand.
+Note that only the regions need to be the same for `cbind` and `rbind`.
+Both methods will still work if the indices are different but point to the same genomic coordinates.
+In such cases, the returned `ContactMatrix` will contain refactored indices pointing to a union of the common regions from all constituent objects.
 
 ## Sorting and duplication
 
