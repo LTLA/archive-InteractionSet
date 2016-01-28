@@ -33,16 +33,21 @@ Each InteractionSet also contains one or more assays, intended to hold experimen
 \item{...}{Other arguments to be passed to \code{\link{SummarizedExperiment}}.}
 }
 
+\value{
+For the constructors, an InteractionSet object is returned.
+}
+
 \details{
 The InteractionSet class inherits from the SummarizedExperiment class and has access to all of its data members and methods 
     (see \code{?\link{SummarizedExperiment-class}} for more details). 
-It also contains an additional \code{interactions} slot which holds a GInteractions object.
+It also contains an additional \code{interactions} slot which holds a GInteractions object (or an object from any derived classes, e.g., StrictGInteractions).
 Each row of the InteractionSet object corresponds to a pairwise interaction between two genomic loci in \code{interactions}.
 
 The constructor will return an InteractionSet object containing all of the specified information 
     - for \code{InteractionSet,missing,missing-method}, an empty InteractionSet object is returned.
-Note that any \code{metadata} arguments will be placed in the metadata of the SummarizedExperiment object, 
-    \emph{not} the metadata of the GInteractions object.
+Note that any \code{metadata} arguments will be placed in the metadata of the internal SummarizedExperiment object, 
+    \emph{not} the metadata of the internal GInteractions object.
+This is consistent with the behaviour of similar classes like RangedSummarizedExperiment.
 }
 
 \examples{
