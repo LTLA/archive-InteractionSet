@@ -304,17 +304,10 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     all.mcols <- lapply(args, FUN=mcols)
 
     # Checking if regions are the same; collating if not.
-    if (length(unique(all.regions))!=1L) { 
-        collated <- do.call(.collate_GRanges, all.regions)
-        ans@regions <- collated$ranges       
-        for (i in seq_along(all.regions)) {
-            all.anchor1[[i]] <- collated$indices[[i]][all.anchor1[[i]]]
-            all.anchor2[[i]] <- collated$indices[[i]][all.anchor2[[i]]]
-        }
-    }
-
-    ans@anchor1 <- unlist(all.anchor1)
-    ans@anchor2 <- unlist(all.anchor2)
+    unified <- .coerce_to_union(all.regions, all.anchor1, all.anchor2)
+    ans@regions <- unified$region
+    ans@anchor1 <- unlist(unified$anchor1)
+    ans@anchor2 <- unlist(unified$anchor2)
     ans@elementMetadata <- do.call(rbind, all.mcols)
 
     # Checking what to do with names.
@@ -335,6 +328,36 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     }
     return(ans)
 })
+
+.coerce_to_union <- function(all.regions, all.anchor1, all.anchor2) {
+    issame <- TRUE
+    if (length(all.regions) > 1L) { 
+        ref <- all.regions[[1]]
+        for (alt in 2:length(all.regions)) { 
+            if (any(all.regions[[alt]]!=ref)) { 
+                issame <- FALSE
+                break 
+            }
+        }
+    } 
+
+    if (!issame) { 
+        collated <- do.call(.collate_GRanges, all.regions)
+        for (i in seq_along(all.regions)) {
+            all.anchor1[[i]] <- collated$indices[[i]][all.anchor1[[i]]]
+            all.anchor2[[i]] <- collated$indices[[i]][all.anchor2[[i]]]
+        }
+        out.range <- collated$ranges
+    } else {
+        if (length(all.regions)) { 
+            out.range <- all.regions[[1]]
+        } else {
+            out.range <- GRanges()
+        }
+    }
+    return(list(region=out.range, anchor1=all.anchor1, anchor2=all.anchor2))
+}
+
 
 setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym for 'rbind'.
     rbind(x, ...)                   

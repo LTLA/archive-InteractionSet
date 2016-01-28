@@ -147,40 +147,46 @@ setMethod("subset", "ContactMatrix", function(x, i, j) {
 setMethod("cbind", "ContactMatrix", function(..., deparse.level=1) {
     incoming <- list(...)
     ref <- incoming[[1]]
-    ref.rows <- ref@anchor1
-    ref.regs <- regions(ref)
+    all.regions <- lapply(incoming, FUN=regions)
+    all.anchor1 <- lapply(incoming, FUN=slot, name="anchor1")
+    all.anchor2 <- lapply(incoming, FUN=slot, name="anchor2")
 
-    for (x in incoming[-1]) {
-        if (!identical(ref.regs, regions(x))) { 
-            stop("'regions' must be identical for 'cbind'")
-        }
-        if (!identical(ref.rows, x@anchor1)) {
+    # Checking if regions are the same; collating if not.
+    unified <- .coerce_to_union(all.regions, all.anchor1, all.anchor2)
+    ref@regions <- unified$region
+    ref@anchor1 <- unified$anchor1[[1]]
+
+    for (x in 2:length(incoming)) {
+        if (!identical(ref@anchor1, unified$anchor1[[x]])) {
             stop("row anchor indices must be identical for 'cbind'")
         }    
     }
-    
+
     ref@matrix <- do.call(cbind, lapply(incoming, as.matrix))
-    ref@anchor2 <- unlist(lapply(incoming, FUN=slot, name="anchor2"))
+    ref@anchor2 <- unlist(unified$anchor2)
     return(ref)
 })
 
 setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
     incoming <- list(...)
     ref <- incoming[[1]]
-    ref.cols <- ref@anchor2
-    ref.regs <- regions(ref)
+    all.regions <- lapply(incoming, FUN=regions)
+    all.anchor1 <- lapply(incoming, FUN=slot, name="anchor1")
+    all.anchor2 <- lapply(incoming, FUN=slot, name="anchor2")
 
-    for (x in incoming[-1]) {
-        if (!identical(regions(ref), regions(x))) { 
-            stop("'regions' must be identical for 'rbind'")
-        }
-        if (!identical(ref.cols, x@anchor2)) { 
+    # Checking if regions are the same; collating if not.
+    unified <- .coerce_to_union(all.regions, all.anchor1, all.anchor2)
+    ref@regions <- unified$region
+    ref@anchor2 <- unified$anchor2[[1]]
+
+    for (x in 2:length(incoming)) { 
+        if (!identical(ref@anchor2, unified$anchor2[[x]])) { 
             stop("column anchor indices must be identical for 'rbind'")
         }    
     }
     
     ref@matrix <- do.call(rbind, lapply(incoming, as.matrix))
-    ref@anchor1 <- unlist(lapply(incoming, FUN=slot, name="anchor1"))
+    ref@anchor1 <- unlist(unified$anchor1)
     return(ref)
 })
 
