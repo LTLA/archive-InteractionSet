@@ -156,8 +156,8 @@ setMethod("cbind", "ContactMatrix", function(..., deparse.level=1) {
     ref@regions <- unified$region
     ref@anchor1 <- unified$anchor1[[1]]
 
-    for (x in 2:length(incoming)) {
-        if (!identical(ref@anchor1, unified$anchor1[[x]])) {
+    for (x in unified$anchor1[-1]) {
+        if (!identical(ref@anchor1, x)) {
             stop("row anchor indices must be identical for 'cbind'")
         }    
     }
@@ -179,8 +179,8 @@ setMethod("rbind", "ContactMatrix", function(..., deparse.level=1) {
     ref@regions <- unified$region
     ref@anchor2 <- unified$anchor2[[1]]
 
-    for (x in 2:length(incoming)) { 
-        if (!identical(ref@anchor2, unified$anchor2[[x]])) { 
+    for (x in unified$anchor2[-1]) { 
+        if (!identical(ref@anchor2, x)) { 
             stop("column anchor indices must be identical for 'rbind'")
         }    
     }
