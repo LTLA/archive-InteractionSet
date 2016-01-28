@@ -31,19 +31,19 @@ It also provides users with a consistent interface across different packages tha
 
 Three classes are available from this package:
 
-- `GInteractions`, which represents pairwise interactions between genomic regions.
-- `InteractionSet`, which contains experimental data relevant to each interaction.
-- `ContactMatrix`, which stores data in a matrix where each row and column represents a genomic region.
+- the `GInteractions` class, which represents pairwise interactions between genomic regions.
+- the `InteractionSet` class, which contains experimental data relevant to each interaction.
+- the `ContactMatrix` class, which stores data in a matrix where each row and column represents a genomic region.
 
-This vignette will give a brief description of each class and their associated methods.
+This vignette will give a brief description of each class and its associated methods.
 
 # Description of the `GInteractions` class
 
 ## Construction
 
 The `GInteractions` class stores any number of pairwise interactions between two genomic regions.
-The regions themselves are represented with `GRanges` from the `r Biocpkg("GenomicRanges")` package.
-For example, say we have a `all.regions` object containing consecutive intervals (though any regions can be used here, consecutive intervals are just simpler to explain):
+The regions themselves are represented by a `GRanges` object from the `r Biocpkg("GenomicRanges")` package.
+For example, say we have an `all.regions` object containing consecutive intervals (while any regions can be used here, consecutive intervals are just simpler to explain):
 
 ```{r}
 all.regions <- GRanges("chrA", IRanges(0:9*10+1, 1:10*10))
@@ -51,8 +51,7 @@ all.regions <- GRanges("chrA", IRanges(0:9*10+1, 1:10*10))
 
 Now, let's say we've got a bunch of interactions between elements of `all.regions`.
 We'll consider three pairwise interactions -- one between region #1 and #3, another between #5 and #2, and the last between #10 and #6.
-Note that the exact order doesn't matter -- here, an interaction between regions A and B is considered to be the same as that between B and A.
-Anyway, our set of three interactions can be represented with:
+These three interactions can be represented with:
 
 ```{r}
 index.1 <- c(1,5,10)
@@ -79,7 +78,7 @@ Note that the `GRanges` are not stored separately for each interaction.
 Rather, a common `GRanges` object is used within the `GInteractions` object. 
 Each interaction simply stores the indices to point at the two relevant intervals in the common set, representing the interacting regions for that interaction.
 This is because, in many cases, the same intervals are re-used for different interactions, e.g., common bins in Hi-C data, common peaks in ChIA-PET data. 
-Storing indices rather than repeated `GRanges` saves memory in the final representation.
+Storing indices rather than repeated `GRanges` entries saves memory in the final representation.
 
 ## Getters 
 
@@ -91,7 +90,7 @@ These anchor regions can be accessed, funnily enough, with the `anchors` method:
 anchors(gi)
 ```
 
-This returns a `GRangesList` of length 2, where the *i*^th^ interaction is that between the *i*^th^ region of `first` and that of `second`.
+This returns a `GRangesList` of length 2, where the *i*^th interaction is that between the *i*^th region of `first` and that of `second`.
 We can also obtain `GRanges` for the first or second anchor regions by themselves, by specifying `type="first"` or `"second"`, respectively.
 Alternatively, we can get the indices for each interaction directly by setting `id=TRUE`:
 
@@ -211,14 +210,18 @@ rbind(gi, new.gi)
 ## Sorting, duplication and matching
 
 Before we start, we make a slightly more complicated object so we get more interesting results.
-The `swapAnchors` method is applied here to ensure that the first anchor index is always less than the second anchor index for each interaction.
-This avoids redundant permutations such that an interaction between regions #1 and #2 is treated the same as an interaction between regions #2 and #1.
-We recommend running `swapAnchors` prior to comparing between interactions within or between `GInteractions` objects, unless you have a good reason not to do so.
 
 ```{r}
 new.gi <- gi
 anchors(new.gi) <- list(1:3, 5:7)
 combined <- c(gi, new.gi)
+```
+
+The `swapAnchors` method is applied here to ensure that the first anchor index is always less than the second anchor index for each interaction.
+This eliminates redundant permutations of anchor regions and ensures that an interaction between regions #1 and #2 is treated the same as an interaction between regions #2 and #1.
+Obviously, this assumes that redundant permutations are uninteresting -- also see `StrictGInteractions` below, which is a bit more convenient.
+
+```{r}
 combined <- swapAnchors(combined)
 ```
 
@@ -250,9 +253,9 @@ duplicated(doubled)
 ```
 
 Identical interactions can also be matched between `GInteractions` objects.
-The `match` method looks for entries in the second object with the same anchor indices as each entry in the first object.
+We coerce the permutations to a consistent format with `swapAnchors` for comparing between objects.
+The `match` method then looks for entries in the second object with the same anchor indices as each entry in the first object.
 Obviously, the common regions must be the same for this to be sensible.
-We also coerce the permutations to a consistent format with `swapAnchors` for comparing between objects.
 
 ```{r}
 anchors(new.gi) <- list(4:6, 1:3)
@@ -261,8 +264,8 @@ swap.gi <- swapAnchors(gi)
 match(new.gi, swap.gi)
 ```
 
-Finally, `GInteractions` objects can also be compared in a parallel manner.
-This determines whether the *i*^th^ interaction in one object is equal to the *i*^th^ interaction in the other object.
+Finally, `GInteractions` objects can be compared in a parallel manner.
+This determines whether the *i*^th interaction in one object is equal to the *i*^th interaction in the other object.
 Again, the common regions should be the same for both objects.
 
 ```{r}
@@ -277,7 +280,7 @@ To illustrate, let's construct some interactions involving multiple chromosomes:
 
 ```{r}
 all.regions <- GRanges(rep(c("chrA", "chrB"), c(10, 5)), 
-        IRanges(c(0:9*10+1, 0:4*5+1), c(1:10*10, 1:5*5)))
+    IRanges(c(0:9*10+1, 0:4*5+1), c(1:10*10, 1:5*5)))
 index.1 <- c(5, 15,  3, 12, 9, 10)
 index.2 <- c(1,  5, 11, 13, 7,  4) 
 gi <- GInteractions(index.1, index.2, all.regions)
@@ -318,7 +321,8 @@ anchors(gi[queryHits(olap)])
 
 Longer `GRanges` can be specified if there are several regions of interest.
 Standard arguments can be supplied to `findOverlaps` to modify its behaviour, e.g., `type`, `minoverlap`.
-The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available.
+The `use.region` argument can be set to specify which regions in the `GInteractions` object are to be overlapped.
+The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available and behave as expected.
 
 A more complex situation involves identifying overlapping interactions in the two-dimensional interaction space.
 Say we have an existing interaction betweeen two regions, represented by a `GRangesList` of length 2.
@@ -335,7 +339,7 @@ olap
 The existing interaction in `paired.interest` occurs between one interval on chromosome A (i.e., `of.interest`) and another on chromosome B.
 Of all the interactions in our `GInteractions` object, only `gi[2]` is considered to be overlapping, 
     despite the fact that several interactions have 1D overlaps with `of.interest`.
-This is because only `gi[2]` has a concomitant overlap with the interacting partner region on chromosome B.
+This is because only `gi[2]` has an anchor region with a concomitant overlap with the interacting partner region on chromosome B.
 
 The above call uses a `GRangesList` of length 2, where each constituent `GRanges` has a single interval.
 Multiple pairwise interactions can be specified with longer constituent `GRanges`, 
@@ -422,7 +426,7 @@ All methods that apply to `GInteractions` can also be used for a `StrictGInterac
 The only difference is that anchor assignments will automatically enforce the standard permutation, by shuffling values between the first and second anchor indices.
 
 ```{r}
-anchors(sgi) <- list(1:6, 7:12)
+anchors(sgi) <- list(7:12, 1:6)
 anchors(sgi, id=TRUE)
 ```
 
@@ -432,7 +436,7 @@ In general, this subclass is more convenient to use if the permutation of anchor
 
 ## Construction
 
-The `InteractionSet` class inherits from `SummarizedExperiment0` and holds the experimental data associated with each interaction (along with the interactions themselves).
+The `InteractionSet` class inherits from `SummarizedExperiment` and holds the experimental data associated with each interaction (along with the interactions themselves).
 Each row of an `InteractionSet` object corresponds to one pairwise interaction, while each column corresponds to a sample, e.g., a Hi-C or ChIA-PET library.
 A typical use would be to store the count matrix for each interaction in each sample:
 
@@ -456,11 +460,11 @@ iset2
 ```
 
 Users and developers familiar with the `RangedSummarizedExperiment` class should have little trouble dealing with the `InteractionSet` class.
-The latter is simply the analogue of the former, after replacing genomic intervals in `GRanges` with  pairwise interactions in `GInteractions`.
+The latter is simply the analogue of the former, after replacing genomic intervals in the `GRanges` object with pairwise interactions in a `GInteractions` object.
 
 ## Getters
 
-The `InteractionSet` object supports all access methods in the `SummarizedExperiment0` class, e.g., `colData`, `metadata` and so on.
+The `InteractionSet` object supports all access methods in the `SummarizedExperiment` class, e.g., `colData`, `metadata` and so on.
 In particular, the `assay` and `assays` methods can be used to extract the data matrices:
 
 ```{r}
@@ -468,7 +472,7 @@ assay(iset)
 assay(iset2, 2)
 ```
 
-The `interactions` method extracts the `GInteractions` object containing the interaction for each row:
+The `interactions` method extracts the `GInteractions` object containing the interactions for all rows:
 
 ```{r}
 interactions(iset)
@@ -484,7 +488,7 @@ regions(iset)
 
 ## Setters
 
-Again, replacement methods for `SummarizedExperiment0` are supported in the `InteractionSet` class. 
+Again, replacement methods for `SummarizedExperiment` are supported in the `InteractionSet` class. 
 For example, the `colData` holds library-specific information -- one might add library sizes to the `colData` with:
 
 ```{r}
@@ -498,7 +502,6 @@ The interactions themselves can be replaced using the `interactions` replacement
 ```{r}
 new.gi <- interactions(iset)
 new.iset <- iset
-regions(new.gi)$score <- 1
 interactions(new.iset) <- new.gi
 ```
 
@@ -507,6 +510,7 @@ These methods will operate directly on the `GInteractions` object contained with
 This is often more convenient than extracting the interactions, modifying them and then replacing them with `interactions<-`.
 
 ```{r}
+regions(interactions(new.iset))$score <- 1
 regions(new.iset)$score <- 1 # same as above.
 ```
 
@@ -525,7 +529,7 @@ iset[,1:2]
 `InteractionSet` objects can be combined row-wise using `rbind` or `c`, similar to the methods described for `GInteractions`.
 This forms a new `InteractionSet` object containing all interactions from each individual object, with the associated data across all samples.
 Objects with the same interactions can also be combined column-wise with the `cbind` method.
-This is used to combine data from different samples.
+This is typically used to combine data for the same interactions but from different samples.
 The example below forms an `InteractionSet` object with an extra copy of the data from sample 3:
 
 ```{r}
@@ -538,7 +542,8 @@ Sorting, duplicate detection, distance calculation and overlap methods for `Inte
 Namely, the methods for the former are effectively wrappers that operate on the `GInteractions` object within each `InteractionSet`.
 As a consequence, only the anchor indices will be used for sorting and duplication identification.
 Experimental data will *not* be used to distinguish between rows of an `InteractionSet` that correspond to the same interaction.
-Also keep in mind that you should use `swapAnchors` to standardize the interactions before comparing within or between `InteractionSet` objects.
+Also keep in mind that you should use `swapAnchors` to standardize the interactions before comparing within or between `InteractionSet` objects 
+    (or alternatively, construct your `InteractionSet` objects with a `StrictGInteractions` object).
 
 # Description of the `ContactMatrix` class
 
@@ -562,13 +567,16 @@ cm <- ContactMatrix(counts, row.regions, col.regions)
 
 For purposes of memory efficiency, the interacting regions for each row or column are internally stored as described for `GInteractions`, 
     i.e., as anchor indices pointing to a set of (sorted) common regions.
-The number and order of rows need not be consistent with that of the columns in each `ContactMatrix`.
+Rectangular matrices are supported, so the number and order of rows need not be the same as that of the columns in each `ContactMatrix`.
 Construction can also be achieved directly from the indices and the set of common regions, as shown below:
 
 ```{r}
 cm <- ContactMatrix(counts, row.indices, col.indices, all.regions)
 cm
 ```
+
+The matrix itself is stored as a `Matrix` object from the `r CRANpkg("Matrix")` package.
+This provides support for sparse matrix representations that can save a lot of memory, e.g., when storing read counts for sparse areas of the interaction space. 
 
 ## Getters
 
@@ -625,7 +633,7 @@ metadata(temp.cm)
 ```
 
 There is no slot to store metadata for each cell of the matrix. 
-Any representation of intraction-specific metadata in matrix form would be equivalent to constructing a new `ContactMatrix` 
+Any representation of interaction-specific metadata in matrix form would be equivalent to constructing a new `ContactMatrix` 
     -- so, we might as well do that, instead of trying to cram additional data into an existing object.
 
 ## Subsetting and combining
@@ -662,7 +670,6 @@ cbind(cm, cm[,1:5]) # extra columns
 
 Note that the common regions must be the same in all objects to run `cbind` or `rbind`.
 If the common regions differ, they should be set to the same value (namely, a union of common regions from all objects) by using `replaceRegions` beforehand.
-The `combine` method is not provided here, as the generic does not provide arguments to specify whether a user would want to combine by row or column.
 
 ## Sorting and duplication
 
@@ -694,7 +701,7 @@ unique(temp.cm)
 
 Users should be aware that the values of the data matrix are *not* considered when identifying duplicates or during sorting.
 Only the anchor indices are used for ordering and duplicate detection.
-Rows or columns with the same anchor indices will *not* be distinguished by matrix values.
+Rows or columns with the same anchor indices will not be distinguished by the corresponding matrix values.
 
 ## Distance calculation
 
@@ -733,7 +740,8 @@ and.mask <- outer(olap$row, olap$column, "&")
 or.mask <- outer(olap$row, olap$column, "|")
 ```
 
-This can be used to mask all uninteresting entries in the data matrix for examination:
+This can be used to mask all uninteresting entries in the data matrix for examination.
+For example, say we're only interested in the entries corresponding to interactions within the `of.interest` interval:
 
 ```{r}
 my.matrix <- as.matrix(cm)
@@ -742,7 +750,7 @@ my.matrix
 ```
 
 Two-dimensional overlaps can also be performed with a `ContrastMatrix` by running `overlapsAny` with a `GRangesList` or `GInteractions` as the `subject`.
-This returns a logical matrix indicating which cells of the matrix have overlaps.
+This returns a logical matrix indicating which cells of the query matrix have overlaps with entries in the subject object.
 For example, if the first interacting region is `of.interest`, and the second interacting region is some interval at the start of chromosome B (below), we can do:
 
 ```{r}
@@ -756,7 +764,7 @@ olap
 
 If we have a `GInteractions` object, we can convert this into a `ContactMatrix` with specified rows and columns.
 Each pairwise interaction in the `GInteractions` corresponds to zero, one or two cells of the `ContactMatrix` (zero if it lies outside of the specified rows and columns, obviously;
-    two for some interactions when the `ContactMatrix` is intra-chromosomal and crosses the diagonal of the interaction space).
+    two for some interactions when the `ContactMatrix` crosses the diagonal of the interaction space).
 Each cell is filled with an arbitrary value associated with the corresponding interaction, e.g., counts, normalized contact frequencies.
 Cells with no corresponding interactions in the `GInteractions` object are set to `NA`.
 
@@ -796,7 +804,7 @@ as.matrix(new.cm)
 ## Deflating a `ContactMatrix` into an `InteractionSet`
 
 The reverse procedure can also be used to convert a `ContactMatrix` into an `InteractionSet`.
-This will report pairwise interactions corresponding to each cell of the matrix, with the value of that cell stored as experimental data in the `InteractionSet`:
+This will report pairwise interactions corresponding to each non-`NA` cell of the matrix, with the value of that cell stored as experimental data in the `InteractionSet`:
 
 ```{r}
 new.iset <- deflate(cm)
@@ -804,7 +812,7 @@ new.iset
 ```
 
 Note that any duplicated interactions are automatically removed.
-Such duplications may occur when the `ContactMatrix` crosses the diagonal of the interaction space.
+Such duplications may occur if there are duplicated rows/columns or -- more practically -- when the `ContactMatrix` crosses the diagonal of the interaction space.
 In most cases, duplicate removal is sensible as the values of the matrix should be reflected around the diagonal, such that the information in duplicated entries is redundant.
 However, if this is not the case, we can preserve duplicates for later processing:
 
@@ -834,7 +842,7 @@ rowRanges(rse)
 
 This conversion method is useful for collapsing 2D data into a 1D form for easier processing.
 For example, if sequencing counts were being stored in `iset`, then the linearized data in `rse` could be analyzed as if it represented genomic coverage 
-    (where the depth of coverage represents the intensity of the interaction of each region in `rowRanges(rse)` with the region of interest in `x`).
+    (where the depth of coverage represents the intensity of the interaction between each region in `rowRanges(rse)` and the region of interest in `x`).
 One application would be in converting Hi-C data into pseudo-4C data, given a user-specified "bait" region as `x`.
 
 # Summary
