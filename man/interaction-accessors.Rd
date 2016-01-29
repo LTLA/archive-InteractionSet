@@ -205,6 +205,10 @@ Similarly, the \code{names} getter and setter will operate the names of the inte
 However, the \code{metadata} getter and setter will operate on the SummarizedExperiment base class, \emph{not} on the internal GInteractions object.
 }
 
+\value{
+For the getters, values in various slots of \code{x} are returned, while for the setters, a modified copy of \code{x} is returned -- see below for more details.
+}
+
 \examples{
 example(GInteractions, echo=FALSE) # Generate a nice object.
 show(gi)

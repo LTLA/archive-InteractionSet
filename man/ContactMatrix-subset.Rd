@@ -50,6 +50,10 @@ Methods to subset or combine ContactMatrix objects.
 \item{deparse.level}{An integer scalar; see \code{?base::\link[base]{cbind}} for a description of this argument.}
 }
 
+\value{
+A subsetted or combined ContactMatrix object.
+}
+
 \details{
 Subsetting of ContactMatrix objects behaves like that for standard matrices.
 Rows and columns can be selected and rearranged, with concomitant changes to the \code{anchor1} and \code{anchor2} slots.

@@ -82,6 +82,10 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 \item{recursive}{An integer scalar, ignored.}
 }
 
+\value{
+A subsetted or combined object of the same class as \code{x}.
+}
+
 \section{Details for GInteractions}{
 Subsetting operations will return a GInteractions object containing the specified interactions.
 Values of the \code{anchor1} and \code{anchor2} slots will be appropriately subsetted in the returned object, along with any metadata in \code{mcols}.

@@ -110,6 +110,10 @@ As the ContactMatrix class inherits from the \code{\link{Annotated}} class, addi
 This can be accessed or modified with \code{\link{metadata,Annotated-method}}.
 }
 
+\value{
+For the getters, values in various slots of \code{x} are returned, while for the setters, a modified copy of \code{x} is returned -- see Details.
+}
+
 \examples{
 example(ContactMatrix, echo=FALSE) # Generate a nice object.
 show(x)
