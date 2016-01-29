@@ -206,7 +206,7 @@ However, the \code{metadata} getter and setter will operate on the SummarizedExp
 }
 
 \value{
-For the getters, values in various slots of \code{x} are returned, while for the setters, a modified copy of \code{x} is returned -- see below for more details.
+For the getters, values in various slots of \code{x} are returned, while for the setters, the slots of \code{x} are modified accordingly -- see below for more details.
 }
 
 \examples{
