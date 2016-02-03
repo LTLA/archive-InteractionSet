@@ -1,13 +1,13 @@
 Package: InteractionSet
-Version: 0.99.0
-Date: 2016-01-28
+Version: 0.99.1
+Date: 2016-02-03
 Title: Base Classes for Storing Genomic Interaction Data
 Author: Aaron Lun <alun@wehi.edu.au>, Malcolm Perry <mgperry32@gmail.com>,
         Liz Ing-Simmons <liz.ing-simmons12@csc.mrc.ac.uk> 
 Maintainer: Aaron Lun <alun@wehi.edu.au>
 Depends: R (>= 3.3.0), GenomicRanges, SummarizedExperiment (>= 1.1.6)
-Imports: IRanges, S4Vectors, GenomeInfoDb, BiocGenerics, methods,
-        Matrix
+Imports: IRanges, S4Vectors (>= 0.9.24), GenomeInfoDb, BiocGenerics, 
+        methods, Matrix
 Suggests: testthat, knitr, rmarkdown, BiocStyle
 biocViews: Infrastructure, DataRepresentation, Software, HiC
 Description: Provides the GInteractions, InteractionSet and ContactMatrix

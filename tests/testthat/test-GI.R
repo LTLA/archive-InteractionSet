@@ -178,19 +178,19 @@ x$stuff <- new.score
 expect_identical(x$stuff, mcols(x)$stuff)
 expect_identical(colnames(mcols(x)), "stuff")
 expect_output(show(x), "GInteractions object with 20 interactions and 1 metadata column:
-       seqnames1   ranges1     seqnames2   ranges2   |              stuff
-           <Rle> <IRanges>         <Rle> <IRanges>   |          <numeric>
-   [1]      chrA [82, 100] ---      chrB [67,  84]   |  0.685012309812009
-   [2]      chrA [76,  95] ---      chrB [64,  78]   |  0.895816484699026
-   [3]      chrA [87, 104] ---      chrA [ 3,  23]   |  0.618890272220597
-   [4]      chrB [67,  84] ---      chrA [41,  59]   | 0.0507488863077015
-   [5]      chrA [14,  19] ---      chrA [87, 104]   |  0.621526781003922
-   ...       ...       ... ...       ...       ... ...                ...
-  [16]      chrA [59,  72] ---      chrA [68,  78]   |  0.727361923549324
-  [17]      chrA [84, 103] ---      chrB [94, 113]   |  0.402884092880413
-  [18]      chrB [89,  97] ---      chrA [20,  33]   |  0.906575692584738
-  [19]      chrA [41,  59] ---      chrA [84, 103]   |  0.582026617834345
-  [20]      chrA [86, 105] ---      chrA [76,  95]   |  0.863604818237945
+       seqnames1   ranges1     seqnames2   ranges2 |              stuff
+           <Rle> <IRanges>         <Rle> <IRanges> |          <numeric>
+   [1]      chrA [82, 100] ---      chrB [67,  84] |  0.685012309812009
+   [2]      chrA [76,  95] ---      chrB [64,  78] |  0.895816484699026
+   [3]      chrA [87, 104] ---      chrA [ 3,  23] |  0.618890272220597
+   [4]      chrB [67,  84] ---      chrA [41,  59] | 0.0507488863077015
+   [5]      chrA [14,  19] ---      chrA [87, 104] |  0.621526781003922
+   ...       ...       ... ...       ...       ... .                ...
+  [16]      chrA [59,  72] ---      chrA [68,  78] |  0.727361923549324
+  [17]      chrA [84, 103] ---      chrB [94, 113] |  0.402884092880413
+  [18]      chrB [89,  97] ---      chrA [20,  33] |  0.906575692584738
+  [19]      chrA [41,  59] ---      chrA [84, 103] |  0.582026617834345
+  [20]      chrA [86, 105] ---      chrA [76,  95] |  0.863604818237945
   -------
   regions: 30 ranges and 0 metadata columns
   seqinfo: 2 sequences from an unspecified genome; no seqlengths", fixed=TRUE)
