@@ -251,6 +251,7 @@ setMethod("names", "GInteractions", function(x) {
 })
 
 setReplaceMethod("names", "GInteractions", function(x, value) {
+    if (!is.null(value) && !is.character(value)) { value <- as.character(value) }                
     x@NAMES <- value
     validObject(x)
     return(x)
