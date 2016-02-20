@@ -21,7 +21,9 @@ for (i in 1:3) {
 
     ref1 <- unlist(range(split(anchors(x, type="first"), f)))
     ref2 <- unlist(range(split(anchors(x, type="second"), f)))
-    expect_identical(GRangesList(first=ref1, second=ref2), boundingBox(x, f))
+    ref <- GInteractions(unname(ref1), unname(ref2))
+    names(ref) <- names(ref1)
+    expect_identical(ref, boundingBox(x, f))
 }
 
 # Checking that it works properly when 'f' is not specified.
@@ -30,12 +32,15 @@ only.A <- all.chrs[anchors(x, type="first", id=TRUE)] == "chrA" & all.chrs[ancho
 x.A <- x[only.A]
 ref1 <- unlist(range(anchors(x.A, type="first")))
 ref2 <- unlist(range(anchors(x.A, type="second")))
-names(ref1) <- names(ref2) <- 1
-expect_identical(boundingBox(x.A), GRangesList(first=ref1, second=ref2)) 
+ref <- GInteractions(unname(ref1), unname(ref2))
+names(ref) <- 1
+expect_identical(boundingBox(x.A), ref)
 
 # Breaking it with silly inputs.
 
 expect_error(boundingBox(x), "multiple chromosomes for group '1'")
 f <- rep("whee", Np)
 expect_error(boundingBox(x,f), "multiple chromosomes for group 'whee'")
-expect_identical(boundingBox(x[0]), GRangesList(first=ref1[0], second=ref2[0]))
+ref <- GInteractions(ref1[0], ref2[0])
+names(ref) <- character(0)
+expect_identical(boundingBox(x[0]), ref)

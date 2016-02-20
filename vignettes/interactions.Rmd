@@ -397,7 +397,7 @@ swap.gi <- swapAnchors(gi)
 boundingBox(swap.gi, group.by.chr)
 ```
 
-This function returns a `GRangesList` object where the constituent `GRanges` contain the coordinates for the sides of each bounding box.
+This function returns a `GInteractions` object where the anchor regions represent the sides of each bounding box.
 The example above identifies the bounding box for all interactions on each pair of chromosomes. 
 Note that it is only defined when all interactions in a group lie on the same pair of chromosomes.
 The function will fail if, e.g., the group contains both inter- and intra-chromosomal interactions.

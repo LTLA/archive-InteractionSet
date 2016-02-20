@@ -23,7 +23,7 @@ A factor or vector of length equal to that of \code{x}, indicating the group to 
 }
 
 \value{
-A GRangesList object containing the coordinates of each side of the bounding box for each group.
+A GInteractions object containing the coordinates of each bounding box.
 }
 
 \details{
@@ -35,10 +35,9 @@ Grouping of interactions is specified using \code{f}, where interactions in \cod
 If \code{f} is not specified, all interactions in \code{x} are assumed to be in a single group (named as ``1'').
 An error will be raised if a group spans multiple chromosomes for either the first or second anchor regions.
 
-The function returns a GRangesList object with entries \code{first} and \code{second}.
-This contains the coordinates for the sides of the bounding box across the first or second anchor regions, respectively.
-The internal GRanges are named according to the levels of \code{f}, 
-    such that the entries with matching names across \code{first} and \code{second} constitute the bounding box for the group corresponding to that level of \code{f}.
+The function returns a GInteractions object containing the coordinates of the bounding boxes for all groups.
+Each interaction represents a bounding box for a group, where the anchor regions represent the sides of the box.
+Entries are named according to the levels of \code{f}, in order to specify which bounding box corresponds to which group.
 
 It is recommended to run \code{\link{swapAnchors}} prior to computing the bounding box for intra-chromosomal groups.
 If all \code{anchor1 >= anchor2} or all \code{anchor1 <= anchor2}, all interactions will lie on one side of the diagonal of the intra-chromosomal interaction space.

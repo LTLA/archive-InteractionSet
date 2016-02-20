@@ -36,9 +36,9 @@
 
     gr1 <- GRanges(ref.chr[bound1[[2]]], IRanges(bound1[[3]], bound1[[4]]), seqinfo=seqinfo(x)) 
     gr2 <- GRanges(ref.chr[bound2[[2]]], IRanges(bound2[[3]], bound2[[4]]), seqinfo=seqinfo(x))
-    seqinfo(gr1) <- seqinfo(gr2) <- seqinfo(regions(x))
-    names(gr1) <- names(gr2) <- ref.fac[bound1[[1]]+1L]
-    return(GRangesList(first=gr1, second=gr2))
+    out <- GInteractions(gr1, gr2)
+    names(out) <- ref.fac[bound1[[1]]+1L]
+    return(out)
 }
 
 setGeneric("boundingBox", function(x, f) { standardGeneric("boundingBox") })
