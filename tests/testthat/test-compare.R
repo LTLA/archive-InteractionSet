@@ -50,21 +50,21 @@ expect_identical(match(iset, iset2[1:6,]), ref.match(iset, iset2[1:6,]))
 
 # Trying to compare 'GInteractions' objects.
 
-expect_identical(S4Vectors::compare(x, another.x), ifelse(x@anchor1==another.x@anchor1, x@anchor2-another.x@anchor2, x@anchor1-another.x@anchor1))
+expect_identical(pcompare(x, another.x), ifelse(x@anchor1==another.x@anchor1, x@anchor2-another.x@anchor2, x@anchor1-another.x@anchor1))
 sub.x <- x[3:12]
-expect_identical(S4Vectors::compare(sub.x, another.x), ifelse(sub.x@anchor1==another.x@anchor1, sub.x@anchor2-another.x@anchor2, sub.x@anchor1-another.x@anchor1))
-expect_identical(S4Vectors::compare(another.x, sub.x), -S4Vectors::compare(sub.x, another.x))
-expect_identical(S4Vectors::compare(x[0], another.x[0]), integer(0))
+expect_identical(pcompare(sub.x, another.x), ifelse(sub.x@anchor1==another.x@anchor1, sub.x@anchor2-another.x@anchor2, sub.x@anchor1-another.x@anchor1))
+expect_identical(pcompare(another.x, sub.x), -pcompare(sub.x, another.x))
+expect_identical(pcompare(x[0], another.x[0]), integer(0))
 
-old <- S4Vectors::compare(x, another.x)
+old <- pcompare(x, another.x)
 expect_identical(x==x, !logical(length(x)))
 expect_identical(x!=x, logical(length(x)))
 expect_identical(x==another.x, old==0L)
 
 regions(another.x)$whee <- 1
-expect_identical(S4Vectors::compare(x, another.x), old) # This should be okay, as metadata is ignored.
+expect_identical(pcompare(x, another.x), old) # This should be okay, as metadata is ignored.
 regions(another.x) <- resize(regions(another.x), width(regions(another.x))*2L)
-expect_error(S4Vectors::compare(x, another.x), "'regions' must be identical")
+expect_error(pcompare(x, another.x), "'regions' must be identical")
 
 sx <- as(swapAnchors(x), "StrictGInteractions")
 expect_warning(sx==x, "comparison between GInteractions objects of different strictness")

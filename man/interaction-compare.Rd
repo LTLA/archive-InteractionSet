@@ -20,7 +20,7 @@
 \alias{swapAnchors,GInteractions-method}
 \alias{swapAnchors,InteractionSet-method}
 
-\alias{compare,GInteractions,GInteractions-method}
+\alias{pcompare,GInteractions,GInteractions-method}
 
 \title{Interaction comparisons}
 
@@ -48,7 +48,7 @@ Methods to order, compare and de-duplicate GInteractions or InteractionSet objec
 # GInteractions and InteractionSet objects in 'x' or 'table'. 
 # For brevity, these will not be listed here.
 
-\S4method{compare}{GInteractions,GInteractions}(x, y)
+\S4method{pcompare}{GInteractions,GInteractions}(x, y)
 }
 
 \arguments{
@@ -59,7 +59,7 @@ Methods to order, compare and de-duplicate GInteractions or InteractionSet objec
 
 \item{x}{
     An InteractionSet or GInteractions object.
-    For \code{compare}, a GInteractions object only.
+    For \code{pcompare}, a GInteractions object only.
 }
 
 \item{na.last}{
@@ -129,7 +129,7 @@ Each entry of the vector corresponds to an interaction in \code{x} and contains 
 Interactions in \code{x} without any matches are assigned \code{NA} values by default.
 Note that the \code{regions} slot must be identical between \code{x} and \code{table}.
 
-The \code{compare} function will return an integer vector of length equal to \code{x} and \code{y}.
+The \code{pcompare} function will return an integer vector of length equal to \code{x} and \code{y}.
 This performs parallel comparisons between corresponding entries in two GInteractions objects, based on the values of the anchor indices 
 (\code{anchor1} first, and then \code{anchor2} if \code{anchor1} is tied).
 Negative, zero and positive values indicate that the corresponding interaction in \code{x} is 'lesser', equal or 'greater' than the corresponding interaction in \code{y}.
@@ -157,7 +157,7 @@ Return values for each InteractionSet method is the same as those for the corres
 
 Note that no additional information from the InteractionSet (beyond that in \code{interactions}) is used for sorting or duplicate marking,
     i.e., the assay or metadata values for each interaction are \emph{not} used in distinguishing rows with the same interaction.
-For this reason, the \code{compare} method is not implemented for InteractionSet objects.
+For this reason, the \code{pcompare} method is not implemented for InteractionSet objects.
 It makes little sense to do a parallel comparison in an InteractionSet without examining the data.
 }
 
@@ -188,7 +188,7 @@ another.gi <- gi[sample(length(gi))]
 match(gi, another.gi)
 match(gi, another.gi[1:5])
 
-compare(gi, another.gi)
+pcompare(gi, another.gi)
 
 #################
 # Same can be done for an InteractionSet object:
@@ -211,6 +211,6 @@ Aaron Lun
 \code{\link{GInteractions-class}},
 \code{\link{InteractionSet-class}},
 \code{\link[base]{match}},
-\code{\link[S4Vectors]{compare}}
+\code{\link[S4Vectors]{pcompare}}
 }
 
