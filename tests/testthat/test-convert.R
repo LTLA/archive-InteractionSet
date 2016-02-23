@@ -204,3 +204,11 @@ expect_equal(deflate(xref, extract=ex, use.na=TRUE), alt) # ... but 'ex' overrid
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 4, 0), 1:4, integer(0), all.regions)))==0L)
 expect_true(nrow(deflate(ContactMatrix(matrix(0, 0, 4), integer(0), 1:4, all.regions)))==0L)
 
+##########################################
+# Converting a GInteractions to a SelfHits object.
+
+gi <- interactions(x)
+out <- as(gi, "SelfHits")
+expect_identical(from(out), anchors(gi, id=TRUE, type="first"))
+expect_identical(to(out), anchors(gi, id=TRUE, type="second"))
+expect_identical(nnode(out), length(regions(gi)))

@@ -48,7 +48,7 @@ for (param in seq_len(6)) {
     expected2 <- findOverlaps(anchors(x, type="second"), query.regions, type=type, maxgap=maxgap, minoverlap=minoverlap)
     if (use.region=="both") {
         ref <- Hits(c(queryHits(expected1), queryHits(expected2)), c(subjectHits(expected1), subjectHits(expected2)),
-                    queryLength=length(x), subjectLength=Nq)
+                    nLnode=length(x), nRnode=Nq, sort.by.query=TRUE)
     } else if (use.region=="first") {
         ref <- expected1
     } else if (use.region=="second") { 
@@ -77,7 +77,7 @@ for (param in seq_len(6)) {
     rexpected2 <- findOverlaps(query.regions, anchors(x, type="second"), type=type, maxgap=maxgap, minoverlap=minoverlap)
     if (use.region=="both") {
         rref <- Hits(c(queryHits(rexpected1), queryHits(rexpected2)), c(subjectHits(rexpected1), subjectHits(rexpected2)),
-                     queryLength=Nq, subjectLength=length(x))
+                     nLnode=Nq, nRnode=length(x), sort.by.query=TRUE)
     } else if (use.region=="first") {
         rref <- rexpected1
     } else if (use.region=="second") {
@@ -101,12 +101,12 @@ for (param in seq_len(6)) {
 
 # What happens with silly inputs?
     
-expect_equal(findOverlaps(x[0,], query.regions), Hits(queryLength=0, subjectLength=Nq))
-expect_equal(findOverlaps(x, query.regions[0]), Hits(queryLength=length(x), subjectLength=0L))
-expect_equal(findOverlaps(query.regions, x[0]), Hits(subjectLength=0, queryLength=Nq))
-expect_equal(findOverlaps(query.regions[0], x), Hits(subjectLength=length(x), queryLength=0L))
-expect_equal(findOverlaps(x[0,], query.regions[0]), Hits(queryLength=0L, subjectLength=0L))
-expect_equal(findOverlaps(query.regions[0,], x[0]), Hits(queryLength=0L, subjectLength=0L))
+expect_equal(findOverlaps(x[0,], query.regions), Hits(nLnode=0, nRnode=Nq, sort.by.query=TRUE))
+expect_equal(findOverlaps(x, query.regions[0]), Hits(nLnode=length(x), nRnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(query.regions, x[0]), Hits(nRnode=0, nLnode=Nq, sort.by.query=TRUE))
+expect_equal(findOverlaps(query.regions[0], x), Hits(nRnode=length(x), nLnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(x[0,], query.regions[0]), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(query.regions[0,], x[0]), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
 
 expect_equal(findOverlaps(x[0,], query.regions, select="first"), integer(0))
 expect_equal(findOverlaps(query.regions[0], x, select="first"), integer(0))
@@ -170,7 +170,7 @@ for (param in seq_len(6)) {
 
     expected <- intersect(expected1, expected2)
     harvest <- do.call(rbind, strsplit(expected, "\\."))
-    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), queryLength=length(x), subjectLength=Nq2)
+    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), nLnode=length(x), nRnode=Nq2, sort.by.query=TRUE)
     ref <- sort(unique(ref))
     
     olap <- findOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
@@ -212,7 +212,7 @@ for (param in seq_len(6)) {
 
     rexpected <- intersect(rexpected1, rexpected2)
     rharvest <- do.call(rbind, strsplit(rexpected, "\\."))
-    rref <- Hits(as.integer(rharvest[,1]), as.integer(rharvest[,2]), queryLength=length(x), subjectLength=Nq2)
+    rref <- Hits(as.integer(rharvest[,1]), as.integer(rharvest[,2]), nLnode=length(x), nRnode=Nq2, sort.by.query=TRUE)
     rref <- sort(unique(rref))
 
     rolap <- findOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
@@ -238,12 +238,12 @@ expect_error(findOverlaps(x, GRangesList(GRanges(), query.regions1)), "component
 expect_error(findOverlaps(x, GRangesList(query.regions1, query.regions2, query.regions1)), "input GRangesList must be of length 2", fixed=TRUE)
 
 empty.pairing <- GRangesList(GRanges(), GRanges())
-expect_equal(findOverlaps(x[0,], pairing), Hits(queryLength=0, subjectLength=Nq2))
-expect_equal(findOverlaps(x, empty.pairing), Hits(queryLength=length(x), subjectLength=0L))
-expect_equal(findOverlaps(pairing, x[0]), Hits(subjectLength=0, queryLength=Nq2))
-expect_equal(findOverlaps(empty.pairing, x), Hits(subjectLength=length(x), queryLength=0L))
-expect_equal(findOverlaps(x[0,], empty.pairing), Hits(queryLength=0L, subjectLength=0L))
-expect_equal(findOverlaps(empty.pairing, x[0]), Hits(queryLength=0L, subjectLength=0L))
+expect_equal(findOverlaps(x[0,], pairing), Hits(nLnode=0, nRnode=Nq2, sort.by.query=TRUE))
+expect_equal(findOverlaps(x, empty.pairing), Hits(nLnode=length(x), nRnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(pairing, x[0]), Hits(nRnode=0, nLnode=Nq2, sort.by.query=TRUE))
+expect_equal(findOverlaps(empty.pairing, x), Hits(nRnode=length(x), nLnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(x[0,], empty.pairing), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
+expect_equal(findOverlaps(empty.pairing, x[0]), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
 
 expect_equal(findOverlaps(x[0,], pairing, select="first"), integer(0))
 expect_equal(findOverlaps(empty.pairing, x, select="first"), integer(0))
@@ -306,7 +306,7 @@ for (param in seq_len(6)) {
 
     expected <- intersect(expected1, expected2)
     harvest <- do.call(rbind, strsplit(expected, "\\."))
-    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), queryLength=length(x), subjectLength=length(x2))
+    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), nLnode=length(x), nRnode=length(x2), sort.by.query=TRUE)
     ref <- sort(unique(ref))
     
     olap <- findOverlaps(x, x2, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
@@ -350,7 +350,7 @@ for (param in seq_len(6)) {
 
     expected <- intersect(expected1, expected2)
     harvest <- do.call(rbind, strsplit(expected, "\\."))
-    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), queryLength=length(x), subjectLength=length(x2))
+    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), nLnode=length(x), nRnode=length(x2), sort.by.query=TRUE)
     ref <- sort(unique(ref))
     
     self.olap <- findOverlaps(x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
@@ -369,9 +369,9 @@ for (param in seq_len(6)) {
 
 # What happens with silly inputs?
 
-expect_equal(findOverlaps(x[0], x2), Hits(queryLength=0, subjectLength=nrow(x2)))
-expect_equal(findOverlaps(x, x2[0]), Hits(subjectLength=0, queryLength=nrow(x)))
-expect_equal(findOverlaps(x[0], x2[0]), Hits(queryLength=0L, subjectLength=0L))
+expect_equal(findOverlaps(x[0], x2), Hits(nLnode=0, nRnode=nrow(x2), sort.by.query=TRUE))
+expect_equal(findOverlaps(x, x2[0]), Hits(nRnode=0, nLnode=nrow(x), sort.by.query=TRUE))
+expect_equal(findOverlaps(x[0], x2[0]), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
 
 expect_equal(findOverlaps(x[0], x2, select="first"), integer(0))
 expect_equal(findOverlaps(x, x2[0], select="first"), rep(as.integer(NA), nrow(x)))

@@ -82,7 +82,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GRanges"),
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, gi.is.query=TRUE,
                     use.region=use.region)
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject))
+        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject), sort.by.query=TRUE)
         return(selectHits(final, select=match.arg(select))) 
     }
 )
@@ -97,7 +97,7 @@ setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, gi.is.query=FALSE,
                     use.region=use.region)
-        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query), length(subject))
+        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query), length(subject), sort.by.query=TRUE)
         final <- sort(final) 
         return(selectHits(final, select=match.arg(select))) 
     }
@@ -140,7 +140,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GRangesList"),
                     ignore.strand=ignore.strand, gi.is.query=TRUE,
                     use.region=use.region)
        
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject[[1]])) # Cleaning up (1-indexing).
+        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject[[1]]), sort.by.query=TRUE) # Cleaning up (1-indexing).
         return(selectHits(final, select=match.arg(select)))
     }
 )
@@ -156,7 +156,7 @@ setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
                     ignore.strand=ignore.strand, gi.is.query=FALSE, 
                     use.region=use.region)
 
-        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query[[1]]), length(subject)) 
+        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query[[1]]), length(subject), sort.by.query=TRUE) 
         final <- sort(final) 
         return(selectHits(final, select=match.arg(select)))
     }
@@ -215,7 +215,7 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
         out <- .paired_overlap_finder2(query, subject, cxx_expand_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, use.region=use.region)
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject))
+        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject), sort.by.query=TRUE)
         return(selectHits(final, select=match.arg(select)))
     }
 )

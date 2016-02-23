@@ -144,3 +144,8 @@ setAs("GInteractions", "ReverseStrictGInteractions", function(from) {
     new("ReverseStrictGInteractions", swapAnchors(from, mode="reverse"))
 })
 
+# Convert to a Hits object.
+
+setAs("GInteractions", "SelfHits", function(from) {
+    SelfHits(from=from@anchor1, to=from@anchor2, nnode=length(regions(from)), sort.by.query=FALSE)
+})
