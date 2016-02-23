@@ -60,6 +60,11 @@ setMethod("parallelSlotNames", "GInteractions", function(x) {
     c("anchor1", "anchor2", callNextMethod())         
 })
 
+# For coercion to an environment:
+setMethod("parallelVectorNames", "GInteractions", function(x) {
+    c("anchor1", "anchor2", "regions", "names")
+})
+
 scat <- function(fmt, vals=character(), exdent=2, ...) {
     vals <- ifelse(nzchar(vals), vals, "''")
     lbls <- paste(S4Vectors:::selectSome(vals), collapse=" ")

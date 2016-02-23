@@ -60,6 +60,12 @@ for (siglist in list("GInteractions", "ContactMatrix")) {
     setMethod("regions", siglist, function(x) { x@regions })
 }
 
+# Also defining some internal getters, for environment uses: 
+setGeneric("anchor1", function(x) standardGeneric("anchor1"))
+setGeneric("anchor2", function(x) standardGeneric("anchor2"))
+setMethod("anchor1", "GInteractions", function(x) { x@anchor1 })
+setMethod("anchor2", "GInteractions", function(x) { x@anchor2 })
+
 ###############################################################
 # Setters:
 

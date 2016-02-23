@@ -395,6 +395,15 @@ empty <- as.data.frame(x[0,])
 expect_identical(colnames(empty), colnames(as.data.frame(x)))
 expect_identical(nrow(empty), 0L)
 
+# Testing environment generation via 'with'
+
+expect_identical(anchors(x, id=TRUE, type="first"), with(x, anchor1))
+expect_identical(anchors(x, id=TRUE, type="second"), with(x, anchor2))
+expect_identical(regions(x), with(x, regions))
+expect_identical(anchors(x, type="first"), with(x, regions[anchor1]))
+expect_identical(anchors(x, type="second"), with(x, regions[anchor2]))
+expect_identical(names(x), with(x, names))
+
 # Testing object flipping to a GRangesList.
 
 temp.x <- x
