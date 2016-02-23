@@ -393,7 +393,7 @@ expect_identical(out, data.frame(ref1, ref2, stuff=new.score, row.names=names(te
 
 empty <- as.data.frame(x[0,])
 expect_identical(colnames(empty), colnames(as.data.frame(x)))
-expect_identical(length(empty), 0L)
+expect_identical(nrow(empty), 0L)
 
 # Testing environment generation via 'with'
 
