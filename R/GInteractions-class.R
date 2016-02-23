@@ -57,7 +57,7 @@ setValidity2("GInteractions", function(object) {
 })
 
 setMethod("parallelSlotNames", "GInteractions", function(x) {
-    c("anchor1", "anchor2", callNextMethod())         
+    c("anchor1", "anchor2", "NAMES", callNextMethod())         
 })
 
 # For coercion to an environment:
@@ -284,17 +284,6 @@ setMethod("GInteractions", c("missing", "missing", "GenomicRangesORmissing"),
         out <- .new_GInteractions(integer(0), integer(0), regions, metadata, mode=mode)
         mcols(out) <- DataFrame(...)[integer(0),,drop=FALSE]
         out
-})
-
-###############################################################
-# Subsetting. Mostly automatically taken care of by extractROWS from Vector
-# with new parallel slots of anchor1 and anchor2, but we need to handle NAMES.
-
-setMethod("extractROWS", "GInteractions", function(x, i) {
-    if (!is.null(x@NAMES)) { 
-        x@NAMES <- extractROWS(names(x), i)
-    }
-    callNextMethod()
 })
 
 ###############################################################
