@@ -22,7 +22,7 @@ setGeneric("inflate", function(x, ...) standardGeneric("inflate"))
 setMethod("inflate", "GInteractions", function(x, rows, columns, fill, swap=TRUE, sparse=FALSE, ...) {
     row.chosen <- .make_to_indices(regions(x), rows, ...)
     col.chosen <- .make_to_indices(regions(x), columns, ...)
-    fill <- rep(fill, length.out=nrow(x))
+    fill <- rep(fill, length.out=length(x))
      
     # Removing duplicated rows and resorting (we'll put them back in later)
     ro <- order(row.chosen)
