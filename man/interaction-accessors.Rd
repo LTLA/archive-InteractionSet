@@ -250,7 +250,7 @@ seqinfo(gi)
 seqinfo(gi) <- Seqinfo(seqnames=c("chrA", "chrB"), seqlengths=c(1000, 2000))
 
 # Accessing or modifying metadata.
-gi$score <- runif(nrow(gi))
+gi$score <- runif(length(gi))
 mcols(gi)
 as.data.frame(gi)
 

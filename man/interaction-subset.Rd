@@ -68,7 +68,7 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 }
 
 \item{f}{
-    A vector-like object of length equal to \code{nrow(x)}, indicating how rows of \code{x} are to be split into separate objects.
+    A vector-like object of length equal to \code{length(x)} (for GInteractions objects) or \code{nrow(x)} (for InteractionSet objects), indicating how entries/rows of \code{x} are to be split into separate objects.
     This is usually a factor.
 }
 
@@ -149,7 +149,7 @@ regions(new.gi) <- resize(regions(new.gi), width=20, fix="start")
 rbind(gi, new.gi)
 
 # Splitting:
-f <- sample(4, nrow(gi), replace=TRUE)
+f <- sample(4, length(gi), replace=TRUE)
 out <- split(gi, f)
 out[[1]]
 
