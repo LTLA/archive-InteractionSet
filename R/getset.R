@@ -228,10 +228,6 @@ setMethod("reduceRegions", "InteractionSet", function(x) {
 ###############################################################
 # Defining some other getters and setters.
 
-setMethod("nrow", signature("GInteractions"), function(x) { 
-    length(x) 
-})
-
 setMethod("$", "GInteractions", function(x, name) {
     return(x@elementMetadata[[name]])
 })

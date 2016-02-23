@@ -42,7 +42,7 @@
 \alias{interactions<-}
 \alias{interactions<-,InteractionSet-method}
 
-\alias{nrow,GInteractions-method}
+\alias{length,GInteractions-method}
 \alias{as.data.frame,GInteractions-method}
 \alias{$,GInteractions-method}
 \alias{$<-,GInteractions-method}
@@ -84,7 +84,7 @@ Methods to get and set fields in an InteractionSet or GInteractions object.
 \S4method{anchors}{StrictGInteractions}(x, type="both") <- value
 \S4method{anchors}{ReverseStrictGInteractions}(x, type="both") <- value
 
-\S4method{nrow}{GInteractions}(x)
+\S4method{length}{GInteractions}(x)
 \S4method{as.data.frame}{GInteractions}(x, row.names=NULL, optional=FALSE, ...)
 \S4method{$}{GInteractions}(x, name)
 \S4method{$}{GInteractions}(x, name) <- value
@@ -163,7 +163,7 @@ R uses a copy-on-write memory management scheme, so only one copy of the GRanges
 \section{Other methods for GInteractions}{
 For access and setting of all other slots, see \code{\link{Vector-class}} for details on the appropriate methods.
 This includes \code{mcols} or \code{metadata}, to store interactions-specific or experiment-wide metadata, respectively.
-The \code{nrow} method is an alias for \code{length}, and will return the number of interactions stored in \code{x}.
+The \code{length} method will return the number of interactions stored in \code{x}.
 
 The \code{show} method will print out the class, the number of pairwise interactions, and the total number of regions in the GInteractions object.
 The number and names of the various metadata fields will also be printed.

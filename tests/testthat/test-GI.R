@@ -238,15 +238,15 @@ temp.x$score <- new.score
 expect_identical(temp.x[rchosen]$score, new.score[rchosen])
 expect_identical(nrow(mcols(temp.x[rchosen])), length(rchosen))
 
-expect_that(nrow(x[0,]), is_identical_to(0L))
-expect_that(nrow(x[0]), is_identical_to(0L))
+expect_that(length(x[0,]), is_identical_to(0L))
+expect_that(length(x[0]), is_identical_to(0L))
 expect_error(x[,1], "invalid subsetting")
 
 # Testing subset assignment.
 
 temp.x <- x
 temp.x[1:5+10,] <- x[1:5,]
-new.index <- seq_len(nrow(x))
+new.index <- seq_along(x)
 new.index[1:5+10] <- 1:5
 expect_identical(anchors(temp.x, type="first"), anchors(x, type="first")[new.index,])
 expect_identical(anchors(temp.x, type="second"), anchors(x, type="second")[new.index,])
@@ -393,7 +393,7 @@ expect_identical(out, data.frame(ref1, ref2, stuff=new.score, row.names=names(te
 
 empty <- as.data.frame(x[0,])
 expect_identical(colnames(empty), colnames(as.data.frame(x)))
-expect_identical(nrow(empty), 0L)
+expect_identical(length(empty), 0L)
 
 # Testing environment generation via 'with'
 

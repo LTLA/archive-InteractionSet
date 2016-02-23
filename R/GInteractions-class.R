@@ -380,7 +380,7 @@ setMethod("duplicated", "GInteractions", function(x, incomparables=FALSE, fromLa
 # Stable sort required here: first entry in 'x' is always non-duplicate if fromLast=FALSE,
 # and last entry is non-duplicate if fromLast=TRUE.
 {
-    if (!nrow(x)) { return(logical(0)) }
+    if (!length(x)) { return(logical(0)) }
     a1 <- anchors(x, id=TRUE, type="first")
     a2 <- anchors(x, id=TRUE, type="second")
     o <- order(a1, a2) 
