@@ -43,7 +43,7 @@ setMethod("show", signature("InteractionSet"), function(object) {
     new("InteractionSet", se0, interactions=interactions)
 }
 
-setGeneric("InteractionSet", function(assays, interactions, ...) { standardGeneric("InteractionSet") })
+setGeneric("InteractionSet", function(assays, interactions, ...) standardGeneric("InteractionSet"))
 setMethod("InteractionSet", c("ANY", "GInteractions"), function(assays, interactions, ...) { 
         .new_InteractionSet(assays, interactions, ...)
    }

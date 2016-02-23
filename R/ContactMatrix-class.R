@@ -66,7 +66,7 @@ setMethod("show", signature("ContactMatrix"), function(object) {
         regions=out$regions, metadata=metadata)
 }
 
-setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, regions, ...) { standardGeneric("ContactMatrix") })
+setGeneric("ContactMatrix", function(matrix, anchor1, anchor2, regions, ...) standardGeneric("ContactMatrix"))
 setMethod("ContactMatrix", c("ANY", "numeric", "numeric", "GRanges"), 
     function(matrix, anchor1, anchor2, regions, metadata=list()) { 
         .new_ContactMatrix(matrix, anchor1, anchor2, regions, metadata)

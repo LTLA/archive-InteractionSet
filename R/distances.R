@@ -1,4 +1,4 @@
-setGeneric("pairdist", function(x, ...) { standardGeneric("pairdist") })
+setGeneric("pairdist", function(x, ...) standardGeneric("pairdist"))
 
 .get_dist_output <- function(regs, ai1, ai2, type) {
     type <- match.arg(type, c("mid", "gap", "span", "diag", "intra"))
@@ -60,7 +60,7 @@ setMethod("pairdist", "ContactMatrix", function(x, type="mid")
     return(out)
 })
 
-setGeneric("intrachr", function(x) { standardGeneric("intrachr") })
+setGeneric("intrachr", function(x) standardGeneric("intrachr"))
 setMethod("intrachr", "GInteractions", function(x) { pairdist(x, type="intra") })
 setMethod("intrachr", "InteractionSet", function(x) { pairdist(x, type="intra") })
 setMethod("intrachr", "ContactMatrix", function(x) { pairdist(x, type="intra") })

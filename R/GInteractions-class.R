@@ -210,7 +210,7 @@ setValidity2("ReverseStrictGInteractions", function(object) {
         metadata=as.list(metadata))
 }
 
-setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) { standardGeneric("GInteractions") })
+setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) standardGeneric("GInteractions"))
 setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
     function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
         out <- .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)

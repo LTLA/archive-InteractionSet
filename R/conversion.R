@@ -1,6 +1,6 @@
 # Inflate from InteractionSet to ContactMatrix.
 
-setGeneric("inflate", function(x, ...) { standardGeneric("inflate") })
+setGeneric("inflate", function(x, ...) standardGeneric("inflate"))
 
 .make_to_indices <- function(regs, i, ...) {
     nregs <- length(regs)
@@ -80,7 +80,7 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     inflate(interactions(x), rows, columns, fill=fill, swap=swap, sparse=sparse, ...)
 })
 
-setGeneric("deflate", function(x, ...) { standardGeneric("deflate") })
+setGeneric("deflate", function(x, ...) standardGeneric("deflate"))
 
 setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, extract, use.zero, use.na, ...) {
     # Choosing the expansion strategy.

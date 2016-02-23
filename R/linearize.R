@@ -1,4 +1,4 @@
-setGeneric("linearize", function(x, ref, ...) { standardGeneric("linearize") })
+setGeneric("linearize", function(x, ref, ...) standardGeneric("linearize"))
 setMethod("linearize", c("InteractionSet", "numeric"), function(x, ref, ...) {
     ref <- as.integer(ref)
     keep.a1 <- anchors(x, type="first", id=TRUE) == ref

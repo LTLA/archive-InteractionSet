@@ -1,6 +1,6 @@
 # Flipping to a GRangesList (and back):
 
-setGeneric("flip", function(x, ...) { standardGeneric("flip") })
+setGeneric("flip", function(x, ...) standardGeneric("flip"))
 
 setMethod("flip", "GInteractions", function(x) {
     in.order <- as.vector(do.call(rbind, anchors(x, id=TRUE)))
