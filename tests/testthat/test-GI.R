@@ -408,20 +408,17 @@ expect_identical(names(x), with(x, names))
 
 temp.x <- x
 temp.x$score <- new.score
-grl <- flip(temp.x)
+grl <- pairs(temp.x)
 first <- do.call(c, sapply(grl, function(x) { unname(x[1]) }))
 second <- do.call(c, sapply(grl, function(x) { unname(x[2]) }))
 expect_identical(anchors(x, type="first"), first)
 expect_identical(anchors(x, type="second"), second)
 expect_identical(mcols(temp.x), mcols(grl))
 
-temp.x2 <- flip(grl)
-expect_identical(anchors(x), anchors(temp.x2))
-expect_identical(mcols(temp.x), mcols(temp.x2))
-temp.x2 <- flip(grl, regions=regions(x))
-expect_identical(anchors(x), anchors(temp.x2))
-expect_identical(regions(x), regions(temp.x2))
-expect_identical(mcols(temp.x), mcols(temp.x2))
+out <- pairs(temp.x, id=TRUE)
+expect_identical(from(out), anchors(temp.x, id=TRUE, type="first"))
+expect_identical(to(out), anchors(temp.x, id=TRUE, type="second"))
+expect_identical(nnode(out), length(regions(temp.x)))
 
 # Checking what happens with names.
 
