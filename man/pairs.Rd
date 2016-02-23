@@ -40,6 +40,10 @@ This may be useful for graph construction.
 example(GInteractions, echo=FALSE)
 pairs(gi)
 pairs(gi, id=TRUE)
+
+example(InteractionSet, echo=FALSE)
+pairs(iset)
+pairs(iset, id=TRUE)
 }
 
 \author{

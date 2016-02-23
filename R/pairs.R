@@ -29,6 +29,10 @@ setMethod("pairs", "GInteractions", function(x, id=FALSE) {
     }
 })
 
+setMethod("pairs", "InteractionSet", function(x, id=FALSE) {
+    pairs(interactions(x), id=id)
+})
+
 # Probably not to be used, as GRangesList may not always have two entries.
 .unflipGI <- function(x, ...) {
     if (!all(lengths(x)==2L)) { 
