@@ -11,7 +11,8 @@ Represent each interaction in a GInteractions or Interaction object as a GRanges
 
 \usage{
 \S4method{pairs}{GInteractions}(x, id=FALSE)
-\S4method{pairs}{InteractionSet}(x, id=FALSE)
+
+# Equivalent call for InteractionSet.
 }
 
 \arguments{
