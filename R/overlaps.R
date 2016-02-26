@@ -72,12 +72,13 @@
     return(out)
 }
 
-setMethod("findOverlaps", c(query="GInteractions", subject="GRanges"), 
+setMethod("findOverlaps", c(query="GInteractions", subject="Vector"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE, use.region="both") {
-
+        type <- match.arg(type)
+        select <- match.arg(select)
         out <- .linear_olap_finder(query, subject, cxx_expand_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, gi.is.query=TRUE,
@@ -87,12 +88,13 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GRanges"),
     }
 )
 
-setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
+setMethod("findOverlaps", c(query="Vector", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE, use.region="both") {
-
+        type <- match.arg(type)
+        select <- match.arg(select)
         out <- .linear_olap_finder(subject, query, cxx_expand_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, gi.is.query=FALSE,
@@ -100,65 +102,6 @@ setMethod("findOverlaps", c(query="GRanges", subject="GInteractions"),
         final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query), length(subject), sort.by.query=TRUE)
         final <- sort(final) 
         return(selectHits(final, select=match.arg(select))) 
-    }
-)
-
-###############################################################
-
-.paired_overlap_finder <- function(gi, pairings, cxxfun, ..., gi.is.query=TRUE, use.region="both")
-# Identifies overlaps between interactions in GIs and paired regions,
-# with different C++ functions for different behaviours as before.
-{
-    if (length(pairings)!=2L) { stop("input GRangesList must be of length 2") }
-    npairs <- length(pairings[[1]])
-    if (npairs!=length(pairings[[2]])) { stop("component GRanges in the GRangesList must be of the same length") }
-    
-    olap1 <- .fast_overlap(gi, pairings[[1]], ..., gi.is.query=gi.is.query)
-    olap2 <- .fast_overlap(gi, pairings[[2]], ..., gi.is.query=gi.is.query)
-    a1 <- anchors(gi, type="first", id=TRUE)
-    a2 <- anchors(gi, type="second", id=TRUE)
-
-    # Getting all 2D overlaps.
-    bounds1 <- .get_olap_bounds(olap1, length(regions(gi)))
-    bounds2 <- .get_olap_bounds(olap2, length(regions(gi)))
-    out <- .Call(cxxfun, a1 - 1L, a2 - 1L, 
-                 bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
-                 bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
-                 npairs, .decode_region_mode(use.region, c("both", "same", "reverse")))
-    if (is.character(out)) { stop(out) }
-    return(out)
-}
-
-setMethod("findOverlaps", c(query="GInteractions", subject="GRangesList"), 
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             select=c("all", "first", "last", "arbitrary"),
-             ignore.strand=FALSE, use.region="both") {
-
-        out <- .paired_overlap_finder(query, subject, cxx_expand_paired_olaps,
-                    maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=TRUE,
-                    use.region=use.region)
-       
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject[[1]]), sort.by.query=TRUE) # Cleaning up (1-indexing).
-        return(selectHits(final, select=match.arg(select)))
-    }
-)
-
-setMethod("findOverlaps", c(query="GRangesList", subject="GInteractions"),
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             select=c("all", "first", "last", "arbitrary"),
-             ignore.strand=FALSE, use.region="both") {
-
-        out <- .paired_overlap_finder(subject, query, cxx_expand_paired_olaps,
-                    maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=FALSE, 
-                    use.region=use.region)
-
-        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query[[1]]), length(subject), sort.by.query=TRUE) 
-        final <- sort(final) 
-        return(selectHits(final, select=match.arg(select)))
     }
 )
 
@@ -212,6 +155,8 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE, use.region="both") {
+        type <- match.arg(type)
+        select <- match.arg(select)
         out <- .paired_overlap_finder2(query, subject, cxx_expand_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, use.region=use.region)
@@ -225,6 +170,8 @@ setMethod("findOverlaps", c(query="GInteractions", subject="missing"),
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE, use.region="both") {
+        type <- match.arg(type)
+        select <- match.arg(select)
         findOverlaps(query, query, maxgap=maxgap, minoverlap=minoverlap, 
                      type=type, select=select, ignore.strand=ignore.strand,
                      use.region=use.region)
@@ -234,11 +181,11 @@ setMethod("findOverlaps", c(query="GInteractions", subject="missing"),
 ###############################################################
 # This defines the countOverlaps method.
 
-setMethod("countOverlaps", c(query="GInteractions", subject="GRanges"), 
+setMethod("countOverlaps", c(query="GInteractions", subject="Vector"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
-
+        type <- match.arg(type)
         .linear_olap_finder(query, subject, cxx_queryhit_olaps,
             maxgap=maxgap, minoverlap=minoverlap, type=type,  
             ignore.strand=ignore.strand, gi.is.query=TRUE,
@@ -246,11 +193,11 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GRanges"),
     }
 )
 
-setMethod("countOverlaps", c(query="GRanges", subject="GInteractions"),
+setMethod("countOverlaps", c(query="Vector", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
-
+        type <- match.arg(type)
         .linear_olap_finder(subject, query, cxx_subjecthit_olaps,
             maxgap=maxgap, minoverlap=minoverlap, type=type, 
             ignore.strand=ignore.strand, gi.is.query=FALSE,
@@ -258,34 +205,11 @@ setMethod("countOverlaps", c(query="GRanges", subject="GInteractions"),
     }
 )
 
-setMethod("countOverlaps", c(query="GInteractions", subject="GRangesList"),
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region="both") {
-        out <- .paired_overlap_finder(query, subject, cxx_queryhit_paired_olaps, 
-                    maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=TRUE,
-                    use.region=use.region)
-        return(out)
-    }
-)
-
-setMethod("countOverlaps", c(query="GRangesList", subject="GInteractions"),
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region="both") {
-        out <- .paired_overlap_finder(subject, query, cxx_subjecthit_paired_olaps, 
-                    maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=FALSE,
-                    use.region=use.region)
-        return(out)
-    }
-)
-
 setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
+        type <- match.arg(type)
         out <- .paired_overlap_finder2(query, subject, cxx_queryhit_paired_olaps, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, use.region=use.region)
@@ -297,6 +221,7 @@ setMethod("countOverlaps", c(query="GInteractions", subject="missing"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region='both') {
+        type <- match.arg(type)
         countOverlaps(query, query, maxgap=maxgap, minoverlap=minoverlap,
                         type=type, ignore.strand=ignore.strand,
                         use.region=use.region)
@@ -306,18 +231,19 @@ setMethod("countOverlaps", c(query="GInteractions", subject="missing"),
 ###############################################################
 # This defines the overlapsAny method.
 
-setMethod("overlapsAny", c(query="GInteractions", subject="GRanges"), 
+setMethod("overlapsAny", c(query="GInteractions", subject="Vector"), 
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
+        type <- match.arg(type)
 
         # Slightly faster than 'countOverlaps > 0', as there's no need to enumerate.
         rquery <- regions(query)
         keep <- logical(length(rquery))
         subset <- .get_used(query)
         if (length(subset)!=length(rquery)) { rquery <- rquery[subset] }
-        keep[subset] <- overlapsAny(rquery, subject, maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                                    ignore.strand=ignore.strand)
+        keep[subset] <- overlapsAny(rquery, subject, maxgap=maxgap, minoverlap=minoverlap, 
+            type=type, ignore.strand=ignore.strand)
 
         akeep1 <- keep[anchors(query, type="first", id=TRUE)]
         akeep2 <- keep[anchors(query, type="second", id=TRUE)]
@@ -332,11 +258,12 @@ setMethod("overlapsAny", c(query="GInteractions", subject="GRanges"),
     }
 )
 
-setMethod("overlapsAny", c(query="GRanges", subject="GInteractions"),
+setMethod("overlapsAny", c(query="Vector", subject="GInteractions"),
     function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region='both') {
 
+        type <- match.arg(type)
         out <- .decode_region_mode(use.region)
         if (out==1L) { 
             subset <- .get_used(subject)
@@ -358,50 +285,32 @@ setMethod("overlapsAny", c(query="GInteractions", subject="missing"),
     }
 )
 
-for (siglist in list(
-#        c(query="GInteractions", subject="GRanges"), 
-#        c(query="GRanges", subject="GInteractions"),
-        c(query="GInteractions", subject="GRangesList"),
-        c(query="GRangesList", subject="GInteractions"),
-        c(query="GInteractions", subject="GInteractions")
-    )) { 
-    setMethod("overlapsAny", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region="both") {
+setMethod("overlapsAny", c(query="GInteractions", subject="GInteractions"),
+    function(query, subject, maxgap=0L, minoverlap=1L,
+            type=c("any", "start", "end", "within", "equal"),
+            ignore.strand=FALSE, use.region="both") {
+        type <- match.arg(type)
         return(countOverlaps(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
                              type=type, ignore.strand=ignore.strand, 
                              use.region=use.region) > 0L)
-    })
-}
+})
 
 ###############################################################
 # This defines the subsetByOverlaps method.
 
 for (siglist in list(
-        c(query="GInteractions", subject="GRanges"), 
-        c(query="GRanges", subject="GInteractions"),
-        c(query="GInteractions", subject="GRangesList"),
+        c(query="GInteractions", subject="Vector"), 
+        c(query="Vector", subject="GInteractions"),
         c(query="GInteractions", subject="GInteractions")
     )) { 
     setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region='both') {
+        type <- match.arg(type)
         query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
                 type=type, ignore.strand=ignore.strand, use.region=use.region),] 
     })
 }
-
-setMethod("subsetByOverlaps", c(query="GRangesList", subject="GInteractions"), 
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region='both') {
-        keep <- overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
-                    type=type, ignore.strand=ignore.strand, use.region=use.region)
-        query[[1]] <- query[[1]][keep]
-        query[[2]] <- query[[2]][keep]
-        return(query)
-    }
-)
 
 ###############################################################
 # Defining corresponding functions for InteractionSet objects.
@@ -432,7 +341,15 @@ olap.fun.gen <- function(first, second, fun, other.args)
     
     combined <- paste(paste(all.others, "=", all.others), collapse=", ")
     if (ellipsis) { combined <- paste(combined, ", ...") }
-    full.call <- sprintf("%s(%s, %s)", fun, internals, combined)
+
+    full.call <- ""
+    if ("select" %in% all.others) {
+        full.call <- paste0(full.call, "select <- match.arg(select)\n")        
+    } 
+    if ("type" %in% all.others) {
+        full.call <- paste0(full.call, "type <- match.arg(type)\n")        
+    }
+    full.call <- sprintf("{ %s%s(%s, %s) }", full.call, fun, internals, combined)
                                            
     out <- function() { }
     formals(out) <- c(alist(query=, subject=), other.args)
@@ -441,10 +358,8 @@ olap.fun.gen <- function(first, second, fun, other.args)
 }
 
 for (siglist in list(
-        c(query="InteractionSet", subject="GRanges"), 
-        c(query="GRanges", subject="InteractionSet"),
-        c(query="InteractionSet", subject="GRangesList"),
-        c(query="GRangesList", subject="InteractionSet"),
+        c(query="InteractionSet", subject="Vector"), 
+        c(query="Vector", subject="InteractionSet"),
         c(query="InteractionSet", subject="InteractionSet"),
         c(query="InteractionSet", subject="GInteractions"),
         c(query="GInteractions", subject="InteractionSet"),
@@ -490,7 +405,7 @@ for (siglist in list(
 ###############################################################
 # Defining overlapsAny for ContactMatrix objects.
 
-setMethod("overlapsAny", c("ContactMatrix", "GRanges"), 
+setMethod("overlapsAny", c("ContactMatrix", "Vector"), 
     function(query, subject, maxgap=0L, minoverlap=1L,
         type=c("any", "start", "end", "within", "equal"),
         ignore.strand=FALSE) {
@@ -508,7 +423,6 @@ setMethod("overlapsAny", c("ContactMatrix", "GRanges"),
 # Not sure it makes a great deal of sense to define 'findOverlaps' here.
 
 for (siglist in list(
-        c(query="ContactMatrix", subject="GRangesList"), 
         c(query="ContactMatrix", subject="GInteractions"), 
         c(query="ContactMatrix", subject="InteractionSet")
     )) {

@@ -325,26 +325,20 @@ The `use.region` argument can be set to specify which regions in the `GInteracti
 The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available and behave as expected.
 
 A more complex situation involves identifying overlapping interactions in the two-dimensional interaction space.
-Say we have an existing interaction betweeen two regions, represented by a `GRangesList` of length 2.
-We want to determine if any of our "new" `GInteractions` interactions overlap with the existing interaction, e.g., to identify corresponding interactions between data sets.
-In particular, we only consider an overlap if each anchor region of the new interaction overlaps a corresponding anchor region of the existing interaction.
+Say we have an existing interaction betweeen two regions, represented by an `GInteractions` object named `paired.interest`.
+We want to determine if any of our "new" interactions in `gi` overlap with the existing interaction, e.g., to identify corresponding interactions between data sets.
+In particular, we only consider an overlap if each anchor region of the new interaction overlaps a corresponding anchor region of the existing interaction. 
 To illustrate:
 
 ```{r}
-paired.interest <- GRangesList(of.interest, GRanges("chrB", IRanges(10, 40)))
+paired.interest <- GInteractions(of.interest, GRanges("chrB", IRanges(10, 40)))
 olap <- findOverlaps(gi, paired.interest)
 olap
 ```
 
 The existing interaction in `paired.interest` occurs between one interval on chromosome A (i.e., `of.interest`) and another on chromosome B.
-Of all the interactions in our `GInteractions` object, only `gi[2]` is considered to be overlapping, 
-    despite the fact that several interactions have 1D overlaps with `of.interest`.
+Of all the interactions in `gi`, only `gi[2]` is considered to be overlapping, despite the fact that several interactions have 1D overlaps with `of.interest`.
 This is because only `gi[2]` has an anchor region with a concomitant overlap with the interacting partner region on chromosome B.
-
-The above call uses a `GRangesList` of length 2, where each constituent `GRanges` has a single interval.
-Multiple pairwise interactions can be specified with longer constituent `GRanges`, 
-    where corresponding entries between the two `GRanges` represent one existing interaction.
-Alternatively, two `GInteractions` objects can be overlapped with each other.
 Again, arguments can be supplied to `findOverlaps` to tune its behaviour.
 The `overlapsAny`, `countOverlaps` and `subsetByOverlaps` methods are also available for these two-dimensional overlaps.
 
@@ -750,12 +744,12 @@ my.matrix[!and.mask] <- NA
 my.matrix
 ```
 
-Two-dimensional overlaps can also be performed with a `ContrastMatrix` by running `overlapsAny` with a `GRangesList` or `GInteractions` as the `subject`.
+Two-dimensional overlaps can also be performed with a `ContrastMatrix` by running `overlapsAny` with `GInteractions` as the `subject`.
 This returns a logical matrix indicating which cells of the query matrix have overlaps with entries in the subject object.
 For example, if the first interacting region is `of.interest`, and the second interacting region is some interval at the start of chromosome B (below), we can do:
 
 ```{r}
-olap <- overlapsAny(cm, GRangesList(of.interest, GRanges("chrB", IRanges(1, 20))))
+olap <- overlapsAny(cm, GInteractions(of.interest, GRanges("chrB", IRanges(1, 20))))
 olap
 ```
 

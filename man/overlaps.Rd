@@ -3,56 +3,40 @@
 
 \alias{findOverlaps,GInteractions,GRanges-method}
 \alias{findOverlaps,GRanges,GInteractions-method}
-\alias{findOverlaps,GInteractions,GRangesList-method}
-\alias{findOverlaps,GRangesList,GInteractions-method}
 \alias{findOverlaps,GInteractions,GInteractions-method}
 \alias{findOverlaps,GInteractions,missing-method}
 
 \alias{countOverlaps,GInteractions,GRanges-method}
 \alias{countOverlaps,GRanges,GInteractions-method}
-\alias{countOverlaps,GInteractions,GRangesList-method}
-\alias{countOverlaps,GRangesList,GInteractions-method}
 \alias{countOverlaps,GInteractions,GInteractions-method}
 \alias{countOverlaps,GInteractions,missing-method}
 
 \alias{overlapsAny,GInteractions,GRanges-method}
 \alias{overlapsAny,GRanges,GInteractions-method}
-\alias{overlapsAny,GInteractions,GRangesList-method}
-\alias{overlapsAny,GRangesList,GInteractions-method}
 \alias{overlapsAny,GInteractions,GInteractions-method}
 \alias{overlapsAny,GInteractions,missing-method}
 
 \alias{subsetByOverlaps,GInteractions,GRanges-method}
 \alias{subsetByOverlaps,GRanges,GInteractions-method}
-\alias{subsetByOverlaps,GInteractions,GRangesList-method}
-\alias{subsetByOverlaps,GRangesList,GInteractions-method}
 \alias{subsetByOverlaps,GInteractions,GInteractions-method}
 
 \alias{findOverlaps,InteractionSet,GRanges-method}
 \alias{findOverlaps,GRanges,InteractionSet-method}
-\alias{findOverlaps,InteractionSet,GRangesList-method}
-\alias{findOverlaps,GRangesList,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,missing-method}
 
 \alias{countOverlaps,InteractionSet,GRanges-method}
 \alias{countOverlaps,GRanges,InteractionSet-method}
-\alias{countOverlaps,InteractionSet,GRangesList-method}
-\alias{countOverlaps,GRangesList,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,missing-method}
 
 \alias{overlapsAny,InteractionSet,GRanges-method}
 \alias{overlapsAny,GRanges,InteractionSet-method}
-\alias{overlapsAny,InteractionSet,GRangesList-method}
-\alias{overlapsAny,GRangesList,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,missing-method}
 
 \alias{subsetByOverlaps,InteractionSet,GRanges-method}
 \alias{subsetByOverlaps,GRanges,InteractionSet-method}
-\alias{subsetByOverlaps,InteractionSet,GRangesList-method}
-\alias{subsetByOverlaps,GRangesList,InteractionSet-method}
 \alias{subsetByOverlaps,InteractionSet,InteractionSet-method}
 
 \alias{findOverlaps,InteractionSet,GInteractions-method}
@@ -93,16 +77,16 @@ Find overlaps between interactions and linear intervals, between interactions an
     ignore.strand=FALSE, use.region="both")
 
 # For brevity, only 'GInteractions,GRanges-methods' are listed. Methods are
-# available for all pairwise combinations of GInteractions, InteractionSet,
-# GRanges and GRangesList objects, so long as at least one InteractionSet or
-# GInteractions object is present. In all cases, function calls are identical.
-# 'subject' can also be missing for all functions except for 'subsetByOverlaps',
-# as long as 'query' is a GInteractions or an InteractionSet.
+# available for all pairwise combinations of GInteractions, InteractionSet, and
+# Vector objects, so long as at least one InteractionSet or GInteractions
+# object is present. In all cases, function calls are identical.  'subject' can
+# also be missing for all functions except for 'subsetByOverlaps', as long as
+# 'query' is a GInteractions or an InteractionSet.
 }
 
 \arguments{
 \item{query, subject}{
-    A GRanges object, a GRangesList object of length 2, a GInteractions object or an InteractionSet object, depending on the specified method.
+    A Vector, GInteractions or InteractionSet object, depending on the specified method.
     At least one of these must be a GInteractions or InteractionSet object.
     Also, \code{subject} can be missing if \code{query} is a GInteractions or InteractionSet object.
 }
@@ -129,17 +113,13 @@ For \code{subsetByOverlaps}, a subsetted object of the same class as \code{query
 }
 
 \section{Overview of overlaps for GInteractions}{
-For all methods taking a GRanges and an GInteractions, 
-    an overlap will be defined between a GRanges interval and an GInteractions interaction if either interacting region of the latter overlaps the former interval.
+For all methods taking a Vector and an GInteractions, the Vector is assumed to represent some region on the linear genome (e.g., GRanges) or set of such regions (GRangesList).
+An overlap will be defined between the interval and an GInteractions interaction if either anchor region of the latter overlaps the former.
 This is considered to be a one-dimensional overlap, i.e., on the linear genome.
 
-If a GRangesList is supplied, it must be of length 2.
-Corresponding entries in the constituent GRanges objects are treated as pairs of regions (referred to here as target regions, to distinguish them from the interacting regions).
-An overlap is defined between each pair of target regions and an GInteractions interaction if each interacting region overlaps at least one target region,
-    and each target region overlaps at least one interacting region, i.e., there are overlapping areas in the two-dimensional interaction space. 
-
-Overlaps between two GInteractions objects are computed in a similar manner.
-Interactions from one object are used to define pairs of target regions, which are overlapped with the interactions from the other object in two-dimensional space.
+For methods between two GInteractions objects, a two-dimensional overlap will be computed between the anchor regions of the two objects.
+An overlap is defined if each anchor region of the first object overlaps at least one anchor region of the second object,
+    and each anchor region of the second object overlaps at least one anchor region of the first object, i.e., there are overlapping areas in the two-dimensional interaction space. 
 If \code{subject} is missing, overlaps will be computed between interactions in \code{query}.
 }
 
@@ -153,7 +133,6 @@ Queries with no overlaps at all are assigned \code{NA} values.
 For the other methods, \code{countOverlaps} returns an integer vector indicating the number of elements in \code{subject} that were overlapped by each element in \code{query}.
 \code{overlapsAny} returns a logical vector indicating which elements in \code{query} were overlapped by at least one element in \code{subject}. 
 \code{subsetByOverlaps} returns a subsetted \code{query} containing only those elements overlapped by at least one element in \code{subject}.
-For GRangesList queries, the constituent GRanges objects are subsetted rather than the GRangesList itself.
 }
 
 \section{Choice of regions to define overlaps}{
@@ -198,7 +177,8 @@ subsetByOverlaps(gi, of.interest)
 subsetByOverlaps(of.interest, gi)
 
 # GRangesList overlaps:
-pairing <- GRangesList(first=regions(gi), second=regions(gi))
+pairing <- GRangesList(first=regions(gi)[1:3], second=regions(gi)[4:6], 
+    third=regions(gi)[7:10], fourth=regions(gi)[15:17])
 findOverlaps(pairing, gi)
 findOverlaps(gi, pairing)
 findOverlaps(gi, pairing, select="last")

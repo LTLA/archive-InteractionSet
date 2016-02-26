@@ -18,13 +18,31 @@ colnames(counts) <- seq_len(Nlibs)
 x <- InteractionSet(counts, GInteractions(all.anchor1, all.anchor2, all.regions))
 
 #######################################################
-# Linear overlaps with GRanges.
+# 1D overlaps with Vectors
 
+for (object in c("GRanges", "GRangesList")) {
+
+if (object=="GRanges") {
+# GRanges.
 set.seed(301)
 Nq <- 10
 query.starts <- round(runif(Nq, 1, 100))
 query.ends <- query.starts + round(runif(Nq, 5, 20))
 query.regions <- GRanges(rep(c("chrA", "chrB"), Nq/2), IRanges(query.starts, query.ends))
+
+} else if (object=="GRangesList") {
+# Paired regions in a GRangesList (don't be fooled by the GInteractions below!)
+set.seed(302)
+Nq2 <- 100
+query.starts <- round(runif(Nq2, 1, 100))
+query.ends <- query.starts + round(runif(Nq2, 5, 20))
+query.regions1 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, query.ends))
+query.starts <- round(runif(Nq2, 1, 100))
+query.ends <- query.starts + round(runif(Nq2, 5, 20))
+query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, query.ends))
+pairing <- pairs(GInteractions(query.regions1, query.regions2))
+
+}
 
 for (param in seq_len(6)) {
     type <- "any"
@@ -98,8 +116,9 @@ for (param in seq_len(6)) {
     expect_identical(out, !is.na(selected))
     expect_identical(subsetByOverlaps(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region), query.regions[out])
 }
+}
 
-# What happens with silly inputs?
+# What happens with silly inputs (GRanges)?
     
 expect_equal(findOverlaps(x[0,], query.regions), Hits(nLnode=0, nRnode=Nq, sort.by.query=TRUE))
 expect_equal(findOverlaps(x, query.regions[0]), Hits(nLnode=length(x), nRnode=0L, sort.by.query=TRUE))
@@ -116,128 +135,10 @@ expect_equal(overlapsAny(x[0,], query.regions), logical(0))
 expect_equal(overlapsAny(query.regions[0]), logical(0))
 expect_equal(overlapsAny(x, query.regions[0]), logical(nrow(x)))
 expect_equal(overlapsAny(query.regions, x[0]), logical(length(query.regions)))
-
-#######################################################
-# Paired overlaps with a GRangesList.
-
-set.seed(302)
-Nq2 <- 100
-query.starts <- round(runif(Nq2, 1, 100))
-query.ends <- query.starts + round(runif(Nq2, 5, 20))
-query.regions1 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, query.ends))
-query.starts <- round(runif(Nq2, 1, 100))
-query.ends <- query.starts + round(runif(Nq2, 5, 20))
-query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, query.ends))
-pairing <- GRangesList(first=query.regions1, second=query.regions2)
-
-for (param in seq_len(6)) {
-    type <- "any"
-    maxgap <- 0L
-    minoverlap <- 1L
-    use.region <- "both"
-    if (param==2L) { 
-        maxgap <- 10L
-    } else if (param==3L) {
-        minoverlap <- 10L
-    } else if (param==4L) {
-        type <- "within"
-    } else if (param==5L) {
-        use.region <- "same"
-    } else if (param==6L) {
-        use.region <- "reverse"
-    }
-
-    # Overlapping with the GRangesList:
-    expected1.A <- findOverlaps(anchors(x, type="first"), pairing[[1]], type=type, maxgap=maxgap, minoverlap=minoverlap)
-    expected1.B <- findOverlaps(anchors(x, type="first"), pairing[[2]], type=type, maxgap=maxgap, minoverlap=minoverlap)
-    expected2.B <- findOverlaps(anchors(x, type="second"), pairing[[1]], type=type, maxgap=maxgap, minoverlap=minoverlap) # Yes, the A/B switch is deliberate.
-    expected2.A <- findOverlaps(anchors(x, type="second"), pairing[[2]], type=type, maxgap=maxgap, minoverlap=minoverlap)
-
-    expected1.A <- paste0(queryHits(expected1.A), ".", subjectHits(expected1.A), ".A")
-    expected1.B <- paste0(queryHits(expected1.B), ".", subjectHits(expected1.B), ".B")
-    expected2.A <- paste0(queryHits(expected2.A), ".", subjectHits(expected2.A), ".A")
-    expected2.B <- paste0(queryHits(expected2.B), ".", subjectHits(expected2.B), ".B")
-    if (use.region=="both") {
-        expected1 <- c(expected1.A, expected1.B)
-        expected2 <- c(expected2.A, expected2.B)
-    } else if (use.region=="same") {
-        expected1 <- expected1.A
-        expected2 <- expected2.A
-    } else {
-        expected1 <- expected1.B
-        expected2 <- expected2.B
-    }
-
-    expected <- intersect(expected1, expected2)
-    harvest <- do.call(rbind, strsplit(expected, "\\."))
-    ref <- Hits(as.integer(harvest[,1]), as.integer(harvest[,2]), nLnode=length(x), nRnode=Nq2, sort.by.query=TRUE)
-    ref <- sort(unique(ref))
     
-    olap <- findOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_that(olap, is_identical_to(ref))
-
-    # Checking 'select' arguments.
-    for (select in c("first", "last", "arbitrary")) { 
-        selected <- findOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap, select=select, use.region=use.region)
-        expect_that(selected, is_identical_to(selectHits(olap, select)))
-    }
-
-    # Checking that 'overlapsAny', 'countOverlaps' and 'subsetByOverlaps' works.
-    count.lap <- countOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap, use.region=use.region)
-    expect_identical(count.lap, selectHits(olap, "count"))
-    out <- overlapsAny(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_identical(out, !is.na(selected))
-    expect_equal(subsetByOverlaps(x, pairing, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region), x[out,])
-
-    # Flipping it around:
-    rexpected1.A <- findOverlaps(pairing[[1]], anchors(x, type="first"), type=type, maxgap=maxgap, minoverlap=minoverlap)
-    rexpected1.B <- findOverlaps(pairing[[2]], anchors(x, type="first"), type=type, maxgap=maxgap, minoverlap=minoverlap)
-    rexpected2.B <- findOverlaps(pairing[[1]], anchors(x, type="second"), type=type, maxgap=maxgap, minoverlap=minoverlap) 
-    rexpected2.A <- findOverlaps(pairing[[2]], anchors(x, type="second"), type=type, maxgap=maxgap, minoverlap=minoverlap)
-    
-    rexpected1.A <- paste0(queryHits(rexpected1.A), ".", subjectHits(rexpected1.A), ".A")
-    rexpected1.B <- paste0(queryHits(rexpected1.B), ".", subjectHits(rexpected1.B), ".B")
-    rexpected2.A <- paste0(queryHits(rexpected2.A), ".", subjectHits(rexpected2.A), ".A")
-    rexpected2.B <- paste0(queryHits(rexpected2.B), ".", subjectHits(rexpected2.B), ".B")
-    if (use.region=="both") {
-        rexpected1 <- c(rexpected1.A, rexpected1.B)
-        rexpected2 <- c(rexpected2.A, rexpected2.B)
-    } else if (use.region=="same") {
-        rexpected1 <- rexpected1.A
-        rexpected2 <- rexpected2.A
-    } else {
-        rexpected1 <- rexpected1.B
-        rexpected2 <- rexpected2.B
-    }
-
-    rexpected <- intersect(rexpected1, rexpected2)
-    rharvest <- do.call(rbind, strsplit(rexpected, "\\."))
-    rref <- Hits(as.integer(rharvest[,1]), as.integer(rharvest[,2]), nLnode=length(x), nRnode=Nq2, sort.by.query=TRUE)
-    rref <- sort(unique(rref))
-
-    rolap <- findOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_that(rolap, is_identical_to(unique(sort(rref)))) 
-    if (type!="within") { expect_that(rolap, is_identical_to(t(olap))) } 
-    
-    for (select in c("first", "last", "arbitrary")) { 
-        selected <- findOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region, select=select)
-        expect_that(selected, is_identical_to(selectHits(rolap, select)))
-    }
-
-    count.lap <- countOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_identical(count.lap, selectHits(rolap, "count"))
-    out <- overlapsAny(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_identical(out, !is.na(selected))
-    expect_identical(subsetByOverlaps(pairing, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region), 
-           GRangesList(first=query.regions1[out], second=query.regions2[out]))
-}
-    
-# What happens with silly inputs?
+# What happens with silly inputs (GRangesList)?
    
-expect_error(findOverlaps(x, GRangesList(GRanges(), query.regions1)), "component GRanges in the GRangesList must be of the same length", fixed=TRUE)
-expect_error(findOverlaps(x, GRangesList(query.regions1, query.regions2, query.regions1)), "input GRangesList must be of length 2", fixed=TRUE)
-
-empty.pairing <- GRangesList(GRanges(), GRanges())
+empty.pairing <- GRangesList()
 expect_equal(findOverlaps(x[0,], pairing), Hits(nLnode=0, nRnode=Nq2, sort.by.query=TRUE))
 expect_equal(findOverlaps(x, empty.pairing), Hits(nLnode=length(x), nRnode=0L, sort.by.query=TRUE))
 expect_equal(findOverlaps(pairing, x[0]), Hits(nRnode=0, nLnode=Nq2, sort.by.query=TRUE))
@@ -275,15 +176,20 @@ for (param in seq_len(6)) {
     type <- "any"
     maxgap <- 0L
     minoverlap <- 1L
+    use.region <- "both"
     if (param==2L) { 
         maxgap <- 10L
     } else if (param==3L) {
         minoverlap <- 10L
     } else if (param==4L) {
         type <- "within"
+    } else if (param==5L) {
+        use.region <- "same"
+    } else if(param==6L) {
+        use.region <- "reverse"
     }
 
-    # Overlapping with the GRangesList:
+    # Overlapping with the InteractionSet:
     expected1.A <- findOverlaps(anchors(x, type="first"), pairing[[1]], type=type, maxgap=maxgap, minoverlap=minoverlap)
     expected1.B <- findOverlaps(anchors(x, type="first"), pairing[[2]], type=type, maxgap=maxgap, minoverlap=minoverlap)
     expected2.B <- findOverlaps(anchors(x, type="second"), pairing[[1]], type=type, maxgap=maxgap, minoverlap=minoverlap) # Yes, the A/B switch is deliberate.
@@ -415,7 +321,7 @@ query.regions1 <- GRanges(rep(c("chrA", "chrB"), Nq3/2), IRanges(query.starts, q
 query.starts <- round(runif(Nq3, 1, 100))
 query.ends <- query.starts + round(runif(Nq3, 5, 20))
 query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq3/2), IRanges(query.starts, query.ends))
-pairing <- GRangesList(first=query.regions1, second=query.regions2)
+pairing <- GInteractions(query.regions1, query.regions2)
 
 olap <- overlapsAny(x, pairing)
 temp.iset <- deflate(x, collapse=TRUE)
