@@ -156,9 +156,12 @@ expect_equal(overlapsAny(x, empty.pairing), logical(nrow(x)))
 expect_equal(overlapsAny(pairing, x[0]), logical(Nq2))
 
 #######################################################
-# Paired overlaps with another InteractionSet.
+# Paired overlaps with another InteractionSet (or GInteractions).
 
 set.seed(303)
+
+for (object in c("InteractionSet", "GInteractions")) {
+
 next.starts <- round(runif(N, 1, 100))
 next.ends <- next.starts + round(runif(N, 5, 20))
 next.regions <- GRanges(rep(c("chrA", "chrB"), c(N-20, 20)), IRanges(next.starts, next.ends))
@@ -169,7 +172,12 @@ next.anchor1 <- sample(N2, Np, replace=TRUE)
 next.anchor2 <- sample(N2, Np, replace=TRUE)
 counts <- matrix(rpois(Np*Nlibs, lambda=10), ncol=Nlibs)
 colnames(counts) <- seq_len(Nlibs)
+
+if (object=="InteractionSet") {
 x2 <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.regions))
+} else {
+x2 <- GInteractions(next.anchor1, next.anchor2, next.regions)
+}
 pairing <- anchors(x2)
 
 for (param in seq_len(6)) {
@@ -272,17 +280,18 @@ for (param in seq_len(6)) {
     out <- overlapsAny(x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
     expect_identical(out, rep(TRUE, length(x)))
 }
+}
 
 # What happens with silly inputs?
 
-expect_equal(findOverlaps(x[0], x2), Hits(nLnode=0, nRnode=nrow(x2), sort.by.query=TRUE))
+expect_equal(findOverlaps(x[0], x2), Hits(nLnode=0, nRnode=Np, sort.by.query=TRUE))
 expect_equal(findOverlaps(x, x2[0]), Hits(nRnode=0, nLnode=nrow(x), sort.by.query=TRUE))
 expect_equal(findOverlaps(x[0], x2[0]), Hits(nLnode=0L, nRnode=0L, sort.by.query=TRUE))
 
 expect_equal(findOverlaps(x[0], x2, select="first"), integer(0))
 expect_equal(findOverlaps(x, x2[0], select="first"), rep(as.integer(NA), nrow(x)))
 expect_equal(overlapsAny(x[0], x2), logical(0))
-expect_equal(overlapsAny(x, x2[0]), logical(Nq2))
+expect_equal(overlapsAny(x, x2[0]), logical(nrow(x)))
 
 #######################################################
 # overlapsAny for ContactMatrix objects
