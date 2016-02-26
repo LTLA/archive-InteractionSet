@@ -209,55 +209,82 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
     return;
 }
 
-/* Base function, to detect all overlaps between paired ranges and both interacting loci in a pair */
+/* Base function, to detect all 2D overlaps between two GInteractions objects.
+ * This is pretty complicated:
+ *
+ *   anchor1, anchor2 hold the anchor indices of the query GInteractions.
+ *   querystarts, queryend hold the first and one-after-last row of the Hits object obtained by findOverlaps(regions(query), regions(subject))
+ *   subject holds the queryHits of the aforementioned Hits object.
+ *   next_anchor_start1, next_anchor_end1 holds the first and one-after-last position of the sorted subject@anchor1.
+ *   next_id1 holds the order of subject@anchor1.
+ *   next_anchor_start2, next_anchor_end2 holds the first and one-after-last position of the sorted subject@anchor2.
+ *   next_id2 holds the order of subject@anchor2.
+ *   next_num_pairs holds the total number of pairs in the subject.
+ * 
+ * The idea is to:
+ *   1) go through each query pair;
+ *   2) retrieve the regions(subject) overlapping each anchor query;
+ *   3) identify all subject anchors matching each retrieved regions(subject)
+ *   4) cross-reference all identified subject anchors 1 and 2 to identify 2D overlaps.
+ */
 
-void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) {
+void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, 
+        SEXP querystarts, SEXP queryends, SEXP subject, 
+        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
+        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
+        SEXP num_next_pairs, SEXP use_both) {
 
     if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
     const int Npairs = LENGTH(anchor1);
     if (Npairs != LENGTH(anchor2)) { throw std::runtime_error("anchor vectors must be of equal length"); } 
     const int* a1ptr=INTEGER(anchor1), *a2ptr=INTEGER(anchor2);
     
-    if (!isInteger(querystarts1) || !isInteger(queryends1)) { throw std::runtime_error("query indices (1) must be integer vectors"); }
-    const int Nq = LENGTH(querystarts1);
-    if (Nq != LENGTH(queryends1)) { throw std::runtime_error("query indices (1) must be of equal length"); }
-    const int* qsptr1=INTEGER(querystarts1), *qeptr1=INTEGER(queryends1);
-    
-    if (!isInteger(subject1)) { throw std::runtime_error("subject indices (1) must be integer"); }
-    const int Ns1 = LENGTH(subject1);
-    const int *sjptr1=INTEGER(subject1);
+    if (!isInteger(querystarts) || !isInteger(queryends)) { throw std::runtime_error("query indices must be integer vectors"); }
+    const int Nq = LENGTH(querystarts);
+    if (Nq != LENGTH(queryends)) { throw std::runtime_error("query indices must be of equal length"); }
+    const int* qsptr=INTEGER(querystarts), *qeptr=INTEGER(queryends); 
+    if (!isInteger(subject)) { throw std::runtime_error("subject indices must be integer"); }
+    const int Ns = LENGTH(subject);
+    const int *sjptr=INTEGER(subject);
 
-    if (!isInteger(querystarts2) || !isInteger(queryends2)) { throw std::runtime_error("query indices (2) must be integer vectors"); }
-    if (Nq != LENGTH(querystarts2) || Nq != LENGTH(queryends2)) { throw std::runtime_error("query indices (2) must be of equal length"); }
-    const int* qsptr2=INTEGER(querystarts2), *qeptr2=INTEGER(queryends2);
-    
-    if (!isInteger(subject2)) { throw std::runtime_error("subject indices (2) must be integer"); }
-    const int Ns2 = LENGTH(subject2);
-    const int *sjptr2=INTEGER(subject2);
+    if (!isInteger(next_anchor_start1) || !isInteger(next_anchor_end1)) { throw std::runtime_error("next indices (1) must be integer vectors"); }
+    const int Nas=LENGTH(next_anchor_start1);
+    if (Nas != LENGTH(next_anchor_end1)) { throw std::runtime_error("next indices (1) must be of equal length"); }
+    const int* nasptr1=INTEGER(next_anchor_start1), *naeptr1=INTEGER(next_anchor_end1);  
+    if (!isInteger(next_id1)) { throw std::runtime_error("next ID indices (1) must be integer"); }
+    const int *niptr1=INTEGER(next_id1);
 
-    if (!isInteger(nsubjects) || LENGTH(nsubjects)!=1) { throw std::runtime_error("total number of subjects must be an integer scalar"); }
-    const int Ns_all = asInteger(nsubjects);
-  
+    if (!isInteger(next_anchor_start2) || !isInteger(next_anchor_end2)) { throw std::runtime_error("next indices (2) must be integer vectors"); }
+    if (Nas != LENGTH(next_anchor_start2) || Nas != LENGTH(next_anchor_end2)) { throw std::runtime_error("next indices (2) must be of equal length"); }
+    const int* nasptr2=INTEGER(next_anchor_start2), *naeptr2=INTEGER(next_anchor_end2);  
+    if (!isInteger(next_id2)) { throw std::runtime_error("next ID indices (2) must be integer"); }
+    const int *niptr2=INTEGER(next_id2);
+
+    if (!isInteger(num_next_pairs) || LENGTH(num_next_pairs)!=1) { throw std::runtime_error("total number of next pairs must be an integer scalar"); }
+    const int Nnp = asInteger(num_next_pairs);
+    if (LENGTH(next_id1)!=Nnp || LENGTH(next_id2)!=Nnp) { throw std::runtime_error("number of next IDs is not equal to specified number of pairs"); }
+
     int true_mode_start, true_mode_end;
     set_mode_values(use_both, true_mode_start, true_mode_end);
  
     // Check indices.
-    check_indices(qsptr1, qeptr1, Nq, sjptr1, Ns1, Ns_all);
-    check_indices(qsptr2, qeptr2, Nq, sjptr2, Ns2, Ns_all);
+    check_indices(qsptr, qeptr, Nq, sjptr, Ns, Nas);
+    check_indices(nasptr1, naeptr1, Nas, niptr1, Nnp, Nnp);
+    check_indices(nasptr2, naeptr2, Nas, niptr2, Nnp, Nnp);
 
     // Setting up logging arrays. 
-    output->prime(Npairs, Ns_all);
-    int* latest_pair_A=(int*)R_alloc(Ns_all, sizeof(int));
-    int* latest_pair_B=(int*)R_alloc(Ns_all, sizeof(int));
-    bool* is_stored_A=(bool*)R_alloc(Ns_all, sizeof(bool));
-    bool* is_stored_B=(bool*)R_alloc(Ns_all, sizeof(bool));
-    for (int checkdex=0; checkdex < Ns_all; ++checkdex) { 
+    output->prime(Npairs, Nnp);
+    int* latest_pair_A=(int*)R_alloc(Nnp, sizeof(int));
+    int* latest_pair_B=(int*)R_alloc(Nnp, sizeof(int));
+    bool* is_stored_A=(bool*)R_alloc(Nnp, sizeof(bool));
+    bool* is_stored_B=(bool*)R_alloc(Nnp, sizeof(bool));
+    for (int checkdex=0; checkdex < Nnp; ++checkdex) { 
         latest_pair_A[checkdex] = latest_pair_B[checkdex] = -1; 
         is_stored_A[checkdex] = is_stored_B[checkdex] = true;
     }
 
-    int curpair=0, mode=0, maxmode, curq1=0, curq2=0, curindex=0, curs=0;
+    int curpair=0, mode=0, maxmode, curq1=0, curq2=0, 
+        curindex=0, cur_subreg=0, cur_nextanch=0, cur_nextid;
     int * latest_pair;
     bool * is_stored;
     for (curpair=0; curpair<Npairs; ++curpair) {
@@ -282,21 +309,27 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP 
                 is_stored = is_stored_B;
             }
 
-            for (curindex=qsptr1[curq1]; curindex<qeptr1[curq1]; ++curindex) {
-                curs=sjptr1[curindex];
-                if (mode && latest_pair_A[curs] == curpair && is_stored_A[curs]) { continue; } // Already added in first cycle.
-                if (latest_pair[curs] < curpair) { 
-                    latest_pair[curs] = curpair;
-                    is_stored[curs] = false;
+            for (curindex=qsptr[curq1]; curindex<qeptr[curq1]; ++curindex) {
+                cur_subreg=sjptr[curindex];
+                for (cur_nextanch=nasptr1[cur_subreg]; cur_nextanch<naeptr1[cur_subreg]; ++cur_nextanch) {
+                    cur_nextid=niptr1[cur_nextanch];
+                    if (mode && latest_pair_A[cur_nextid] == curpair && is_stored_A[cur_nextid]) { continue; } // Already added in first cycle.
+                    if (latest_pair[cur_nextid] < curpair) { 
+                        latest_pair[cur_nextid] = curpair;
+                        is_stored[cur_nextid] = false;
+                    }
                 }
             }
 
-            for (curindex=qsptr2[curq2]; curindex<qeptr2[curq2]; ++curindex) {
-                curs=sjptr2[curindex];
-                if (mode && latest_pair_A[curs] == curpair && is_stored_A[curs]) { continue; }
-                if (latest_pair[curs] == curpair && !is_stored[curs]) {
-                    output->acknowledge(curpair, curs);
-                    is_stored[curs] = true;
+            for (curindex=qsptr[curq2]; curindex<qeptr[curq2]; ++curindex) {
+                cur_subreg=sjptr[curindex];
+                for (cur_nextanch=nasptr2[cur_subreg]; cur_nextanch<naeptr2[cur_subreg]; ++cur_nextanch) {
+                    cur_nextid=niptr2[cur_nextanch];
+                    if (mode && latest_pair_A[cur_nextid] == curpair && is_stored_A[cur_nextid]) { continue; }
+                    if (latest_pair[cur_nextid] == curpair && !is_stored[cur_nextid]) {
+                        output->acknowledge(curpair, cur_nextid);
+                        is_stored[cur_nextid] = true;
+                    }
                 }
             }
         }
@@ -335,31 +368,46 @@ SEXP subjecthit_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryen
     return mkString(e.what());
 }
 
-SEXP expand_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
+SEXP expand_paired_olaps(SEXP anchor1, SEXP anchor2, 
+        SEXP querystarts, SEXP queryends, SEXP subject,
+        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
+        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
+        SEXP num_next_pairs, SEXP use_both) try {
     expanded_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects, use_both);
+    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
+            next_anchor_start1, next_anchor_end1, next_id1,
+            next_anchor_start2, next_anchor_end2, next_id2,
+            num_next_pairs, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());
 }
 
-SEXP queryhit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
+SEXP queryhit_paired_olaps(SEXP anchor1, SEXP anchor2, 
+        SEXP querystarts, SEXP queryends, SEXP subject,
+        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
+        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
+        SEXP num_next_pairs, SEXP use_both) try {
     query_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects, use_both);
+    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
+            next_anchor_start1, next_anchor_end1, next_id1,
+            next_anchor_start2, next_anchor_end2, next_id2,
+            num_next_pairs, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());
 }
 
-SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, 
-        SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects, SEXP use_both) try {
+SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, 
+        SEXP querystarts, SEXP queryends, SEXP subject,
+        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
+        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
+        SEXP num_next_pairs, SEXP use_both) try {
     subject_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts1, queryends1, subject1,
-            querystarts2, queryends2, subject2, nsubjects, use_both);
+    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
+            next_anchor_start1, next_anchor_end1, next_id1,
+            next_anchor_start2, next_anchor_end2, next_id2,
+            num_next_pairs, use_both);
     return x.generate();
 } catch (std::exception& e) { 
     return mkString(e.what());

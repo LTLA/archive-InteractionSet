@@ -107,44 +107,30 @@ setMethod("findOverlaps", c(query="Vector", subject="GInteractions"),
 
 ###############################################################
 
-.reindex_by_anchor <- function(ref.list, all.anchors) 
-# 'ref.list' stores the map from indices of region(subject) -> multiple indices of region(query) 
-# This function generates the map from indices of anchor(subject) -> multiple indices of region(query)
-{
-    ref.list <- ref.list[all.anchors]
-    left.indices <- as.integer(unlist(ref.list)) # coerces to 'integer(0)' if all.anchors is empty.
-    anchor.indices <- rep(seq_along(all.anchors), lengths(ref.list))
-    o <- order(left.indices, anchor.indices)
-    return(list(gi.dex=left.indices[o], ranges.dex=anchor.indices[o]))
-}
-
 .paired_overlap_finder2 <- function(gi.left, gi.right, cxxfun, ..., use.region="both") 
 # Identifies overlaps between two GI objects (left and right),
 # with different C++ functions for different behaviours as before.
 {
     used2 <- .get_used(gi.right)
     olap <- .fast_overlap(gi.left, regions(gi.right)[used2], ..., gi.is.query=TRUE)
+    left.a1 <- anchors(gi.left, type="first", id=TRUE)
+    left.a2 <- anchors(gi.left, type="second", id=TRUE)
+    left.bounds <- .get_olap_bounds(olap, length(regions(gi.left)))
     olap$ranges.dex <- used2[olap$ranges.dex]
-    sub.list <- split(olap$gi.dex, olap$ranges.dex)
-    ref.list <- rep(list(integer(0)), length(regions(gi.right)))
-    ref.list[as.integer(names(sub.list))] <- sub.list
 
-    # Reconstructing, as if we had done .fast_overlap on the anchor ranges directly.
-    as1 <- anchors(gi.right, type="first", id=TRUE)
-    olap1 <- .reindex_by_anchor(ref.list, as1)
-    as2 <- anchors(gi.right, type="second", id=TRUE)
-    olap2 <- .reindex_by_anchor(ref.list, as2)
+    right.a1 <- anchors(gi.right, type="first", id=TRUE)
+    o1 <- order(right.a1)
+    right.bounds1 <- .get_olap_bounds(list(gi.dex=right.a1[o1]), length(regions(gi.right)))
+    right.a2 <- anchors(gi.right, type="second", id=TRUE)
+    o2 <- order(right.a2)
+    right.bounds2 <- .get_olap_bounds(list(gi.dex=right.a2[o2]), length(regions(gi.right)))
    
-    aq1 <- anchors(gi.left, type="first", id=TRUE)
-    aq2 <- anchors(gi.left, type="second", id=TRUE)
-
     # Getting all 2D overlaps.
     npairs <- length(gi.right)
-    bounds1 <- .get_olap_bounds(olap1, length(regions(gi.left)))
-    bounds2 <- .get_olap_bounds(olap2, length(regions(gi.left)))
-    out <- .Call(cxxfun, aq1 - 1L, aq2 - 1L, 
-                 bounds1$first - 1L, bounds1$last, olap1$ranges.dex - 1L, 
-                 bounds2$first - 1L, bounds2$last, olap2$ranges.dex - 1L,
+    out <- .Call(cxxfun, left.a1 - 1L, left.a2 - 1L, 
+                 left.bounds$first - 1L, left.bounds$last, olap$ranges.dex - 1L, 
+                 right.bounds1$first - 1L, right.bounds1$last, o1 - 1L,
+                 right.bounds2$first - 1L, right.bounds2$last, o2 - 1L,
                  npairs, .decode_region_mode(use.region, c("both", "same", "reverse")))
     if (is.character(out)) { stop(out) }
     return(out)
