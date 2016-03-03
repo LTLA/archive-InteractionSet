@@ -1,6 +1,8 @@
 \name{Linearize interactions}
 
 \alias{linearize}
+\alias{linearize,GInteractions,GRanges-method}
+\alias{linearize,GInteractions,numeric-method}
 \alias{linearize,InteractionSet,GRanges-method}
 \alias{linearize,InteractionSet,numeric-method}
 
@@ -11,13 +13,15 @@ Convert interactions in two-dimensional space to one-dimensional ranges on the l
 }
 
 \usage{
-\S4method{linearize}{InteractionSet,numeric}(x, ref, ...)
+\S4method{linearize}{GInteractions,numeric}(x, ref)
 
-\S4method{linearize}{InteractionSet,GRanges}(x, ref, ...)
+\S4method{linearize}{GInteractions,GRanges}(x, ref, ...)
+
+# Equivalent calls for InteractionSet objects.
 }
 
 \arguments{
-\item{x}{An InteractionSet object}
+\item{x}{A GInteractions or InteractionSet object}
 
 \item{ref}{ 
     A numeric scalar or a GRanges object of length 1, specifying the reference region to use for linearization.
@@ -25,17 +29,21 @@ Convert interactions in two-dimensional space to one-dimensional ranges on the l
 }
 
 \item{...}{
-    Other arguments, passed to \code{\link{overlapsAny}} in \code{linearize,InteractionSet,GRanges-method}.
+    Other arguments, passed to \code{\link{overlapsAny}} in the GRanges methods.
 }
 }
 
 \details{
 This method identifies all interactions with at least one anchor region overlapping the specified region in \code{ref}.
-It returns a RangedSummarizedExperiment object with one entry per identified interaction, 
-    where the corresponding \code{rowRanges} is defined as the other anchor region, i.e., the one that does \emph{not} overlap the reference region.
-If the anchor regions are identical such that both overlap the reference region, one is chosen and placed into \code{rowRanges}.
+When \code{x} is a GInteractions object, the method returns a GRanges object with one entry per identified interaction, 
+    where the coordinates are defined as the \emph{other} anchor region, i.e., the one that does \emph{not} overlap the reference region.
+If the anchor regions are identical such that both overlap the reference region, one is chosen and placed into the GRanges.
 
-This effectively converts two-dimesional interaction data into one-dimensional coverage across the linear genome.
+When \code{x} is an InteractionSet object, a RangedSummarizedExperiment object is returned.
+Each entry corresponds to an identified interaction with the non-overlapping anchor region stored in the \code{rowRanges}.
+Experimental data associated with each identified interaction is stored in the various assays.
+
+This method effectively converts two-dimesional interaction data into one-dimensional coverage across the linear genome.
 It is useful when a particular genomic region is of interest - this can be used as \code{ref}, to examine the behaviour of all other regions relative to it.
 For example, Hi-C data in \code{x} can be converted into pseudo-4C contact frequencies after linearization.
 
@@ -45,7 +53,7 @@ If \code{ref} is a numeric scalar, it is assumed to refer to an entry in \code{r
 }
 
 \value{
-A RangedSummarizedExperiment.
+A GRanges when \code{x} is a GInteractions object, and a RangedSummarizedExperiment when \code{x} is an InteractionSet object.
 }
 
 \examples{

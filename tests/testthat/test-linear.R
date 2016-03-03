@@ -48,6 +48,12 @@ colData names(0):", sum(chosen)), fixed=TRUE)
     # Comparing with equivalent GRanges method.
     out2 <- linearize(x, cur.reg, type="equal")
     expect_that(out, equals(out2))
+
+    # Also checking with GInteractions methods.
+    out3 <- linearize(interactions(x), cur.reg, type="equal")
+    expect_identical(out3, rowRanges(out2))
+    out3 <- linearize(interactions(x), interest)
+    expect_identical(out3, rowRanges(out2))
 }
 
 # What happens with silly inputs?
@@ -57,3 +63,15 @@ expect_that(nrow(linearize(x[0,], 1)), is_identical_to(0L))
 expect_that(nrow(suppressWarnings(linearize(x, GRanges("chrC", IRanges(1,1))))), is_identical_to(0L))
 lenA <- max(end(regions(x)[seqnames(regions(x))=="chrA"]))
 expect_warning(linearize(x, GRanges("chrA", IRanges(1, lenA))), "multiple matching reference regions, using the first region only")
+
+# Testing what happens with region and interaction-specific metadata.
+
+set.seed(100)
+out <- linearize(x, 1)
+mcols(x) <- DataFrame(Blah=runif(nrow(x)), Index=seq_len(nrow(x)))
+mcols(regions(x)) <- DataFrame(Foo=runif(length(regions(x))))
+
+out2 <- linearize(x, 1)
+expect_identical(colnames(mcols(out2)), c("Foo", "Blah", "Index"))
+expect_identical(mcols(out2)$Blah, mcols(x)$Blah[mcols(out2)$Index])
+
