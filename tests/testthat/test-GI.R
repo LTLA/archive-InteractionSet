@@ -288,6 +288,8 @@ expect_identical(anchors(double.up, type="first"), rep(anchors(x, type="first"),
 expect_identical(anchors(double.up, type="second"), rep(anchors(x, type="second"), 2))
 expect_identical(double.up$score, rep(temp.x$score, 2))
 
+# Combining with different anchor regions.
+
 set.seed(7002)
 next.starts <- round(runif(N, 1, 100))
 next.ends <- next.starts + round(runif(N, 5, 20))
@@ -304,6 +306,14 @@ expect_identical(unique(sort(c(regions(x), regions(next.x)))), regions(c.x))
 
 expect_identical(anchors(rbind(x[0,], next.x[0,])), anchors(x[0,])) # Behaviour with empties.
 expect_identical(anchors(rbind(x, next.x[0,])), anchors(x)) # Not fully equal, as regions have changed.
+
+next.x2 <- GInteractions(1:10, 1:10, next.regions[1:10]) # What happens with non-equal lengths of the regions?
+c.x <- rbind(x, next.x2)
+expect_identical(c(anchors(x, type="first"), anchors(next.x2, type="first")), anchors(c.x, type="first"))
+expect_identical(c(anchors(x, type="second"), anchors(next.x2, type="second")), anchors(c.x, type="second"))
+expect_identical(unique(sort(c(regions(x), regions(next.x2)))), regions(c.x))
+
+# Plus metadata
 
 temp.x <- x
 temp.x$score <- new.score

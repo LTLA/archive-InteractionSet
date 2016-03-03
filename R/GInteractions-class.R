@@ -326,11 +326,15 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
 .coerce_to_union <- function(all.regions, all.anchor1, all.anchor2) {
     issame <- TRUE
     if (length(all.regions) > 1L) { 
-        ref <- all.regions[[1]]
-        for (alt in 2:length(all.regions)) { 
-            if (any(all.regions[[alt]]!=ref)) { 
-                issame <- FALSE
-                break 
+        if (length(unique(lengths(all.regions)))>1L) {
+            issame <- FALSE
+        } else {
+            ref <- all.regions[[1]]
+            for (alt in 2:length(all.regions)) { 
+                if (any(all.regions[[alt]]!=ref)) { 
+                    issame <- FALSE
+                    break 
+                }
             }
         }
     } 
