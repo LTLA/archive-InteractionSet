@@ -61,8 +61,41 @@ colData names(0):", sum(chosen)), fixed=TRUE)
 expect_that(nrow(linearize(x, 0)), is_identical_to(0L))
 expect_that(nrow(linearize(x[0,], 1)), is_identical_to(0L))
 expect_that(nrow(suppressWarnings(linearize(x, GRanges("chrC", IRanges(1,1))))), is_identical_to(0L))
+
+# Testing what happens when there are multiple overlaps.
+
 lenA <- max(end(regions(x)[seqnames(regions(x))=="chrA"]))
-expect_warning(linearize(x, GRanges("chrA", IRanges(1, lenA))), "multiple matching reference regions, using the first region only")
+x2 <- x
+mcols(x2)$Index <- seq_len(nrow(x2))
+out <- linearize(x2, GRanges("chrA", IRanges(1, lenA)))
+all.a <- anchors(x2[mcols(out)$Index])
+mcols(out)$Index <- NULL
+
+is.same <- as.logical(seqnames(all.a$first)==seqnames(all.a$second))
+expect_identical(pmin(start(all.a$first), start(all.a$second))[is.same], start(rowRanges(out))[is.same])
+expect_identical(pmax(end(all.a$first), end(all.a$second))[is.same], end(rowRanges(out))[is.same])
+expect_identical(seqnames(all.a$first)[is.same], seqnames(rowRanges(out))[is.same])
+
+is.B1 <- as.logical(seqnames(all.a$first)=="chrB")
+expect_identical(all.a$first[is.B1], rowRanges(out)[is.B1])
+is.B2 <- as.logical(seqnames(all.a$second)=="chrB")
+expect_identical(all.a$second[is.B2], rowRanges(out)[is.B2])
+
+lenB <- max(end(regions(x)[seqnames(regions(x))=="chrB"]))
+expect_error(linearize(x2, GRanges(c("chrA", "chrB"), IRanges(1, c(lenA, lenB)))), "multi-chromosome sets of 'ref' are not supported")
+
+# Repeating with internal=FALSE.
+
+out <- linearize(x2, GRanges("chrA", IRanges(1, lenA)), internal=FALSE)
+all.a <- anchors(x2[mcols(out)$Index])
+mcols(out)$Index <- NULL
+
+is.diff <- as.logical(seqnames(all.a$first)!=seqnames(all.a$second))
+expect_true(all(is.diff))
+is.B1 <- as.logical(seqnames(all.a$first)=="chrB")
+expect_identical(all.a$first[is.B1], rowRanges(out)[is.B1])
+is.B2 <- as.logical(seqnames(all.a$second)=="chrB")
+expect_identical(all.a$second[is.B2], rowRanges(out)[is.B2])
 
 # Testing what happens with region and interaction-specific metadata.
 
