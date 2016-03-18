@@ -40,7 +40,7 @@ query.regions1 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, q
 query.starts <- round(runif(Nq2, 1, 100))
 query.ends <- query.starts + round(runif(Nq2, 5, 20))
 query.regions2 <- GRanges(rep(c("chrA", "chrB"), Nq2/2), IRanges(query.starts, query.ends))
-pairing <- pairs(GInteractions(query.regions1, query.regions2))
+pairing <- pairs(GInteractions(query.regions1, query.regions2), as.grlist=TRUE)
 
 }
 

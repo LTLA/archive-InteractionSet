@@ -20,17 +20,23 @@ setAs("GInteractions", "SelfHits", function(from) {
 
 setAs("GInteractions", "GRangesList", function(from) .flipGI(from))
 
+setAs("GInteractions", "Pairs", function(from) {
+      Pairs(anchors(from, type="first"), anchors(from, type="second"),
+            names=names(from), mcols(from))
+})
 
-setMethod("pairs", "GInteractions", function(x, id=FALSE) {
+setMethod("pairs", "GInteractions", function(x, id=FALSE, as.grlist=FALSE) {
     if (id) {
         return(as(x, "SelfHits"))
-    } else {
+    } else if (as.grlist) {
         return(as(x, "GRangesList"))
+    } else {
+        return(as(x, "Pairs"))
     }
 })
 
-setMethod("pairs", "InteractionSet", function(x, id=FALSE) {
-    pairs(interactions(x), id=id)
+setMethod("pairs", "InteractionSet", function(x, id=FALSE, as.grlist=FALSE) {
+    pairs(interactions(x), id=id, as.grlist=as.grlist)
 })
 
 # Probably not to be used, as GRangesList may not always have two entries.

@@ -330,3 +330,9 @@ expect_is(interactions(sx), "StrictGInteractions")
 expect_is(interactions(sx[,1:2]), "StrictGInteractions")
 expect_is(interactions(sx[1:3,]), "StrictGInteractions")
 
+# Testing pairs.
+
+expect_identical(pairs(x), pairs(interactions(x)))
+expect_identical(pairs(x, id=TRUE), pairs(interactions(x), id=TRUE))
+expect_identical(pairs(x, as.grlist=TRUE), pairs(interactions(x), as.grlist=TRUE))
+

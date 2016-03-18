@@ -19,7 +19,7 @@ setGeneric("linearize", function(x, ref, ...) standardGeneric("linearize"))
     if (internal) {
         keep.a2 <- keep.a2[keep]
         is.same <- keep.a1 & keep.a2
-        expanded <- range(pairs(x[is.same])) # replace internal combos with ranges.
+        expanded <- range(pairs(x[is.same], as.grlist=TRUE)) # replace internal combos with ranges.
         if (any(lengths(expanded)>1L)) { stop("multi-chromosome sets of 'ref' are not supported") }
         new.ranges[is.same] <- unlist(expanded)
     }

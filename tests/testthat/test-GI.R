@@ -414,11 +414,17 @@ expect_identical(anchors(x, type="first"), with(x, regions[anchor1]))
 expect_identical(anchors(x, type="second"), with(x, regions[anchor2]))
 expect_identical(names(x), with(x, names))
 
-# Testing object flipping to a GRangesList.
+# Testing object flipping to a Pairs/GRangesList.
 
 temp.x <- x
 temp.x$score <- new.score
-grl <- pairs(temp.x)
+prs <- pairs(temp.x)
+expect_identical(anchors(x, type="first"), first(prs))
+expect_identical(anchors(x, type="second"), second(prs))
+expect_identical(mcols(temp.x), mcols(prs))
+expect_identical(names(temp.x), names(prs))
+
+grl <- pairs(temp.x, as.grlist=TRUE)
 first <- do.call(c, sapply(grl, function(x) { unname(x[1]) }))
 second <- do.call(c, sapply(grl, function(x) { unname(x[2]) }))
 expect_identical(anchors(x, type="first"), first)
