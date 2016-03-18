@@ -423,6 +423,7 @@ expect_identical(anchors(x, type="first"), first(prs))
 expect_identical(anchors(x, type="second"), second(prs))
 expect_identical(mcols(temp.x), mcols(prs))
 expect_identical(names(temp.x), names(prs))
+expect_identical(makeGInteractionsFromGRangesPairs(prs), reduceRegions(temp.x))                 
 
 grl <- pairs(temp.x, as.grlist=TRUE)
 first <- do.call(c, sapply(grl, function(x) { unname(x[1]) }))

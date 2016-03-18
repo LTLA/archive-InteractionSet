@@ -55,3 +55,16 @@ setMethod("pairs", "InteractionSet", function(x, id=FALSE, as.grlist=FALSE) {
     return(out)
 }
 
+makeGInteractionsFromGRangesPairs <- function(x) {
+    if (!is(x, "Pairs")) { 
+        stop("'x' must be a Pairs object")
+    }
+    if (!is(first(x), "GRanges") || !is(second(x), "GRanges")) {
+        stop("both paired elements must be GRanges")
+    }
+    out <- GInteractions(anchor1=first(x), anchor2=second(x))
+    mcols(out) <- mcols(x)
+    names(out) <- names(x)
+    return(out)
+}
+

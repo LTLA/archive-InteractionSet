@@ -21,6 +21,10 @@ exportMethods(
     inflate, deflate
 )
 
+export(
+    makeGInteractionsFromGRangesPairs
+)
+
 # Requires several imports.
 import(GenomicRanges, SummarizedExperiment, methods,
     S4Vectors, IRanges, GenomeInfoDb, BiocGenerics)
