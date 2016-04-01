@@ -79,7 +79,14 @@ for (param in seq_len(6)) {
     # Checking 'select' arguments.
     for (select in c("first", "last", "arbitrary")) { 
         selected <- findOverlaps(x, query.regions, type=type, maxgap=maxgap, minoverlap=minoverlap, select=select, use.region=use.region)
-        expect_that(selected, is_identical_to(selectHits(olap, select)))
+        if (select!="arbitrary") {
+            expect_that(selected, is_identical_to(selectHits(olap, select)))
+        } else {
+            is.okay <- !is.na(selected)
+            expect_identical(is.okay, !is.na(selectHits(olap, select)))
+            arbiter <- Hits(which(is.okay), selected[is.okay], length(x), length(query.regions), sort.by.query=TRUE)
+            expect_true(all(!is.na(match(arbiter, olap))))
+        }
     }
 
     # Checking that 'overlapsAny', 'countOverlaps' and 'subsetByOverlaps' works.
@@ -107,8 +114,16 @@ for (param in seq_len(6)) {
 
     for (select in c("first", "last", "arbitrary")) { 
         selected <- findOverlaps(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap, select=select, use.region=use.region)
-        expect_that(selected, is_identical_to(selectHits(rolap, select)))
+        if (select!="arbitrary") {
+            expect_that(selected, is_identical_to(selectHits(rolap, select)))
+        } else {
+            is.okay <- !is.na(selected)
+            expect_identical(is.okay, !is.na(selectHits(rolap, select)))
+            arbiter <- Hits(which(is.okay), selected[is.okay], length(query.regions), length(x), sort.by.query=TRUE)
+            expect_true(all(!is.na(match(arbiter, rolap))))
+        }
     }
+
     
     count.lap <- countOverlaps(query.regions, x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
     expect_identical(count.lap, selectHits(rolap, "count"))

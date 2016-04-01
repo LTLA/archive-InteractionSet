@@ -51,12 +51,13 @@
 .decode_region_mode <- function(use.region, possibilities=c("both", "first", "second"))
 # Gets the index of possibilities, for easy entry into C++.
 # 1 -> both, 2 -> first, 3 -> second.
+# This needs to be sync'd with set_mode_values in overlaps.cpp.
 {
     use.region <- match.arg(use.region, possibilities)
     match(use.region, possibilities)
 }
 
-.linear_olap_finder <- function(gi, ranges, cxxfun, ..., gi.is.query=TRUE, use.region="both")
+.linear_olap_finder <- function(gi, ranges, ..., select, gi.is.query=TRUE, use.region="both")
 # Identifies linear overlaps, with differing C++ function depending on whether
 # all overlaps are desired, or counting should be performed, etc.
 {
@@ -66,10 +67,23 @@
 
     # Getting all combinations of overlaps (zero-indexing for C code).
     bounds <- .get_olap_bounds(olap, length(regions(gi)))
-    out <- .Call(cxxfun, a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
-                 olap$ranges.dex - 1L, length(ranges), .decode_region_mode(use.region))
+    out <- .Call(cxx_obtain_olaps, a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
+                 olap$ranges.dex - 1L, length(ranges), .decode_region_mode(use.region),
+                 select, gi.is.query)
     if (is.character(out)) { stop(out) }
-    return(out)
+
+    # Processing into a Hits object if required.
+    final <- out
+    if (select=="all") {
+        if (!gi.is.query) { 
+            final <- Hits(out[[2]]+1L, out[[1]]+1L, length(ranges), length(gi), sort.by.query=TRUE)
+        } else {
+            final <- Hits(out[[1]]+1L, out[[2]]+1L, length(gi), length(ranges), sort.by.query=TRUE)
+        }
+    } else if (select!="count") {
+        final <- final + 1L
+    }
+    return(final)
 }
 
 setMethod("findOverlaps", c(query="GInteractions", subject="Vector"), 
@@ -79,12 +93,10 @@ setMethod("findOverlaps", c(query="GInteractions", subject="Vector"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
         select <- match.arg(select)
-        out <- .linear_olap_finder(query, subject, cxx_expand_olaps, 
+        .linear_olap_finder(query, subject, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=TRUE,
-                    use.region=use.region)
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject), sort.by.query=TRUE)
-        return(selectHits(final, select=match.arg(select))) 
+                    ignore.strand=ignore.strand, select=select,
+                    gi.is.query=TRUE, use.region=use.region)
     }
 )
 
@@ -95,13 +107,10 @@ setMethod("findOverlaps", c(query="Vector", subject="GInteractions"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
         select <- match.arg(select)
-        out <- .linear_olap_finder(subject, query, cxx_expand_olaps, 
+        .linear_olap_finder(subject, query, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, gi.is.query=FALSE,
-                    use.region=use.region)
-        final <- Hits(out[[2]]+1L, out[[1]]+1L, length(query), length(subject), sort.by.query=TRUE)
-        final <- sort(final) 
-        return(selectHits(final, select=match.arg(select))) 
+                    ignore.strand=ignore.strand, select=select,
+                    gi.is.query=FALSE, use.region=use.region)
     }
 )
 
@@ -172,10 +181,10 @@ setMethod("countOverlaps", c(query="GInteractions", subject="Vector"),
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
-        .linear_olap_finder(query, subject, cxx_queryhit_olaps,
+        .linear_olap_finder(query, subject, 
             maxgap=maxgap, minoverlap=minoverlap, type=type,  
-            ignore.strand=ignore.strand, gi.is.query=TRUE,
-            use.region=use.region)
+            ignore.strand=ignore.strand, select="count",
+            gi.is.query=TRUE, use.region=use.region)
     }
 )
 
@@ -184,10 +193,10 @@ setMethod("countOverlaps", c(query="Vector", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
-        .linear_olap_finder(subject, query, cxx_subjecthit_olaps,
+        .linear_olap_finder(subject, query, 
             maxgap=maxgap, minoverlap=minoverlap, type=type, 
-            ignore.strand=ignore.strand, gi.is.query=FALSE,
-            use.region=use.region)
+            ignore.strand=ignore.strand, select="count",
+            gi.is.query=FALSE, use.region=use.region)
     }
 )
 
