@@ -12,6 +12,7 @@ exportMethods(
     anchors, regions, reduceRegions, swapAnchors,
     "anchors<-", "regions<-", "replaceRegions<-",  "appendRegions<-",
     pairs, 
+    findOverlaps, countOverlaps,
     InteractionSet, 
     interactions,
     "interactions<-",

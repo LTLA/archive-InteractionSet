@@ -57,7 +57,7 @@ A dataframe of integer indices indicating which elements of \code{query} link wh
 }
 
 \seealso{
-\code{\link{findOverlaps,GInteractions,GRanges-method}}
+\code{\link{findOverlaps,GInteractions,Vector-method}}
 }
 
 \author{

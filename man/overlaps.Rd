@@ -1,42 +1,44 @@
 \name{Interaction overlaps}
 \alias{Interaction-overlaps}
 
-\alias{findOverlaps,GInteractions,GRanges-method}
-\alias{findOverlaps,GRanges,GInteractions-method}
+\alias{findOverlaps}
+\alias{findOverlaps,GInteractions,Vector-method}
+\alias{findOverlaps,Vector,GInteractions-method}
 \alias{findOverlaps,GInteractions,GInteractions-method}
 \alias{findOverlaps,GInteractions,missing-method}
 
-\alias{countOverlaps,GInteractions,GRanges-method}
-\alias{countOverlaps,GRanges,GInteractions-method}
+\alias{countOverlaps,GInteractions,Vector-method}
+\alias{countOverlaps,Vector,GInteractions-method}
 \alias{countOverlaps,GInteractions,GInteractions-method}
 \alias{countOverlaps,GInteractions,missing-method}
 
-\alias{overlapsAny,GInteractions,GRanges-method}
-\alias{overlapsAny,GRanges,GInteractions-method}
+\alias{overlapsAny,GInteractions,Vector-method}
+\alias{overlapsAny,Vector,GInteractions-method}
 \alias{overlapsAny,GInteractions,GInteractions-method}
 \alias{overlapsAny,GInteractions,missing-method}
 
-\alias{subsetByOverlaps,GInteractions,GRanges-method}
-\alias{subsetByOverlaps,GRanges,GInteractions-method}
+\alias{subsetByOverlaps,GInteractions,Vector-method}
+\alias{subsetByOverlaps,Vector,GInteractions-method}
 \alias{subsetByOverlaps,GInteractions,GInteractions-method}
 
-\alias{findOverlaps,InteractionSet,GRanges-method}
-\alias{findOverlaps,GRanges,InteractionSet-method}
+\alias{findOverlaps,InteractionSet,Vector-method}
+\alias{findOverlaps,Vector,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,missing-method}
 
-\alias{countOverlaps,InteractionSet,GRanges-method}
-\alias{countOverlaps,GRanges,InteractionSet-method}
+\alias{countOverlaps}
+\alias{countOverlaps,InteractionSet,Vector-method}
+\alias{countOverlaps,Vector,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,missing-method}
 
-\alias{overlapsAny,InteractionSet,GRanges-method}
-\alias{overlapsAny,GRanges,InteractionSet-method}
+\alias{overlapsAny,InteractionSet,Vector-method}
+\alias{overlapsAny,Vector,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,InteractionSet-method}
 \alias{overlapsAny,InteractionSet,missing-method}
 
-\alias{subsetByOverlaps,InteractionSet,GRanges-method}
-\alias{subsetByOverlaps,GRanges,InteractionSet-method}
+\alias{subsetByOverlaps,InteractionSet,Vector-method}
+\alias{subsetByOverlaps,Vector,InteractionSet-method}
 \alias{subsetByOverlaps,InteractionSet,InteractionSet-method}
 
 \alias{findOverlaps,InteractionSet,GInteractions-method}
@@ -59,24 +61,24 @@ Find overlaps between interactions and linear intervals, between interactions an
 }
 
 \usage{
-\S4method{findOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
+\S4method{findOverlaps}{GInteractions,Vector}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
     ignore.strand=FALSE, use.region="both")
 
-\S4method{overlapsAny}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
+\S4method{overlapsAny}{GInteractions,Vector}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE, use.region="both")
 
-\S4method{countOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
+\S4method{countOverlaps}{GInteractions,Vector}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE, use.region="both")
 
-\S4method{subsetByOverlaps}{GInteractions,GRanges}(query, subject, maxgap=0L, minoverlap=1L,
+\S4method{subsetByOverlaps}{GInteractions,Vector}(query, subject, maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE, use.region="both")
 
-# For brevity, only 'GInteractions,GRanges-methods' are listed. Methods are
+# For brevity, only 'GInteractions,Vector-methods' are listed. Methods are
 # available for all pairwise combinations of GInteractions, InteractionSet, and
 # Vector objects, so long as at least one InteractionSet or GInteractions
 # object is present. In all cases, function calls are identical.  'subject' can
