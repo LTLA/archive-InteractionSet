@@ -79,7 +79,7 @@ setMethod("show", "GInteractions", function(object){
 showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo=FALSE) {
     lx <- length(x)
     nr <- length(x@regions)
-    nc <- ncol(mcols(x))
+    nc <- .safeNMcols(x)
     cat(class(x), " object with ",
         lx, " ", ifelse(lx == 1L, "interaction", "interactions"), " and ",
         nc, " metadata ", ifelse(nc == 1L, "column", "columns"),
@@ -103,7 +103,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
     print(out, quote=FALSE, right=TRUE, max=length(out))
     if (print.seqinfo) {
         cat(margin, "-------\n", sep="")
-        ncr <- ncol(mcols(x@regions))
+        ncr <- .safeNMcols(x@regions)
         cat(margin, "regions: ", nr, " ranges and ", ncr, " metadata ", ifelse(ncr==1L, "column", "columns"), "\n", sep="")
         cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
     }
@@ -111,7 +111,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
 
 .makeNakedMatFromGInteractions <- function(x) {
     lx <- length(x)
-    nc <- ncol(mcols(x))
+    nc <- .safeNMcols(x)
     ans <- cbind(.pasteAnchor(anchors(x, type="first"), append="1"),
                  "   "=rep.int("---", lx),
                  .pasteAnchor(anchors(x, type="second"), append="2"))
@@ -120,6 +120,12 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
         ans <- cbind(ans, `|`=rep.int("|", lx), as.matrix(tmp))
     }
     ans
+}
+
+.safeNMcols <- function(x) {
+    nc <- ncol(mcols(x))
+    if (is.null(nc)) { nc <- 0L }
+    return(nc)
 }
 
 .pasteAnchor <- function(x, append) {
