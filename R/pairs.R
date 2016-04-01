@@ -6,14 +6,14 @@ setAs("GInteractions", "SelfHits", function(from) {
 
 .flipGI <- function(x) {
     in.order <- as.vector(do.call(rbind, anchors(x, id=TRUE)))
-    status <- rep(c('first', 'second'), length(x))
-    pairings <- rep(seq_along(x), each=2)
     all.regions <- regions(x)[in.order]
-    names(all.regions) <- status
+    names(all.regions) <- rep(c('first', 'second'), length(x))
 
-    out <- split(all.regions, pairings)
+    out_breakpoints <- seq.int(2L, by=2L, length.out=length(x))
+    out_partitioning <- PartitioningByEnd(out_breakpoints, names=names(x))
+    out <- relist(all.regions, out_partitioning)
+    
     mcols(out) <- mcols(x)
-    names(out) <- names(x)
     metadata(out) <- metadata(x)
     return(out)
 }
