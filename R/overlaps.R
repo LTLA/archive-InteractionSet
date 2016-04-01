@@ -215,90 +215,6 @@ setMethod("countOverlaps", c(query="GInteractions", subject="missing"),
 )
 
 ###############################################################
-# This defines the overlapsAny method.
-
-setMethod("overlapsAny", c(query="GInteractions", subject="Vector"), 
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region="both") {
-        type <- match.arg(type)
-
-        # Slightly faster than 'countOverlaps > 0', as there's no need to enumerate.
-        rquery <- regions(query)
-        keep <- logical(length(rquery))
-        subset <- .get_used(query)
-        if (length(subset)!=length(rquery)) { rquery <- rquery[subset] }
-        keep[subset] <- overlapsAny(rquery, subject, maxgap=maxgap, minoverlap=minoverlap, 
-            type=type, ignore.strand=ignore.strand)
-
-        akeep1 <- keep[anchors(query, type="first", id=TRUE)]
-        akeep2 <- keep[anchors(query, type="second", id=TRUE)]
-        out <- .decode_region_mode(use.region)
-        if (out==1L) { 
-            return(akeep1 | akeep2)
-        } else if (out==2L) {
-            return(akeep1)
-        } else {
-            return(akeep2)
-        }
-    }
-)
-
-setMethod("overlapsAny", c(query="Vector", subject="GInteractions"),
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region='both') {
-
-        type <- match.arg(type)
-        out <- .decode_region_mode(use.region)
-        if (out==1L) { 
-            subset <- .get_used(subject)
-        } else if (out==2L) {
-            subset <- unique(anchors(subject, type="first", id=TRUE))
-        } else { 
-            subset <- unique(anchors(subject, type="second", id=TRUE))
-        }
-        overlapsAny(query, regions(subject)[subset], maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand) 
-    }
-)
-
-setMethod("overlapsAny", c(query="GInteractions", subject="missing"),
-    function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region="both") {
-        return(!logical(length(query)))
-    }
-)
-
-setMethod("overlapsAny", c(query="GInteractions", subject="GInteractions"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
-            type=c("any", "start", "end", "within", "equal"),
-            ignore.strand=FALSE, use.region="both") {
-        type <- match.arg(type)
-        return(countOverlaps(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
-                             type=type, ignore.strand=ignore.strand, 
-                             use.region=use.region) > 0L)
-})
-
-###############################################################
-# This defines the subsetByOverlaps method.
-
-for (siglist in list(
-        c(query="GInteractions", subject="Vector"), 
-        c(query="Vector", subject="GInteractions"),
-        c(query="GInteractions", subject="GInteractions")
-    )) { 
-    setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region='both') {
-        type <- match.arg(type)
-        query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap, 
-                type=type, ignore.strand=ignore.strand, use.region=use.region),] 
-    })
-}
-
-###############################################################
 # Defining corresponding functions for InteractionSet objects.
     
 olap.fun.gen <- function(first, second, fun, other.args) 
@@ -346,9 +262,9 @@ olap.fun.gen <- function(first, second, fun, other.args)
 for (siglist in list(
         c(query="InteractionSet", subject="Vector"), 
         c(query="Vector", subject="InteractionSet"),
-        c(query="InteractionSet", subject="InteractionSet"),
-        c(query="InteractionSet", subject="GInteractions"),
+        c(query="InteractionSet", subject="GInteractions"), # need these to avoid ambiguous redirects with Vector.
         c(query="GInteractions", subject="InteractionSet"),
+        c(query="InteractionSet", subject="InteractionSet"),
         c(query="InteractionSet", subject="missing")
     )) {
     first.IS <- siglist[["query"]]=="InteractionSet"
@@ -357,10 +273,6 @@ for (siglist in list(
         if (siglist[["subject"]]=="missing") { second.IS <- NA }
     }
 
-    setMethod("overlapsAny", siglist, olap.fun.gen(first.IS, second.IS, "overlapsAny", 
-             alist(maxgap=0L, minoverlap=1L, 
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE, use.region='both')))
     setMethod("countOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "countOverlaps", 
              alist(maxgap=0L, minoverlap=1L, 
              type=c("any", "start", "end", "within", "equal"),
@@ -370,22 +282,6 @@ for (siglist in list(
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE, use.region='both')))
-
-    if (is.na(second.IS)) { next }
-    if (first.IS) {
-        # Special treatment here, otherwise it'll return a GInteractions.
-        setMethod("subsetByOverlaps", siglist, function(query, subject, maxgap=0L, minoverlap=1L, 
-            type=c("any", "start", "end", "within", "equal"),
-            ignore.strand=FALSE, use.region='both') {
-            query[overlapsAny(query, subject, maxgap=maxgap, minoverlap=minoverlap,
-                              type=type, ignore.strand=ignore.strand, use.region=use.region),]
-        })
-    } else {
-        setMethod("subsetByOverlaps", siglist, olap.fun.gen(first.IS, second.IS, "subsetByOverlaps", 
-            alist(maxgap=0L, minoverlap=1L, 
-            type=c("any", "start", "end", "within", "equal"),
-            ignore.strand=FALSE, use.region='both')))
-    }
 }
 
 ###############################################################

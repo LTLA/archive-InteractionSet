@@ -278,7 +278,7 @@ for (param in seq_len(6)) {
     count.lap <- countOverlaps(x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
     expect_identical(count.lap, selectHits(self.olap, "count"))
     out <- overlapsAny(x, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region)
-    expect_identical(out, rep(TRUE, length(x)))
+    expect_identical(out, !is.na(selected))
 }
 }
 

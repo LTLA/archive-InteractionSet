@@ -7,16 +7,19 @@
 \alias{findOverlaps,GInteractions,GInteractions-method}
 \alias{findOverlaps,GInteractions,missing-method}
 
+\alias{countOverlaps}
 \alias{countOverlaps,GInteractions,Vector-method}
 \alias{countOverlaps,Vector,GInteractions-method}
 \alias{countOverlaps,GInteractions,GInteractions-method}
 \alias{countOverlaps,GInteractions,missing-method}
 
+\alias{overlapsAny}
 \alias{overlapsAny,GInteractions,Vector-method}
 \alias{overlapsAny,Vector,GInteractions-method}
 \alias{overlapsAny,GInteractions,GInteractions-method}
 \alias{overlapsAny,GInteractions,missing-method}
 
+\alias{subsetByOverlaps}
 \alias{subsetByOverlaps,GInteractions,Vector-method}
 \alias{subsetByOverlaps,Vector,GInteractions-method}
 \alias{subsetByOverlaps,GInteractions,GInteractions-method}
@@ -26,7 +29,6 @@
 \alias{findOverlaps,InteractionSet,InteractionSet-method}
 \alias{findOverlaps,InteractionSet,missing-method}
 
-\alias{countOverlaps}
 \alias{countOverlaps,InteractionSet,Vector-method}
 \alias{countOverlaps,Vector,InteractionSet-method}
 \alias{countOverlaps,InteractionSet,InteractionSet-method}
