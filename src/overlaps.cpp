@@ -306,9 +306,7 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
     for (int checkdex=0; checkdex < Ns_all; ++checkdex) { latest_pair[checkdex] = -1; }
 
     int curpair=0, mode=0, maxmode, curq=0, curindex=0, curs=0;
-    bool gotonext=false;
     for (curpair=0; curpair<Npairs; ++curpair) {
-        gotonext=false;
         maxmode=(a1ptr[curpair]==a2ptr[curpair] ? true_mode_start+1 : true_mode_end); // just check one or the other, if they're the same.
 
         for (mode=true_mode_start; mode<maxmode; ++mode) { 
@@ -326,15 +324,13 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
                     latest_pair[curs] = curpair;
                     
                     if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
-                        gotonext=true; 
-                        break;
+                        goto outofnest; // Ugh. Oh well, cleaner than lots of break's.
                     }
                 }
             }
-
-            if (gotonext) { break; }
         }
 
+        outofnest:
         output->postprocess();
     }
 
@@ -461,11 +457,16 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2,
                     if (latest_pair[cur_nextid] == curpair && !is_stored[cur_nextid]) {
                         output->acknowledge(curpair, cur_nextid);
                         is_stored[cur_nextid] = true;
+                
+                        if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
+                            goto outofnest;
+                        }
                     }
                 }
             }
         }
 
+        outofnest:
         output->postprocess();
     }
 
@@ -502,7 +503,7 @@ void choose_output_type(SEXP select, SEXP GIquery, output_store** x) {
         if (giq) {
             *x=new arbitrary_query_overlap;
         } else {
-            *x=new first_subject_overlap; // Unfortunately, this CANNOT be sped up via quit(), because the loop is done with respect to the GInteractions-as-query.
+            *x=new first_subject_overlap; // Unfortunately, this CANNOT be sped up via quit(), because the loop is done with respect to the left GInteractions-as-query.
         }
     } else if (std::strcmp(selstring, "count")==0) {
         if (giq) {
@@ -539,47 +540,32 @@ SEXP linear_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, 
     return mkString(e.what());
 }
 
-SEXP expand_paired_olaps(SEXP anchor1, SEXP anchor2, 
+SEXP paired_olaps(SEXP anchor1, SEXP anchor2, 
         SEXP querystarts, SEXP queryends, SEXP subject,
         SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
         SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
-        SEXP num_next_pairs, SEXP use_both) try {
-    expanded_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
-            next_anchor_start1, next_anchor_end1, next_id1,
-            next_anchor_start2, next_anchor_end2, next_id2,
-            num_next_pairs, use_both);
-    return x.generate();
-} catch (std::exception& e) { 
-    return mkString(e.what());
-}
-
-SEXP queryhit_paired_olaps(SEXP anchor1, SEXP anchor2, 
-        SEXP querystarts, SEXP queryends, SEXP subject,
-        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
-        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
-        SEXP num_next_pairs, SEXP use_both) try {
-    query_count_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
-            next_anchor_start1, next_anchor_end1, next_id1,
-            next_anchor_start2, next_anchor_end2, next_id2,
-            num_next_pairs, use_both);
-    return x.generate();
-} catch (std::exception& e) { 
-    return mkString(e.what());
-}
-
-SEXP subjecthit_paired_olaps(SEXP anchor1, SEXP anchor2, 
-        SEXP querystarts, SEXP queryends, SEXP subject,
-        SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
-        SEXP next_anchor_start2, SEXP next_anchor_end2, SEXP next_id2,
-        SEXP num_next_pairs, SEXP use_both) try {
-    subject_count_overlap x;
-    detect_paired_olaps(&x, anchor1, anchor2, querystarts, queryends, subject,
-            next_anchor_start1, next_anchor_end1, next_id1,
-            next_anchor_start2, next_anchor_end2, next_id2,
-            num_next_pairs, use_both);
-    return x.generate();
+        SEXP num_next_pairs, SEXP use_both, SEXP select) try {
+    SEXP out=PROTECT(allocVector(VECSXP, 1));
+    try {
+        output_store * x;
+        choose_output_type(select, ScalarLogical(1), &x);
+        try {
+            detect_paired_olaps(x, anchor1, anchor2, querystarts, queryends, subject,
+                    next_anchor_start1, next_anchor_end1, next_id1,
+                    next_anchor_start2, next_anchor_end2, next_id2,
+                    num_next_pairs, use_both);
+            SET_VECTOR_ELT(out, 0, x->generate());
+        } catch (std::exception& e) {
+            delete x;
+            throw;
+        }
+        delete x;
+    } catch (std::exception& e){ 
+        UNPROTECT(1);
+        throw;
+    }
+    UNPROTECT(1);
+    return VECTOR_ELT(out, 0);
 } catch (std::exception& e) { 
     return mkString(e.what());
 }

@@ -116,7 +116,7 @@ setMethod("findOverlaps", c(query="Vector", subject="GInteractions"),
 
 ###############################################################
 
-.paired_overlap_finder2 <- function(gi.left, gi.right, cxxfun, ..., use.region="both") 
+.paired_overlap_finder2 <- function(gi.left, gi.right, ..., select, use.region="both") 
 # Identifies overlaps between two GI objects (left and right),
 # with different C++ functions for different behaviours as before.
 {
@@ -136,13 +136,21 @@ setMethod("findOverlaps", c(query="Vector", subject="GInteractions"),
    
     # Getting all 2D overlaps.
     npairs <- length(gi.right)
-    out <- .Call(cxxfun, left.a1 - 1L, left.a2 - 1L, 
+    out <- .Call(cxx_paired_olaps, left.a1 - 1L, left.a2 - 1L, 
                  left.bounds$first - 1L, left.bounds$last, olap$ranges.dex - 1L, 
                  right.bounds1$first - 1L, right.bounds1$last, o1 - 1L,
                  right.bounds2$first - 1L, right.bounds2$last, o2 - 1L,
-                 npairs, .decode_region_mode(use.region, c("both", "same", "reverse")))
+                 npairs, .decode_region_mode(use.region, c("both", "same", "reverse")), select)
     if (is.character(out)) { stop(out) }
-    return(out)
+
+    # Deciding what output to return.
+    final <- out
+    if (select=="all") {
+        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(gi.left), length(gi.right), sort.by.query=TRUE)
+    } else if (select!="count") {
+        final <- final + 1L
+    }
+    return(final)
 }
 
 setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
@@ -152,11 +160,9 @@ setMethod("findOverlaps", c(query="GInteractions", subject="GInteractions"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
         select <- match.arg(select)
-        out <- .paired_overlap_finder2(query, subject, cxx_expand_paired_olaps, 
+        .paired_overlap_finder2(query, subject, select=select, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
                     ignore.strand=ignore.strand, use.region=use.region)
-        final <- Hits(out[[1]]+1L, out[[2]]+1L, length(query), length(subject), sort.by.query=TRUE)
-        return(selectHits(final, select=match.arg(select)))
     }
 )
 
@@ -205,10 +211,10 @@ setMethod("countOverlaps", c(query="GInteractions", subject="GInteractions"),
              type=c("any", "start", "end", "within", "equal"),
              ignore.strand=FALSE, use.region="both") {
         type <- match.arg(type)
-        out <- .paired_overlap_finder2(query, subject, cxx_queryhit_paired_olaps, 
+        .paired_overlap_finder2(query, subject, 
                     maxgap=maxgap, minoverlap=minoverlap, type=type, 
-                    ignore.strand=ignore.strand, use.region=use.region)
-        return(out)
+                    ignore.strand=ignore.strand, select="count",
+                    use.region=use.region)
     }
 )
 
