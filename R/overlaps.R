@@ -67,7 +67,7 @@
 
     # Getting all combinations of overlaps (zero-indexing for C code).
     bounds <- .get_olap_bounds(olap, length(regions(gi)))
-    out <- .Call(cxx_obtain_olaps, a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
+    out <- .Call(cxx_linear_olaps, a1 - 1L, a2 - 1L, bounds$first - 1L, bounds$last, 
                  olap$ranges.dex - 1L, length(ranges), .decode_region_mode(use.region),
                  select, gi.is.query)
     if (is.character(out)) { stop(out) }

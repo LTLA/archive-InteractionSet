@@ -516,7 +516,7 @@ void choose_output_type(SEXP select, SEXP GIquery, output_store** x) {
     return;
 }
 
-SEXP obtain_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both, SEXP select, SEXP GIquery) try {
+SEXP linear_olaps(SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both, SEXP select, SEXP GIquery) try {
     SEXP out=PROTECT(allocVector(VECSXP, 1));
     try {
         output_store * x;
