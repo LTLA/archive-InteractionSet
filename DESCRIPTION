@@ -1,6 +1,6 @@
 Package: InteractionSet
-Version: 0.99.6
-Date: 2016-04-12
+Version: 0.99.7
+Date: 2016-04-28
 Title: Base Classes for Storing Genomic Interaction Data
 Author: Aaron Lun <alun@wehi.edu.au>, Malcolm Perry <mgperry32@gmail.com>,
         Liz Ing-Simmons <liz.ing-simmons12@csc.mrc.ac.uk> 
@@ -16,3 +16,9 @@ Description: Provides the GInteractions, InteractionSet and ContactMatrix
 License: GPL-3
 NeedsCompilation: yes
 VignetteBuilder: knitr
+Collate: ContactMatrix-class.R GInteractions-class.R InteractionSet-class.R 
+        getset.R matching.R 
+        swapAnchors.R GRanges-methods.R 
+        pairs.R conversion.R linearize.R 
+        boundingBox.R distances.R 
+        overlaps.R linkOverlaps.R 
