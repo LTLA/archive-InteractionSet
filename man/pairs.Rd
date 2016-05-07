@@ -13,14 +13,14 @@ Represent interactions in a GInteractions or Interaction object as a Pairs, Self
 \usage{
 \S4method{pairs}{GInteractions}(x, id=FALSE, as.grlist=FALSE)
 
-# Equivalent call for InteractionSet.
+# Equivalent call for InteractionSet to above.
 
 makeGInteractionsFromGRangesPairs(x)
 }
 
 \arguments{
 \item{x}{
-For \code{pairs}, a GInteractions or InteractionSet object 
+For \code{pairs}, a GInteractions or InteractionSet object.
 For \code{makeGInteractionsFromGRangesPairs}, a Pairs object containing two parallel GRanges.
 }
 
