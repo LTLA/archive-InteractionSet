@@ -1,0 +1,11 @@
+citEntry(
+    entry = "article",
+    author ="Aaron T L Lun and Malcolm Perry and Elizabeth Ing-Simmons",
+    title="Infrastructure for genomic interactions: Bioconductor classes for Hi-C, ChIA-PET and related experiments [version 1; referees: awaiting peer review]",
+    journal="F1000Res.",
+    year="2016",
+    volume="5"
+    pages="950",
+    textVersion = "Lun ATL, Perry M and Ing-Simmons E (2016). Infrastructure for genomic interactions: Bioconductor classes for Hi-C, ChIA-PET and related experiments. F1000Res. 5, 950"
+)
+

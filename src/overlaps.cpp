@@ -159,7 +159,7 @@ public:
     single_subject_overlap() {};
     ~single_subject_overlap() {};
     void prime(int nq, int ns) {
-        (void)ns;
+        (void)nq;
         nsubject=ns;
         toquery.resize(ns, NA_INTEGER);    
     };
