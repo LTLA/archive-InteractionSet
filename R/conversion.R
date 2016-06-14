@@ -103,13 +103,13 @@ setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, extract, use.ze
             if (!use.na) { 
                 is.valid <- is.valid & !is.na(as.matrix(x))
             }
-            is.valid <- which(is.valid)
+            is.valid <- Matrix::which(is.valid)
         }
     } else {
         if (!identical(length(extract), length(x))) { 
             stop("extraction matrix must be of the same length as 'x'")
         }
-        is.valid <- which(extract)
+        is.valid <- Matrix::which(extract)
     }
 
     valid.coords <- arrayInd(is.valid, dim(x))

@@ -53,7 +53,7 @@ out2 <- inflate(x, chosen.rows, chosen.cols, fill=blah, sparse=TRUE) # Trying ou
 expect_is(as.matrix(out2), "dgCMatrix")
 expect_equal(dim(out), dim(out2))
 ref <- as.matrix(out)
-not.missing <- which(!is.na(ref))
+not.missing <- Matrix::which(!is.na(ref))
 expect_equal(as.matrix(out2)[not.missing], ref[not.missing])
 expect_true(all(as.matrix(as.matrix(out2))[!not.missing]==0))
 
@@ -76,7 +76,7 @@ out2 <- inflate(x, chosen.rows, chosen.cols, sparse=TRUE) # Trying out a sparse 
 expect_is(as.matrix(out2), "dgCMatrix")
 expect_equal(dim(out), dim(out2))
 ref <- as.matrix(out)
-not.missing <- which(!is.na(ref))
+not.missing <- Matrix::which(!is.na(ref))
 expect_equal(as.matrix(out2)[not.missing], ref[not.missing])
 expect_true(all(as.matrix(as.matrix(out2))[!not.missing]==0))
 
