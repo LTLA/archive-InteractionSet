@@ -55,8 +55,8 @@ for (cls in 1:2) {
         olap1.e <- findOverlaps(anchors(obj, type="first"), enh.regions, maxgap=maxgap, minoverlap=minoverlap, type=type)
         olap2.e <- findOverlaps(anchors(obj, type="second"), enh.regions, maxgap=maxgap, minoverlap=minoverlap, type=type)
 
-        combo1 <- merge(olap1.g, olap2.e, by.x=1, by.y=1)
-        combo2 <- merge(olap2.g, olap1.e, by.x=1, by.y=1)
+        combo1 <- base::merge(olap1.g, olap2.e, by.x=1, by.y=1)
+        combo2 <- base::merge(olap2.g, olap1.e, by.x=1, by.y=1)
         if (use.region=="both") { 
             combo <- rbind(combo1, combo2)
         } else if (use.region=="same") {
@@ -74,7 +74,7 @@ for (cls in 1:2) {
         expect_identical(combo, linkOverlaps(obj, gene.regions, enh.regions, type=type, maxgap=maxgap, minoverlap=minoverlap, use.region=use.region))
 
         # Testing against self-interactions.
-        combo.S <- merge(olap1.g, olap2.g, by.x=1, by.y=1)
+        combo.S <- base::merge(olap1.g, olap2.g, by.x=1, by.y=1)
         colnames(combo.S) <- c("query", "subject1", "subject2")
         new.s1 <- pmax(combo.S$subject1, combo.S$subject2)
         new.s2 <- pmin(combo.S$subject1, combo.S$subject2)
