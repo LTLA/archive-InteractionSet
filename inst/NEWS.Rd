@@ -2,7 +2,10 @@
 \title{InteractionSet News}
 \encoding{UTF-8}
 
-\section{Version 1.1.5}{\itemize{
+\section{Version 1.1.6}{\itemize{
+\item
+Allowed specification of NULL in row/column arguments to inflate().
+
 \item
 Fixes to tests and code in response to updates to BiocGenerics, S4Vectors.
 

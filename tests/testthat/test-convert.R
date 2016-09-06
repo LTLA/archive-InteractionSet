@@ -88,6 +88,23 @@ expect_error(inflate(x, as.numeric(NA), 1:10), "positive integer")
 expect_error(inflate(x, 10000, 1:10), "positive integer")
 
 ##########################################
+# Construction with logical vectors.
+
+chosen.rows <- chosen.cols <- logical(length(regions(x)))
+old.rows <- 1:10
+old.cols <- 11:15
+chosen.rows[old.rows] <- TRUE
+chosen.cols[old.cols] <- TRUE
+out.old <- inflate(x, old.rows, old.cols)
+out <- inflate(x, chosen.rows, chosen.cols)
+expect_identical(out, out.old)
+
+out.old <- inflate(x, old.rows, old.cols, sparse=TRUE)
+out <- inflate(x, chosen.rows, chosen.cols, sparse=TRUE)
+expect_identical(out, out.old)
+
+
+##########################################
 # Construction with character vectors.
 
 out <- inflate(x, "chrA", "chrA")
@@ -149,6 +166,26 @@ expect_true(ncol(suppressWarnings(inflate(x, 1:5, out.of.range)))==0L)
 
 all.chr <- range(all.regions)
 expect_identical(inflate(x, all.chr[1], all.chr[2]), inflate(x, "chrA", "chrB"))
+
+##########################################
+# Construction with NULL.
+
+all.regs <- seq_along(regions(x))
+out <- inflate(x, all.regs, all.regs)
+expect_identical(out, inflate(x, NULL, NULL))
+expect_identical(ref.fun(x, all.regs, all.regs), as.matrix(inflate(x, NULL, NULL)))
+
+all.regs <- !logical(length(regions(x)))
+out <- inflate(x, all.regs, all.regs)
+expect_identical(out, inflate(x, NULL, NULL))
+
+all.regs <- unique(as.character(seqlevels(regions(x))))
+out <- inflate(x, all.regs, all.regs)
+expect_identical(out, inflate(x, NULL, NULL))
+
+all.regs <- range(regions(x))
+out <- inflate(x, all.regs, all.regs)
+expect_identical(out, inflate(x, NULL, NULL))
 
 ##########################################
 # Deflation tests

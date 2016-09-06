@@ -10,10 +10,17 @@ setGeneric("inflate", function(x, ...) standardGeneric("inflate"))
             stop("indices must be positive integers no greater than 'length(regions(x))'") 
         }
         return(i)
+    } else if (is.logical(i)) {
+        if (length(i)!=nregs) {
+            stop("logical index vector must be of length equal to 'length(regions(x))'")
+        }
+        return(which(i))
     } else if (is.character(i)) { 
         return(which(seqnames(regs) %in% i))
     } else if (is(i, "GRanges")) {
         return(which(overlapsAny(regs, i, ...)))
+    } else if (is.null(i)) {
+        return(seq_len(nregs))    
     } else {
         stop("invalid value for row/column selection")
     }

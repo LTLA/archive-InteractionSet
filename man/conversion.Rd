@@ -26,14 +26,7 @@ Inflate a GInteractions or InteractionSet into a ContactMatrix, or deflate a Con
 }
 
 \item{rows, columns}{
-    An integer vector, character vector or GRanges object indicating the regions of interest to be used as the rows or columns of the ContactMatrix.
-
-    If it is an integer vector, it is assumed to refer to intervals in the \code{regions} slot of \code{x}.
-    Values of the vector need not be sorted or collapse, but must lie within \code{[1, regions(x)]}.
-
-    If it is a character vector, it is assumed to contain the names of the reference sequences of interest (i.e., chromosome names).
-
-    If it is a GRanges object, \code{\link{overlapsAny}} will be called to identify the overlapping intervals of the \code{regions} slot.
+    An integer, logical or character vector, a GRanges object or \code{NULL}, indicating the regions of interest to be used as the rows or columns of the ContactMatrix.
 }
 
 \item{assay}{
@@ -84,6 +77,16 @@ For \code{deflate}, an InteractionSet object is returned.
 
 \section{Inflating to a ContactMatrix}{
 The \code{inflate} method will return a ContactMatrix where the rows and columns correspond to specified regions of interest in \code{rows} and \code{columns}.
+Regions can be specified by supplying an object of various types: 
+\itemize{
+\item{If it is an integer vector, it is assumed to refer to intervals in the \code{regions} slot of the input object \code{x}.
+Values of the vector need not be sorted or unique, but must lie within \code{[1, regions(x)]}.}
+\item{If it is a logical vector, it will subset to retain intervals in \code{regions(x)} that are \code{TRUE}.}
+\item{If it is a character vector, it is assumed to contain the names of the reference sequences of interest (i.e., chromosome names).}
+\item{If it is a GRanges object, \code{\link{overlapsAny}} will be called to identify the overlapping intervals of \code{regions(x)}.}
+\item{If it is \code{NULL}, all regions in \code{regions(x)} will be used to construct that dimension of the ContactMatrix.}
+}
+
 For the GInteractions method, values in the matrix are filled based on user-supplied values in \code{fill}.
 Each entry of \code{fill} corresponds to an interaction in \code{x} is used to set the matrix value at the matching row/column.
 Some entries of the matrix will correspond to pairwise interactions that are not present in \code{x} - these are filled with \code{NA} values.
