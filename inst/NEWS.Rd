@@ -2,7 +2,7 @@
 \title{InteractionSet News}
 \encoding{UTF-8}
 
-\section{Version 1.1.6}{\itemize{
+\section{Version 1.2.0}{\itemize{
 \item
 Allowed specification of NULL in row/column arguments to inflate().
 
