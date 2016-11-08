@@ -232,13 +232,11 @@ setMethod("GInteractions", c("numeric", "numeric", "GRanges"),
     incoming <- list(...)
     obj.dex <- rep(factor(seq_along(incoming)), lengths(incoming))
     combined <- do.call(c, incoming)
-    refdex <- seq_along(combined)
     
     # Sorting and re-indexing.
     o <- order(combined)
-    new.pos <- seq_along(combined)
-    new.pos[o] <- new.pos
-    refdex <- new.pos[refdex]
+    refdex <- integer(length(o))
+    refdex[o] <- seq_along(combined)
     combined <- combined[o]
 
     # Removing duplicates and re-indexing.
