@@ -2,7 +2,7 @@
 \alias{ContactMatrix-access}
 
 \alias{anchors,ContactMatrix-method}
-\alias{anchors<-,ContactMatrix-method}
+\alias{anchorIds<-,ContactMatrix-method}
 
 \alias{regions,ContactMatrix-method}
 \alias{regions<-,ContactMatrix-method}
@@ -32,7 +32,7 @@ Methods to get and set fields in an ContactMatrix object.
 
 \usage{
 \S4method{anchors}{ContactMatrix}(x, type="both", id=FALSE)
-\S4method{anchors}{ContactMatrix}(x) <- value
+\S4method{anchorIds}{ContactMatrix}(x, type="both") <- value
 
 \S4method{regions}{ContactMatrix}(x)
 \S4method{regions}{ContactMatrix}(x) <- value
@@ -59,12 +59,9 @@ Methods to get and set fields in an ContactMatrix object.
 \item{id}{a scalar logical indicating whether indices or GRanges should be returned.}
 
 \item{value}{
-    For \code{anchors<-} and \code{type="row"} or \code{"column"}, an integer vector of length equal to the number of rows or columns in \code{x}, respectively.
-    For \code{type="both"}, a list of two such vectors must be supplied (first and second for rows and columns, respectively).
-
-    For \code{anchors<-}, a list of two integer vectors when \code{type="both"}.
+    For \code{anchorIds<-}, a list of two integer vectors when \code{type="both"}.
     The first and second vectors must have length equal to the number of rows and columns of \code{x}, respectively.
-    For \code{type="row"} or \code{"column"}, only one vector needs to be supplied (rows or columns, respectively.
+    For \code{type="row"} or \code{"column"}, only one vector needs to be supplied corresponding to either the rows or columns.
 
     For \code{regions<-}, a GRanges object of length equal to that of \code{regions(x)}.
     For \code{newRegions<-}, a GRanges object that is a superset of all entries in \code{regions(x)} involved in interactions.
@@ -78,14 +75,16 @@ Methods to get and set fields in an ContactMatrix object.
 }
 
 \details{
-The return value of \code{anchors} varies depending on \code{type} and \code{id}.
-If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
+The return value of \code{anchors} varies depending on \code{type} and \code{id}:
+\itemize{
+\item If \code{id=FALSE}, a GRanges object will be returned containing the regions specified by the \code{anchor1} or \code{anchor2} slots in \code{x}, 
     for \code{type=="row"} or \code{"column"}, respectively.
-If \code{type="both"}, a GRangesList will be returned with two entries - \code{row} and \code{column}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
-However, if \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly 
-    (a list of length two is returned for \code{type="both"}, containing both of the vectors).
+\item If \code{id=FALSE} and \code{type="both"}, a GRangesList will be returned with two entries \code{row} and \code{column}, containing regions specified by \code{anchor1} and \code{anchor2} respectively.
+\item If \code{id=TRUE}, the integer vectors in the \code{anchor1} or \code{anchor2} slots of \code{x} are returned directly, depending on \code{type}. 
+    A list of length two is returned for \code{type="both"}, containing both of these vectors.
+}
 
-Replacement in \code{anchors<-} can only be performed using anchor indices.
+Replacement in \code{anchorIds<-} can only be performed using anchor indices.
 If \code{type="both"}, a list of two integer vectors is required in \code{value}, specifying the indices of the row- and column-wise interacting regions in \code{x}.
 If \code{type="row"} or \code{"column"}, an integer vector is required to replace the existing row- or column-wise indices in the \code{anchor1} or \code{anchor2} slot, respectively.
    
@@ -136,7 +135,7 @@ anchors(x, id=TRUE, type="column")
 
 # Modifying anchor indices:
 nregs <- length(regions(x))
-anchors(x) <- list(sample(nregs, nrow(x), replace=TRUE),
+anchorIds(x) <- list(sample(nregs, nrow(x), replace=TRUE),
                    sample(nregs, ncol(x), replace=TRUE))
 anchors(x, id=TRUE, type="row")
 anchors(x, id=TRUE, type="column")

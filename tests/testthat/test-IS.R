@@ -55,6 +55,13 @@ set.seed(1001)
 shuffled <- sample(100, N, replace=TRUE)
 ref <- interactions(x)
 expect_identical(regions(x), regions(ref))
+expect_identical(anchors(x), anchors(ref))
+expect_identical(anchors(x, id=TRUE), anchors(ref, id=TRUE))
+expect_identical(anchors(x, type="first"), anchors(ref, type="first"))
+expect_identical(anchors(x, type="second"), anchors(ref, type="second"))
+expect_identical(first(x), first(ref))
+expect_identical(second(x), second(ref))
+
 regions(x)$score <- shuffled
 regions(ref)$score <- shuffled
 expect_identical(regions(x)$score, regions(ref)$score)
@@ -63,18 +70,24 @@ regions(ref)$score <- regions(x)$score <- NULL # Restoring.
 orig.x <- x
 fresh.anchor1 <- sample(N, Np)
 fresh.anchor2 <- sample(N, Np)
-anchors(x) <- list(fresh.anchor1, fresh.anchor2)
-anchors(ref) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(x) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(ref) <- list(fresh.anchor1, fresh.anchor2)
 expect_identical(anchors(x), anchors(ref))
 expect_identical(anchors(x, id=TRUE), anchors(ref, id=TRUE))
-expect_identical(anchors(x, type="first"), anchors(x, type="first"))
-expect_identical(anchors(x, type="second"), anchors(x, type="second"))
+expect_identical(anchors(x, type="first"), anchors(ref, type="first"))
+expect_identical(anchors(x, type="second"), anchors(ref, type="second"))
+expect_identical(first(x), first(ref))
+expect_identical(second(x), second(ref))
 
-anchors(x, type="first") <- anchors(ref, type="first") <- anchors(orig.x, type="first", id=TRUE)
+original.i <- anchors(orig.x, id=TRUE) # Reverting back to original indices, to check individual assignments work.
+anchorIds(x, type="first") <- original.i$first
+anchorIds(ref, type="first") <- original.i$first
 expect_identical(anchors(x, id=TRUE, type="first"), anchors(ref, id=TRUE, type="first"))
-anchors(x, type="second") <- anchors(ref, type="second") <- anchors(orig.x, type="second", id=TRUE)
+anchorIds(x, type="second") <- original.i$second
+anchorIds(ref, type="second") <- original.i$second
 expect_identical(anchors(x, id=TRUE, type="second"), anchors(ref, id=TRUE, type="second"))
-anchors(x, type="both") <- anchors(ref, type="both") <- anchors(orig.x, id=TRUE)
+anchorIds(x, type="both") <- original.i
+anchorIds(ref, type="both") <- original.i
 expect_identical(anchors(x), anchors(ref))
 
 lib.sizes <- 1:4*1000L

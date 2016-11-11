@@ -10,7 +10,7 @@ exportClasses(
 exportMethods(
     GInteractions,
     anchors, regions, reduceRegions, swapAnchors,
-    "anchors<-", "regions<-", "replaceRegions<-",  "appendRegions<-",
+    "anchors<-", "regions<-", "replaceRegions<-",  "appendRegions<-", "anchorIds<-",
     pairs, 
     findOverlaps, countOverlaps,
     InteractionSet, 

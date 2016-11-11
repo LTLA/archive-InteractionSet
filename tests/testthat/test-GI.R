@@ -49,6 +49,8 @@ expect_identical(anchors(x, id=TRUE), list(first=new.anchor1, second=new.anchor2
 expect_identical(anchors(x, type="first"), new.regions[new.anchor1])
 expect_identical(anchors(x, type="second"), new.regions[new.anchor2])
 expect_identical(anchors(x), GRangesList(first=new.regions[new.anchor1], second=new.regions[new.anchor2]))
+expect_identical(anchors(x, type="first"), first(x))
+expect_identical(anchors(x, type="second"), second(x))
 
 # Testing alternative construction methods for the GInteractions object:
 
@@ -138,19 +140,19 @@ expect_true(identical(regions(x), new.regions))
 
 fresh.anchor1 <- sample(N, Np)
 fresh.anchor2 <- sample(N, Np)
-anchors(x) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(x) <- list(fresh.anchor1, fresh.anchor2)
 expect_identical(anchors(x, id=TRUE, type="first"), fresh.anchor1)
 expect_identical(anchors(x, id=TRUE, type="second"), fresh.anchor2)
-expect_error(anchors(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
-expect_error(anchors(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "x@anchor2' is not parallel to 'x'")
+expect_error(anchorIds(x) <- list(new.anchor1, new.anchor2, new.anchor1), "must be a list of 2 numeric vectors")
+expect_error(anchorIds(x) <- list(new.anchor1[1:(Np/2)], new.anchor2), "x@anchor2' is not parallel to 'x'")
 
 mod.x <- x
-anchors(mod.x, type="first") <- new.anchor1 # Checking that this also works
+anchorIds(mod.x, type="first") <- new.anchor1 # Checking that this also works
 expect_identical(anchors(mod.x, id=TRUE, type="first"), new.anchor1)
 mod.x <- x
-anchors(mod.x, type="second") <- new.anchor2
+anchorIds(mod.x, type="second") <- new.anchor2
 expect_identical(anchors(mod.x, id=TRUE, type="second"), new.anchor2)
-anchors(x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
+anchorIds(x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
 expect_identical(anchors(x, id=TRUE, type="first"), new.anchor1)
 expect_identical(anchors(x, id=TRUE, type="second"), new.anchor2)
 
@@ -482,22 +484,22 @@ expect_identical(anchors(sx, id=TRUE, type="second"), do.call(pmax, anchors(x, i
 expect_identical(regions(sx), regions(x))
 
 temp.sx <- sx
-anchors(temp.sx, type="first") <- fresh.anchor1
+anchorIds(temp.sx, type="first") <- fresh.anchor1
 expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmin(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
 expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmax(fresh.anchor1, anchors(sx, id=TRUE, type="second")))
 
 temp.sx <- sx
-anchors(temp.sx, type="second") <- fresh.anchor2
+anchorIds(temp.sx, type="second") <- fresh.anchor2
 expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmin(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
 expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmax(fresh.anchor2, anchors(sx, id=TRUE, type="first")))
 
 temp.sx <- sx
-anchors(temp.sx) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(temp.sx) <- list(fresh.anchor1, fresh.anchor2)
 expect_identical(anchors(temp.sx, id=TRUE, type="first"), pmin(fresh.anchor1, fresh.anchor2))
 expect_identical(anchors(temp.sx, id=TRUE, type="second"), pmax(fresh.anchor1, fresh.anchor2))
 
 temp.sx2 <- sx
-anchors(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
+anchorIds(temp.sx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
 expect_identical(temp.sx2, temp.sx)
 
 # Testing reverse strictness.
@@ -512,22 +514,22 @@ expect_identical(anchors(rsx, id=TRUE, type="second"), do.call(pmin, anchors(x, 
 expect_identical(regions(rsx), regions(x))
 
 temp.rsx <- rsx
-anchors(temp.rsx, type="first") <- fresh.anchor1
+anchorIds(temp.rsx, type="first") <- fresh.anchor1
 expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor1, anchors(rsx, id=TRUE, type="second")))
 expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor1, anchors(rsx, id=TRUE, type="second")))
 
 temp.rsx <- rsx
-anchors(temp.rsx, type="second") <- fresh.anchor2
+anchorIds(temp.rsx, type="second") <- fresh.anchor2
 expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor2, anchors(rsx, id=TRUE, type="first")))
 expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor2, anchors(rsx, id=TRUE, type="first")))
 
 temp.rsx <- rsx
-anchors(temp.rsx) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(temp.rsx) <- list(fresh.anchor1, fresh.anchor2)
 expect_identical(anchors(temp.rsx, id=TRUE, type="first"), pmax(fresh.anchor1, fresh.anchor2))
 expect_identical(anchors(temp.rsx, id=TRUE, type="second"), pmin(fresh.anchor1, fresh.anchor2))
 
 temp.rsx2 <- rsx
-anchors(temp.rsx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
+anchorIds(temp.rsx2, type="both") <- list(fresh.anchor2, fresh.anchor1)
 expect_identical(temp.rsx2, temp.rsx)
 
 # Testing r'binding of objects of different strictness.

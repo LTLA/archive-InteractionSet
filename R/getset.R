@@ -60,6 +60,10 @@ for (siglist in list("GInteractions", "ContactMatrix")) {
     setMethod("regions", siglist, function(x) { x@regions })
 }
 
+# Defining some convenience methods for GInteractions.
+setMethod("first", "GInteractions", function(x) { anchors(x, type="first") })
+setMethod("second", "GInteractions", function(x) { anchors(x, type="second") })
+
 # Also defining some internal getters, for environment uses: 
 setGeneric("anchor1", function(x) standardGeneric("anchor1"))
 setGeneric("anchor2", function(x) standardGeneric("anchor2"))
@@ -136,7 +140,7 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 
 ###############################################################
 
-setGeneric("anchors<-", function(x, ..., value) standardGeneric("anchors<-"))
+setGeneric("anchorIds<-", function(x, ..., value) standardGeneric("anchorIds<-"))
 
 anchor.repfun.gen <- function(is.GI) { 
     if (is.GI) { 
@@ -165,19 +169,19 @@ anchor.repfun.gen <- function(is.GI) {
     }
 }
 
-setReplaceMethod("anchors", "GInteractions", anchor.repfun.gen(TRUE))
-setReplaceMethod("anchors", "ContactMatrix", anchor.repfun.gen(FALSE))
+setReplaceMethod("anchorIds", "GInteractions", anchor.repfun.gen(TRUE))
+setReplaceMethod("anchorIds", "ContactMatrix", anchor.repfun.gen(FALSE))
 
-setReplaceMethod("anchors", "StrictGInteractions", function(x, type="both", ..., value) {
+setReplaceMethod("anchorIds", "StrictGInteractions", function(x, type="both", ..., value) {
     x <- as(x, "GInteractions")
-    anchors(x, type=type, ...) <- value
+    anchorIds(x, type=type, ...) <- value
     x <- swapAnchors(x)
     as(x, "StrictGInteractions")
 })
 
-setReplaceMethod("anchors", "ReverseStrictGInteractions", function(x, type="both", ..., value) {
+setReplaceMethod("anchorIds", "ReverseStrictGInteractions", function(x, type="both", ..., value) {
     x <- as(x, "GInteractions")
-    anchors(x, type=type, ...) <- value
+    anchorIds(x, type=type, ...) <- value
     x <- swapAnchors(x, mode="reverse")
     as(x, "ReverseStrictGInteractions")
 })
@@ -198,10 +202,14 @@ setMethod("anchors", "InteractionSet", function(x, type="both", id=FALSE) {
     anchors(x@interactions, type=type, id=id) 
 })
 
+setMethod("first", "InteractionSet", function(x) { anchors(x, type="first") })
+
+setMethod("second", "InteractionSet", function(x) { anchors(x, type="second") })
+
 setMethod("regions", "InteractionSet", function(x) { regions(x@interactions) })
 
-setReplaceMethod("anchors", "InteractionSet", function(x, type="both", ..., value) { 
-    anchors(x@interactions, type=type, ...) <- value 
+setReplaceMethod("anchorIds", "InteractionSet", function(x, type="both", ..., value) { 
+    anchorIds(x@interactions, type=type, ...) <- value 
     return(x)
 })
 
@@ -247,6 +255,7 @@ setReplaceMethod("mcols", "InteractionSet", function(x, ..., value) {
 })
 
 ###############################################################
+# Name getting and setting.
 
 setMethod("names", "GInteractions", function(x) { 
     x@NAMES 
@@ -278,6 +287,7 @@ setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
 })
 
 ###############################################################
+# Seqinfo getting and setting.
 
 for (siglist in c("GInteractions", "ContactMatrix")) { 
     setMethod("seqinfo", siglist, function(x) {
@@ -299,6 +309,19 @@ setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
     seqinfo(interactions(x)) <- value
     return(x)
 })
+
+###############################################################
+# Deprecation of anchors<- setter, use anchorIds<- instead
+# (to avoid confusion with anchors(x), which returns GRanges by default).
+
+setGeneric("anchors<-", function(x, ..., value) standardGeneric("anchors<-"))
+for (siglist in c("GInteractions", "InteractionSet", "ContactMatrix")) { 
+    setReplaceMethod("anchors", "GInteractions", function(x, type="both", ..., value) {
+        .Deprecated("anchorIds<-", old="anchors<-")    
+        anchorIds(x, type=type, ...) <- value
+        return(x)
+    })
+}
 
 ##############################################
 # Matrix dimensions

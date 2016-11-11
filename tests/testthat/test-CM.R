@@ -111,19 +111,19 @@ expect_true(identical(regions(x), new.regions))
 
 fresh.anchor1 <- sample(N, Nr)
 fresh.anchor2 <- sample(N, Nc)
-anchors(x) <- list(fresh.anchor1, fresh.anchor2)
+anchorIds(x) <- list(fresh.anchor1, fresh.anchor2)
 expect_that(anchors(x, id=TRUE, type="row"), is_identical_to(fresh.anchor1))
 expect_that(anchors(x, id=TRUE, type="column"), is_identical_to(fresh.anchor2))
-expect_error(anchors(x) <- list(fresh.anchor1, fresh.anchor2, fresh.anchor1), "must be a list of 2 numeric vectors")
-expect_error(anchors(x) <- list(fresh.anchor2, fresh.anchor2), "nrow must be equal to length of 'anchor1'")
-expect_error(anchors(x) <- list(fresh.anchor1, fresh.anchor1), "ncol must be equal to length of 'anchor2'")
+expect_error(anchorIds(x) <- list(fresh.anchor1, fresh.anchor2, fresh.anchor1), "must be a list of 2 numeric vectors")
+expect_error(anchorIds(x) <- list(fresh.anchor2, fresh.anchor2), "nrow must be equal to length of 'anchor1'")
+expect_error(anchorIds(x) <- list(fresh.anchor1, fresh.anchor1), "ncol must be equal to length of 'anchor2'")
 
 mod.x <- x
-anchors(x, type="row") <- new.anchor1 # Restoring; checking that these calls also work.
+anchorIds(x, type="row") <- new.anchor1 # Restoring; checking that these calls also work.
 expect_identical(anchors(x, id=TRUE, type="row"), new.anchor1)
-anchors(x, type="column") <- new.anchor2
+anchorIds(x, type="column") <- new.anchor2
 expect_identical(anchors(x, id=TRUE, type="column"), new.anchor2)
-anchors(mod.x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
+anchorIds(mod.x, type="both") <- list(new.anchor1, new.anchor2) # Restoring.
 expect_identical(x, mod.x)
 
 x.dump <- x
@@ -230,12 +230,12 @@ temp.x[,0] <- x[,0]
 expect_identical(temp.x, x)
 
 temp.x <- x
-anchors(temp.x[1:5,], type="row") <- 1:5
+anchorIds(temp.x[1:5,], type="row") <- 1:5
 expect_identical(anchors(temp.x, type="row", id=TRUE)[1:5], 1:5)
-anchors(temp.x[,1:5], type="column") <- 1:5
+anchorIds(temp.x[,1:5], type="column") <- 1:5
 expect_identical(anchors(temp.x, type="column", id=TRUE)[1:5], 1:5)
-expect_error(anchors(temp.x[1:5,1:5], type="row") <- 1:5+1L, "cannot modify row indices for a subset of columns")
-expect_error(anchors(temp.x[1:5,1:5], type="column") <- 1:5+1L, "cannot modify column indices for a subset of rows")
+expect_error(anchorIds(temp.x[1:5,1:5], type="row") <- 1:5+1L, "cannot modify row indices for a subset of columns")
+expect_error(anchorIds(temp.x[1:5,1:5], type="column") <- 1:5+1L, "cannot modify column indices for a subset of rows")
 
 # Testing the combining.
 
@@ -279,7 +279,7 @@ expect_that(sort(x), equals(x[o.x$row,o.x$column]))
 
 temp.x <- rbind(x, x)    
 temp.x2 <- temp.x
-anchors(temp.x2) <- list(seq_len(nrow(temp.x2)), anchors(temp.x2, type="column", id=TRUE))
+anchorIds(temp.x2) <- list(seq_len(nrow(temp.x2)), anchors(temp.x2, type="column", id=TRUE))
 o.x2 <- list(row=order(anchors(temp.x, type="row"), anchors(temp.x2, type="row")),
              column=order(anchors(temp.x, type="column"), anchors(temp.x2, type="column")))
 expect_that(o.x2, is_identical_to(order(temp.x, temp.x2)))
