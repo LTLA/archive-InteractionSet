@@ -122,7 +122,7 @@ For example, the code below re-specifies the three pairwise interactions as that
 
 ```{r}
 temp.gi <- gi
-anchors(temp.gi) <- list(1:3, 5:7)
+anchorIds(temp.gi) <- list(1:3, 5:7)
 ```
 
 This replacement method probably won't get much use, as it would generally be less confusing to construct a new `GInteractions` object.
@@ -213,7 +213,7 @@ Before we start, we make a slightly more complicated object so we get more inter
 
 ```{r}
 new.gi <- gi
-anchors(new.gi) <- list(1:3, 5:7)
+anchorIds(new.gi) <- list(1:3, 5:7)
 combined <- c(gi, new.gi)
 ```
 
@@ -258,7 +258,7 @@ The `match` method then looks for entries in the second object with the same anc
 Obviously, the common regions must be the same for this to be sensible.
 
 ```{r}
-anchors(new.gi) <- list(4:6, 1:3)
+anchorIds(new.gi) <- list(4:6, 1:3)
 new.gi <- swapAnchors(new.gi)
 swap.gi <- swapAnchors(gi)
 match(new.gi, swap.gi)
@@ -420,7 +420,7 @@ All methods that apply to `GInteractions` can also be used for a `StrictGInterac
 The only difference is that anchor assignments will automatically enforce the standard permutation, by shuffling values between the first and second anchor indices.
 
 ```{r}
-anchors(sgi) <- list(7:12, 1:6)
+anchorIds(sgi) <- list(7:12, 1:6)
 anchors(sgi, id=TRUE)
 ```
 
@@ -605,10 +605,10 @@ temp.cm <- cm
 as.matrix(temp.cm[1,1]) <- 0
 ```
 
-The `anchors` replacement method can be used to replace the row or column anchor indices:
+The `anchorIds` replacement method can be used to replace the row or column anchor indices:
 
 ```{r}
-anchors(temp.cm) <- list(1:10, 1:7)
+anchorIds(temp.cm) <- list(1:10, 1:7)
 ```
 
 The `regions`, `replaceRegions` and `appendRegions` replacement methods are also available and work as described for `GInteractions` objects.
@@ -673,7 +673,7 @@ This representation is easiest to interpret, as adjacent rows or columns will co
 
 ```{r}
 temp.cm <- cm
-anchors(temp.cm) <- list(10:1, 15:9)
+anchorIds(temp.cm) <- list(10:1, 15:9)
 anchors(sort(temp.cm), id=TRUE)
 ```
 

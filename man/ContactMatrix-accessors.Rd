@@ -2,6 +2,7 @@
 \alias{ContactMatrix-access}
 
 \alias{anchors,ContactMatrix-method}
+\alias{anchors<-,ContactMatrix-method}
 \alias{anchorIds<-,ContactMatrix-method}
 
 \alias{regions,ContactMatrix-method}

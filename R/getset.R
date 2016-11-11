@@ -316,7 +316,7 @@ setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
 
 setGeneric("anchors<-", function(x, ..., value) standardGeneric("anchors<-"))
 for (siglist in c("GInteractions", "InteractionSet", "ContactMatrix")) { 
-    setReplaceMethod("anchors", "GInteractions", function(x, type="both", ..., value) {
+    setReplaceMethod("anchors", siglist, function(x, type="both", ..., value) {
         .Deprecated("anchorIds<-", old="anchors<-")    
         anchorIds(x, type=type, ...) <- value
         return(x)
