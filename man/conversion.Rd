@@ -119,6 +119,8 @@ Otherwise, different interactions may be extracted depending on the presence of 
 The values of all matrix entries are stored as a one-sample assay, with each value corresponding to its pairwise interaction after conversion.
 Duplicate interactions are removed by default, along with redundant permutations of the anchor indices.
 These can be included in the returned object by setting \code{collapse=FALSE}.
+This setting will also store the pairs as a GInteractions object, rather than using the default StrictGInteractions object where duplicates are not stored.
+
 Additional arguments can be used to specify the \code{colData} and \code{metadata}, which are stored in the ContactMatrix itself.
 }
 

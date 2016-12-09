@@ -60,7 +60,7 @@ Methods to subset or combine InteractionSet or GInteractions objects.
 }
 
 \item{...}{  
-    For \code{rbind} and \code{c}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise, depending on the method. 
+    For \code{rbind} and \code{c}, \code{...} contains GInteractions or InteractionSet objects to be combined row-wise.
     All objects must be of the same class.
     For \code{c}, any objects are additional to that already specified in \code{x}.
     For \code{cbind}, \code{...} contains InteractionSet objects to be combined column-wise.
