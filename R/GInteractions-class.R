@@ -1,25 +1,5 @@
 ###############################################################
-# Defines the GInteractions class, to hold interacting coordinates. 
-
-setClass("GInteractions", 
-    contains="Vector",
-    representation(
-        anchor1="integer",
-        anchor2="integer",
-        regions="GRanges",
-        NAMES="character_OR_NULL"
-    ),
-    prototype(
-        anchor1=integer(0),
-        anchor2=integer(0),
-        regions=GRanges(),
-        NAMES=NULL
-    )
-)
-
-# Could inherit from Hits with an extra 'regions'; but I don't want to
-# deal with 'queryHits' and 'subjectHits', which would get very confusing
-# when you're dealing with queries and subjects in the overlap section.
+# Setting validity and show methods.
 
 .check_inputs <- function(anchor1, anchor2, regions, same.length=TRUE) {
     if (!all(is.finite(anchor1)) || !all(is.finite(anchor2))) { 
@@ -39,16 +19,16 @@ setClass("GInteractions",
 }
 
 setValidity2("GInteractions", function(object) {
-    if (is.unsorted(object@regions)) { # Don't move into .check_inputs, as resorting comes after checking validity in various methods.
+    if (is.unsorted(regions(object))) { # Don't move into .check_inputs, as resorting comes after checking validity in various methods.
         return("'regions' should be sorted")
     }
-    msg <- .check_inputs(object@anchor1, object@anchor2, object@regions)
+    msg <- .check_inputs(anchor1(object), anchor2(object), regions(object))
     if (is.character(msg)) { return(msg) }
 
     ### Length of anchors versus object is automatically checked by 'parallelSlotNames.'
 
-    if (!is.null(object@NAMES)) {
-        if (length(object@NAMES)!=length(object)) {
+    if (!is.null(names(object))) {
+        if (length(names(object))!=length(object)) {
             stop("'NAMES' must be NULL or have length equal to that of the object")
         }
     }
@@ -78,7 +58,7 @@ setMethod("show", "GInteractions", function(object){
 
 showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo=FALSE) {
     lx <- length(x)
-    nr <- length(x@regions)
+    nr <- length(regions(x))
     nc <- .safeNMcols(x)
     cat(class(x), " object with ",
         lx, " ", ifelse(lx == 1L, "interaction", "interactions"), " and ",
@@ -103,7 +83,7 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
     print(out, quote=FALSE, right=TRUE, max=length(out))
     if (print.seqinfo) {
         cat(margin, "-------\n", sep="")
-        ncr <- .safeNMcols(x@regions)
+        ncr <- .safeNMcols(regions(x))
         cat(margin, "regions: ", nr, " ranges and ", ncr, " metadata ", ifelse(ncr==1L, "column", "columns"), "\n", sep="")
         cat(margin, "seqinfo: ", summary(seqinfo(x)), "\n", sep="")
     }
@@ -137,17 +117,15 @@ showGInteractions <- function(x, margin="", print.seqinfo=FALSE, print.classinfo
 ###############################################################
 # Ordered equivalents, where swap state is enforced.
 
-setClass("StrictGInteractions", contains="GInteractions")
 setValidity2("StrictGInteractions", function(object) {
-    if (any(object@anchor1 > object@anchor2)) { 
+    if (any(anchor1(object) > anchor2(object))) { 
         stop("'anchor1' cannot be greater than 'anchor2'")
     }
     return(TRUE)
 })
 
-setClass("ReverseStrictGInteractions", contains="GInteractions")
 setValidity2("ReverseStrictGInteractions", function(object) {
-    if (any(object@anchor1 < object@anchor2)) { 
+    if (any(anchor1(object) < anchor2(object))) { 
         stop("'anchor1' cannot be less than 'anchor2'")
     }
     return(TRUE)
@@ -216,7 +194,6 @@ setValidity2("ReverseStrictGInteractions", function(object) {
         metadata=as.list(metadata))
 }
 
-setGeneric("GInteractions", function(anchor1, anchor2, regions, ...) standardGeneric("GInteractions"))
 setMethod("GInteractions", c("numeric", "numeric", "GRanges"), 
     function(anchor1, anchor2, regions, metadata=list(), mode="normal", ...) {
         out <- .new_GInteractions(anchor1, anchor2, regions=regions, metadata=metadata, mode=mode)
@@ -297,8 +274,8 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     args <- unname(list(...))
     ans <- args[[1]]
     all.regions <- lapply(args, FUN=regions)
-    all.anchor1 <- lapply(args, FUN=slot, name="anchor1")
-    all.anchor2 <- lapply(args, FUN=slot, name="anchor2")
+    all.anchor1 <- lapply(args, FUN=anchor1)
+    all.anchor2 <- lapply(args, FUN=anchor2)
     all.mcols <- lapply(args, FUN=mcols)
 
     # Checking if regions are the same; collating if not.
@@ -306,7 +283,7 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     ans@regions <- unified$region
     ans@anchor1 <- unlist(unified$anchor1)
     ans@anchor2 <- unlist(unified$anchor2)
-    ans@elementMetadata <- do.call(rbind, all.mcols)
+    mcols(ans) <- do.call(rbind, all.mcols)
 
     # Checking what to do with names.
     all.names <- lapply(args, FUN=names)
@@ -315,7 +292,7 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
         for (u in which(unnamed)) {
             all.names[[u]] <- character(length(args[[u]]))
         }
-        ans@NAMES <- unlist(all.names)
+        names(ans) <- unlist(all.names)
     }
 
     # Coerce to the same strictness, if different inputs were supplied.

@@ -1,7 +1,5 @@
-setGeneric("pairs", function(x, ...) standardGeneric("pairs"))
-
 setAs("GInteractions", "SelfHits", function(from) {
-      SelfHits(from=from@anchor1, to=from@anchor2, nnode=length(regions(from)), sort.by.query=FALSE)
+      SelfHits(from=anchor1(from), to=anchor2(from), nnode=length(regions(from)), sort.by.query=FALSE)
 })
 
 .flipGI <- function(x) {
@@ -21,8 +19,7 @@ setAs("GInteractions", "SelfHits", function(from) {
 setAs("GInteractions", "GRangesList", function(from) .flipGI(from))
 
 setAs("GInteractions", "Pairs", function(from) {
-      Pairs(anchors(from, type="first"), anchors(from, type="second"),
-            names=names(from), mcols(from))
+      Pairs(first(from), second(from), names=names(from), mcols(from))
 })
 
 setMethod("pairs", "GInteractions", function(x, id=FALSE, as.grlist=FALSE) {

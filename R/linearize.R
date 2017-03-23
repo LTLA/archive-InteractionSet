@@ -1,5 +1,3 @@
-setGeneric("linearize", function(x, ref, ...) standardGeneric("linearize"))
-
 .linearize <- function(x, ref, internal=TRUE) {
     ref <- as.integer(ref)
     keep.a1 <- anchors(x, type="first", id=TRUE) %in% ref

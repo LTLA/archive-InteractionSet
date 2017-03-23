@@ -1,7 +1,5 @@
 # Inflate from InteractionSet to ContactMatrix.
 
-setGeneric("inflate", function(x, ...) standardGeneric("inflate"))
-
 .make_to_indices <- function(regs, i, ...) {
     nregs <- length(regs)
     if (is.numeric(i)) { 
@@ -87,8 +85,6 @@ setMethod("inflate", "InteractionSet", function(x, rows, columns, assay=1, sampl
     inflate(interactions(x), rows, columns, fill=fill, swap=swap, sparse=sparse, ...)
 })
 
-setGeneric("deflate", function(x, ...) standardGeneric("deflate"))
-
 setMethod("deflate", "ContactMatrix", function(x, collapse=TRUE, extract, use.zero, use.na, ...) {
     # Choosing the expansion strategy.
     if (missing(extract)) { 
@@ -151,8 +147,3 @@ setAs("GInteractions", "ReverseStrictGInteractions", function(from) {
     new("ReverseStrictGInteractions", swapAnchors(from, mode="reverse"))
 })
 
-# Convert to a Hits object.
-
-setAs("GInteractions", "SelfHits", function(from) {
-    SelfHits(from=from@anchor1, to=from@anchor2, nnode=length(regions(from)), sort.by.query=FALSE)
-})

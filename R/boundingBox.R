@@ -41,7 +41,6 @@
     return(out)
 }
 
-setGeneric("boundingBox", function(x, f) standardGeneric("boundingBox"))
 setMethod("boundingBox", "GInteractions", .boundingBox)
 setMethod("boundingBox", "InteractionSet", .boundingBox)
 

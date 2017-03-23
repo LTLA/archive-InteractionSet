@@ -2,7 +2,7 @@
 # This defines the findOverlaps method for GInteractions objects.
 
 .get_used <- function(gi) 
-# Gets the indices for all gi@regions that are actually used as anchors.
+# Gets the indices for all regions(gi) that are actually used as anchors.
 {
     all1 <- anchors(gi, type="first", id=TRUE)
     all2 <- anchors(gi, type="second", id=TRUE)
@@ -13,7 +13,7 @@
 }
 
 .fast_overlap <- function(gi, ranges, ..., gi.is.query=TRUE) 
-# Overlaps gi@regions with ranges, but only for those regions used as anchors.
+# Overlaps regions(gi) with ranges, but only for those regions used as anchors.
 {
     regs <- regions(gi)
     subset <- .get_used(gi)

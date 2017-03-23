@@ -1,8 +1,5 @@
 ###############################################################
-# Getters:
-
-setGeneric("anchors", function(x, ...) standardGeneric("anchors"))
-setGeneric("regions", function(x, ...) standardGeneric("regions"))
+# Getters for anchors, regions:
 
 # A generating function, to capture differences in 'type' for 'anchors' call.
 GI.args <- c("both", "first", "second") 
@@ -65,17 +62,14 @@ setMethod("first", "GInteractions", function(x) { anchors(x, type="first") })
 setMethod("second", "GInteractions", function(x) { anchors(x, type="second") })
 
 # Also defining some internal getters, for environment uses: 
-setGeneric("anchor1", function(x) standardGeneric("anchor1"))
-setGeneric("anchor2", function(x) standardGeneric("anchor2"))
 for (siglist in list("GInteractions", "ContactMatrix")) { 
     setMethod("anchor1", siglist, function(x) { x@anchor1 })
     setMethod("anchor2", siglist, function(x) { x@anchor2 })
 }
 
 ###############################################################
-# Setters:
+# Setters for regions:
 
-setGeneric("regions<-", function(x, value) standardGeneric("regions<-"))
 for (siglist in c("GInteractions", "ContactMatrix")) { 
     setReplaceMethod("regions", siglist, function(x, value) {
         if (length(value)!=length(regions(x))) { 
@@ -92,7 +86,6 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 
 # Also allow setting of regions of different length.
 
-setGeneric("replaceRegions<-", function(x, value) standardGeneric("replaceRegions<-"))
 for (siglist in c("GInteractions", "ContactMatrix")) { 
     setReplaceMethod("replaceRegions", siglist, function(x, value) {
         converter <- match(regions(x), value)
@@ -112,7 +105,6 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 
 # Append regions.
 
-setGeneric("appendRegions<-", function(x, value) standardGeneric("appendRegions<-"))
 for (siglist in c("GInteractions", "ContactMatrix")) {
     setReplaceMethod("appendRegions", siglist, function(x, value) {
         out <- .resort_regions(anchor1(x), anchor2(x), c(regions(x), value)) 
@@ -125,7 +117,6 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 
 # Reduce regions.
 
-setGeneric("reduceRegions", function(x) standardGeneric("reduceRegions"))
 for (siglist in c("GInteractions", "ContactMatrix")) { 
     setMethod("reduceRegions", siglist, function(x) {
         used <- logical(length(regions(x)))
@@ -141,8 +132,7 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 }
 
 ###############################################################
-
-setGeneric("anchorIds<-", function(x, ..., value) standardGeneric("anchorIds<-"))
+# Setters for anchors.
 
 anchor.repfun.gen <- function(is.GI) { 
     if (is.GI) { 
@@ -191,10 +181,8 @@ setReplaceMethod("anchorIds", "ReverseStrictGInteractions", function(x, type="bo
 ###############################################################
 # Methods on InteractionSet that operate on GInteractions.
 
-setGeneric("interactions", function(x, ...) standardGeneric("interactions"))
 setMethod("interactions", "InteractionSet", function(x) { return(x@interactions) })
 
-setGeneric("interactions<-", function(x, value) standardGeneric("interactions<-"))
 setReplaceMethod("interactions", "InteractionSet", function(x, value) { 
     x@interactions <- value
     return(x)
@@ -297,7 +285,7 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
     })
     
     setReplaceMethod("seqinfo", siglist, function(x, value) {
-        seqinfo(regions(x)) <- value
+        seqinfo(x@regions) <- value
         validObject(x)
         return(x)
     })
@@ -316,7 +304,6 @@ setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
 # Deprecation of anchors<- setter, use anchorIds<- instead
 # (to avoid confusion with anchors(x), which returns GRanges by default).
 
-setGeneric("anchors<-", function(x, ..., value) standardGeneric("anchors<-"))
 for (siglist in c("GInteractions", "InteractionSet", "ContactMatrix")) { 
     setReplaceMethod("anchors", siglist, function(x, type="both", ..., value) {
         .Deprecated("anchorIds<-", old="anchors<-")    
@@ -336,12 +323,10 @@ setMethod("length", "ContactMatrix", function(x) {
     length(as.matrix(x))
 })
 
-
 setMethod("as.matrix", "ContactMatrix", function(x) {
     return(x@matrix)
 }) 
 
-setGeneric("as.matrix<-", function(x, ..., value) standardGeneric("as.matrix<-"))
 setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
     if (is(value, "Matrix")) {
         if (!identical(dim(x), dim(value))) { 

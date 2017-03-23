@@ -30,7 +30,6 @@
     return(data.frame(query=out[[1]]+1L, subject1=out[[2]]+1L, subject2=out[[3]]+1L))    
 }
 
-setGeneric("linkOverlaps", function(query, subject1, subject2, ...) standardGeneric('linkOverlaps'))
 setMethod("linkOverlaps", c("GInteractions", "GRanges", "GRanges"), .linkOverlap)
 setMethod("linkOverlaps", c("GInteractions", "GRanges", "missing"), .linkOverlap)
 setMethod("linkOverlaps", c("InteractionSet", "GRanges", "GRanges"), .linkOverlap)

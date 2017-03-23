@@ -10,10 +10,8 @@ setMethod("match", c("GInteractions", "GInteractions"),
 
         # Using the Hits method, for convenience (this automatically resorts).
         nR <- length(regions(x))
-        a1 <- Hits(anchors(x, id=TRUE, type="first"),
-                   anchors(x, id=TRUE, type="second"), nR, nR, order=seq_along(x))
-        a2 <- Hits(anchors(table, id=TRUE, type="first"),
-                   anchors(table, id=TRUE, type="second"), nR, nR, order=seq_along(table))
+        a1 <- Hits(anchor1(x), anchor2(x), nR, nR, order=seq_along(x))
+        a2 <- Hits(anchor1(table), anchor2(table), nR, nR, order=seq_along(table))
         out <- match(a1, a2, nomatch=nomatch, incomparables=incomparables, ...)
 
         # Unscrambling:
@@ -47,9 +45,9 @@ setMethod("pcompare",  c("GInteractions", "GInteractions"), function(x, y) {
     if (length(regions(x))!=length(regions(y)) || any(regions(x)!=regions(y))) { 
         stop("'regions' must be identical for arguments to 'pcompare'")
     }
-    output <- x@anchor1 - y@anchor1
+    output <- anchor1(x) - anchor1(y)
     tied1 <- output==0L
-    output[tied1] <- x@anchor2[tied1] - y@anchor2[tied1]
+    output[tied1] <- anchor2(x)[tied1] - anchor2(y)[tied1]
     return(output)
 })
 

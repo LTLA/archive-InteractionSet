@@ -1,22 +1,10 @@
 ###############################################################
-# Defines the InteractionSet class, based on the SummarizedExperiment base class.
-# This allows us to avoid re-defining various standard functions.
-
-setClass("InteractionSet", 
-    contains="SummarizedExperiment",
-    representation(
-        interactions="GInteractions"
-    ),
-    prototype(
-        interactions=GInteractions()
-    )
-)
 
 setValidity2("InteractionSet", function(object) {
-    if (nrow(object@assays)!=length(object@interactions)) {
-        return("'assays' nrow differs from length of anchor vectors")
+    if (nrow(object)!=length(interactions(object))) {
+        return("'interactions' length is not equal to the number of rows")
     } 
-    if (!is.null(object@NAMES)) {
+    if (!is.null(object@NAMES)) { # Using direct slot access, otherwise diverts to GInteractions.
         return("'NAMES' slot must always be NULL")
     }
     if (ncol(object@elementMetadata) != 0L) {
@@ -31,8 +19,8 @@ setMethod("parallelSlotNames", "InteractionSet", function(x) {
 
 setMethod("show", signature("InteractionSet"), function(object) {
     callNextMethod()
-    cat(sprintf("type: %s\n", class(object@interactions)))
-    cat(sprintf("regions: %i\n", length(regions(object@interactions))))
+    cat(sprintf("type: %s\n", class(interactions(object))))
+    cat(sprintf("regions: %i\n", length(regions(interactions(object)))))
 })
 
 ###############################################################
@@ -43,7 +31,6 @@ setMethod("show", signature("InteractionSet"), function(object) {
     new("InteractionSet", se0, interactions=interactions)
 }
 
-setGeneric("InteractionSet", function(assays, interactions, ...) standardGeneric("InteractionSet"))
 setMethod("InteractionSet", c("ANY", "GInteractions"), function(assays, interactions, ...) { 
         .new_InteractionSet(assays, interactions, ...)
    }
@@ -60,12 +47,12 @@ setMethod("InteractionSet", c("missing", "missing"), function(assays, interactio
 # Need to define these because SummarizedExperiment doesn't use extract/replaceROWS directly;
 # they divert to these functions anyway.
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
-    if (!missing(i)) { x@interactions <- x@interactions[i] }
+    if (!missing(i)) { x@interactions <- interactions(x)[i] }
     callNextMethod()
 })
 
 setMethod("[<-", c("InteractionSet", "ANY", "ANY", "InteractionSet"), function(x, i, j, ..., value) {
-    if (!missing(i)) { x@interactions[i] <- value@interactions }
+    if (!missing(i)) { interactions(x)[i] <- interactions(value) }
     callNextMethod(x=x, i=i, j=j, ..., value=value)
 })
 

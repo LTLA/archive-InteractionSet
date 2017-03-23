@@ -16,9 +16,7 @@ Description: Provides the GInteractions, InteractionSet and ContactMatrix
 License: GPL-3
 NeedsCompilation: yes
 VignetteBuilder: knitr
-Collate: ContactMatrix-class.R GInteractions-class.R InteractionSet-class.R 
-        getset.R matching.R 
-        swapAnchors.R GRanges-methods.R 
-        pairs.R conversion.R linearize.R 
-        boundingBox.R distances.R 
-        overlaps.R linkOverlaps.R 
+Collate: AllGenerics.R AllClasses.R getset.R 
+        ContactMatrix-class.R GInteractions-class.R InteractionSet-class.R 
+        matching.R swapAnchors.R GRanges-methods.R pairs.R conversion.R 
+        linearize.R boundingBox.R distances.R overlaps.R linkOverlaps.R 

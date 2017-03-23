@@ -47,7 +47,7 @@ expect_identical(metadata(x3)$whee, 5L)
 
 expect_identical(dim(InteractionSet(matrix(0, 4, 0), GInteractions(1:4, 1:4, all.regions))), c(4L, 0L)) # No columns
 expect_identical(dim(InteractionSet(matrix(0, 0, 4, dimnames=list(NULL, seq_len(4))), GInteractions(integer(0), numeric(0), GRanges()))), c(0L, 4L))
-expect_error(InteractionSet(matrix(0, 3, 0), GInteractions(1:4, 1:4, all.regions)), "'assays' nrow differs from length of anchor vectors")
+expect_error(InteractionSet(matrix(0, 3, 0), GInteractions(1:4, 1:4, all.regions)), "'interactions' length is not equal to the number of rows")
 
 # Testing getters, setters.
 
