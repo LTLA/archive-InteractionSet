@@ -4,7 +4,7 @@ setValidity2("InteractionSet", function(object) {
     if (nrow(object)!=length(interactions(object))) {
         return("'interactions' length is not equal to the number of rows")
     } 
-    if (!is.null(object@NAMES)) { # Using direct slot access, otherwise diverts to GInteractions.
+    if (!is.null(object@NAMES)) { # Using direct slot access, otherwise diverts to slots in GInteractions.
         return("'NAMES' slot must always be NULL")
     }
     if (ncol(object@elementMetadata) != 0L) {
@@ -47,12 +47,16 @@ setMethod("InteractionSet", c("missing", "missing"), function(assays, interactio
 # Need to define these because SummarizedExperiment doesn't use extract/replaceROWS directly;
 # they divert to these functions anyway.
 setMethod("[", c("InteractionSet", "ANY", "ANY"), function(x, i, j, ..., drop=TRUE) {
-    if (!missing(i)) { x@interactions <- interactions(x)[i] }
+    if (!missing(i)) { unchecked_interactions(x) <- interactions(x)[i] }
     callNextMethod()
 })
 
 setMethod("[<-", c("InteractionSet", "ANY", "ANY", "InteractionSet"), function(x, i, j, ..., value) {
-    if (!missing(i)) { interactions(x)[i] <- interactions(value) }
+    if (!missing(i)) { 
+        I <- interactions(x)
+        I[i] <- interactions(value) 
+        unchecked_interactions(x) <- I
+    }
     callNextMethod(x=x, i=i, j=j, ..., value=value)
 })
 

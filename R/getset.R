@@ -1,7 +1,51 @@
 ###############################################################
-# Getters for anchors, regions:
+# Simple getters and setters (some of these are exported):
 
-# A generating function, to capture differences in 'type' for 'anchors' call.
+for (siglist in list("GInteractions", "ContactMatrix")) {
+    setMethod("regions", siglist, function(x) { x@regions })
+}
+
+for (siglist in list("GInteractions", "ContactMatrix")) { 
+    # internal, for use with environments and with().
+    setMethod("anchor1", siglist, function(x) { x@anchor1 })
+    setMethod("anchor2", siglist, function(x) { x@anchor2 })
+
+    setReplaceMethod("unchecked_regions", siglist, function(x, value) {
+        x@regions <- value
+        return(x)        
+    })
+
+    setReplaceMethod("unchecked_anchor1", siglist, function(x, value) {
+        x@anchor1 <- value 
+        return(x)        
+    })
+
+    setReplaceMethod("unchecked_anchor2", siglist, function(x, value) {
+        x@anchor2 <- value 
+        return(x)        
+    })
+}
+
+setMethod("interactions", "InteractionSet", function(x) { return(x@interactions) })
+
+setReplaceMethod("unchecked_interactions", "InteractionSet", function(x, value) { 
+    x@interactions <- value
+    return(x)
+}) 
+
+setMethod("as.matrix", "ContactMatrix", function(x) {
+    return(x@matrix)
+}) 
+
+setReplaceMethod("unchecked_matrix", "ContactMatrix", function(x, value) {
+    x@matrix <- value
+    return(x)
+}) 
+
+###############################################################
+# Exported getters for anchors. Using a generating function, 
+# to capture differences in 'type' for 'anchors' call.
+
 GI.args <- c("both", "first", "second") 
 CM.args <- c("both", "row", "column") 
 anchor.fun.gen <- function(is.GI) { 
@@ -53,19 +97,9 @@ anchor.fun.gen <- function(is.GI) {
 setMethod("anchors", "GInteractions", anchor.fun.gen(TRUE))
 setMethod("anchors", "ContactMatrix", anchor.fun.gen(FALSE))
 
-for (siglist in list("GInteractions", "ContactMatrix")) {
-    setMethod("regions", siglist, function(x) { x@regions })
-}
-
 # Defining some convenience methods for GInteractions.
 setMethod("first", "GInteractions", function(x) { anchors(x, type="first") })
 setMethod("second", "GInteractions", function(x) { anchors(x, type="second") })
-
-# Also defining some internal getters, for environment uses: 
-for (siglist in list("GInteractions", "ContactMatrix")) { 
-    setMethod("anchor1", siglist, function(x) { x@anchor1 })
-    setMethod("anchor2", siglist, function(x) { x@anchor2 })
-}
 
 ###############################################################
 # Setters for regions:
@@ -76,9 +110,9 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
             stop("assigned value must be of the same length as 'regions(x)'")
         }
         out <- .resort_regions(anchor1(x), anchor2(x), value)
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
-        x@regions <- out$regions
+        unchecked_anchor1(x) <- out$anchor1
+        unchecked_anchor2(x) <- out$anchor2
+        unchecked_regions(x) <- out$regions
         validObject(x)
         return(x)
     })
@@ -96,9 +130,9 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
         }
 
         out <- .resort_regions(new.a1, new.a2, value)
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
-        x@regions <- out$regions
+        unchecked_anchor1(x) <- out$anchor1
+        unchecked_anchor2(x) <- out$anchor2
+        unchecked_regions(x) <- out$regions
         return(x)
     })
 }
@@ -108,9 +142,9 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
 for (siglist in c("GInteractions", "ContactMatrix")) {
     setReplaceMethod("appendRegions", siglist, function(x, value) {
         out <- .resort_regions(anchor1(x), anchor2(x), c(regions(x), value)) 
-        x@anchor1 <- out$anchor1
-        x@anchor2 <- out$anchor2
-        x@regions <- out$regions
+        unchecked_anchor1(x) <- out$anchor1
+        unchecked_anchor2(x) <- out$anchor2
+        unchecked_regions(x) <- out$regions
         return(x)
     })
 }
@@ -124,9 +158,9 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
         used[anchor2(x)] <- TRUE
         new.dex <- integer(length(used))
         new.dex[used] <- seq_len(sum(used))
-        x@anchor1 <- new.dex[anchor1(x)]
-        x@anchor2 <- new.dex[anchor2(x)]
-        x@regions <- regions(x)[used]
+        unchecked_anchor1(x) <- new.dex[anchor1(x)]
+        unchecked_anchor2(x) <- new.dex[anchor2(x)]
+        unchecked_regions(x) <- regions(x)[used]
         return(x)
     })
 }
@@ -148,12 +182,12 @@ anchor.repfun.gen <- function(is.GI) {
             if (length(value)!=2L) { 
                 stop("'value' must be a list of 2 numeric vectors")
             }
-            x@anchor1 <- as.integer(value[[1]])
-            x@anchor2 <- as.integer(value[[2]])
+            unchecked_anchor1(x) <- as.integer(value[[1]])
+            unchecked_anchor2(x) <- as.integer(value[[2]])
         } else if (type==type1) {
-            x@anchor1 <- as.integer(value)
+            unchecked_anchor1(x) <- as.integer(value)
         } else {
-            x@anchor2 <- as.integer(value)
+            unchecked_anchor2(x) <- as.integer(value)
         }
 
         validObject(x)
@@ -181,10 +215,9 @@ setReplaceMethod("anchorIds", "ReverseStrictGInteractions", function(x, type="bo
 ###############################################################
 # Methods on InteractionSet that operate on GInteractions.
 
-setMethod("interactions", "InteractionSet", function(x) { return(x@interactions) })
-
 setReplaceMethod("interactions", "InteractionSet", function(x, value) { 
-    x@interactions <- value
+    unchecked_interactions(x) <- value
+    validObject(x)
     return(x)
 }) 
 
@@ -198,28 +231,38 @@ setMethod("second", "InteractionSet", function(x) { anchors(x, type="second") })
 
 setMethod("regions", "InteractionSet", function(x) { regions(interactions(x)) })
 
+# Modification of regions in GInteractions doesn't affect validity of InteractionSet.
+
 setReplaceMethod("anchorIds", "InteractionSet", function(x, type="both", ..., value) { 
-    anchorIds(interactions(x), type=type, ...) <- value 
+    i <- interactions(x)
+    anchorIds(i, type=type, ...) <- value 
+    unchecked_interactions(x) <- i
     return(x)
 })
 
 setReplaceMethod("regions", "InteractionSet", function(x, value) { 
-    regions(interactions(x)) <- value
+    i <- interactions(x)
+    regions(i) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
 setReplaceMethod("replaceRegions", "InteractionSet", function(x, value) { 
-    replaceRegions(interactions(x)) <- value
+    i <- interactions(x)
+    replaceRegions(i) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
 setReplaceMethod("appendRegions", "InteractionSet", function(x, value) { 
-    appendRegions(interactions(x)) <- value
+    i <- interactions(x)
+    appendRegions(i) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
 setMethod("reduceRegions", "InteractionSet", function(x) {
-    interactions(x) <- reduceRegions(interactions(x))
+    unchecked_interactions(x) <- reduceRegions(interactions(x))
     return(x)
 })
 
@@ -240,7 +283,9 @@ setMethod("mcols", "InteractionSet", function(x, use.names=FALSE) {
 })
 
 setReplaceMethod("mcols", "InteractionSet", function(x, ..., value) {
-    mcols(interactions(x), ...) <- value
+    i <- interactions(x)                 
+    mcols(i, ...) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
@@ -263,7 +308,9 @@ setMethod("names", "InteractionSet", function(x) {
 })
 
 setReplaceMethod("names", "InteractionSet", function(x, value) {
-    names(interactions(x)) <- value
+    i <- interactions(x)                 
+    names(i) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
@@ -272,7 +319,9 @@ setMethod("dimnames", "ContactMatrix", function(x) {
 })
 
 setReplaceMethod("dimnames", "ContactMatrix", function(x, value) {
-    dimnames(as.matrix(x)) <- value
+    m <- as.matrix(x)
+    dimnames(m) <- value
+    unchecked_matrix(x) <- m
     return(x)
 })
 
@@ -285,8 +334,9 @@ for (siglist in c("GInteractions", "ContactMatrix")) {
     })
     
     setReplaceMethod("seqinfo", siglist, function(x, value) {
-        seqinfo(x@regions) <- value
-        validObject(x)
+        r <- regions(x)
+        seqinfo(r) <- value
+        unchecked_regions(x) <- r
         return(x)
     })
 }
@@ -296,7 +346,9 @@ setMethod("seqinfo", "InteractionSet", function(x) {
 })
 
 setReplaceMethod("seqinfo", "InteractionSet", function(x, value) {
-    seqinfo(interactions(x)) <- value
+    i <- interactions(x)                 
+    seqinfo(i) <- value
+    unchecked_interactions(x) <- i
     return(x)
 })
 
@@ -323,16 +375,12 @@ setMethod("length", "ContactMatrix", function(x) {
     length(as.matrix(x))
 })
 
-setMethod("as.matrix", "ContactMatrix", function(x) {
-    return(x@matrix)
-}) 
-
 setReplaceMethod("as.matrix", "ContactMatrix", function(x, value) {
     if (is(value, "Matrix")) {
         if (!identical(dim(x), dim(value))) { 
             stop("replacement Matrix must have same dimensions as 'x'")
         }
-        x@matrix <- value
+        unchecked_matrix(x) <- value
     } else {
         x@matrix[] <- value
     }

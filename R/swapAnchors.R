@@ -7,8 +7,8 @@ setMethod("swapAnchors", "GInteractions", function(x, mode=c("order", "reverse",
     } else {
         out <- list(anchor2(x), anchor1(x))
     }
-    x@anchor1 <- out[[1]]        
-    x@anchor2 <- out[[2]]
+    unchecked_anchor1(x) <- out[[1]]        
+    unchecked_anchor2(x) <- out[[2]]
     validObject(x)
     return(x)
 })

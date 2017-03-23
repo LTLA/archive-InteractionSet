@@ -3,8 +3,11 @@
 setGeneric("anchors", function(x, ...) standardGeneric("anchors"))
 setGeneric("anchor1", function(x) standardGeneric("anchor1"))
 setGeneric("anchor2", function(x) standardGeneric("anchor2"))
-setGeneric("regions", function(x, ...) standardGeneric("regions"))
+setGeneric("unchecked_anchor1<-", function(x, value) standardGeneric("unchecked_anchor1<-"))
+setGeneric("unchecked_anchor2<-", function(x, value) standardGeneric("unchecked_anchor2<-"))
 
+setGeneric("regions", function(x, ...) standardGeneric("regions"))
+setGeneric("unchecked_regions<-", function(x, value) standardGeneric("unchecked_regions<-"))
 setGeneric("regions<-", function(x, value) standardGeneric("regions<-"))
 setGeneric("replaceRegions<-", function(x, value) standardGeneric("replaceRegions<-"))
 setGeneric("appendRegions<-", function(x, value) standardGeneric("appendRegions<-"))
@@ -14,8 +17,10 @@ setGeneric("anchorIds<-", function(x, ..., value) standardGeneric("anchorIds<-")
 setGeneric("anchors<-", function(x, ..., value) standardGeneric("anchors<-"))
 
 setGeneric("interactions", function(x, ...) standardGeneric("interactions"))
+setGeneric("unchecked_interactions<-", function(x, value) standardGeneric("unchecked_interactions<-"))
 setGeneric("interactions<-", function(x, value) standardGeneric("interactions<-"))
 
+setGeneric("unchecked_matrix<-", function(x, value) standardGeneric("unchecked_matrix<-"))
 setGeneric("as.matrix<-", function(x, ..., value) standardGeneric("as.matrix<-"))
 
 # boundingBox.R

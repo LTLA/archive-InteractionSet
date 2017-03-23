@@ -280,9 +280,9 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
 
     # Checking if regions are the same; collating if not.
     unified <- .coerce_to_union(all.regions, all.anchor1, all.anchor2)
-    ans@regions <- unified$region
-    ans@anchor1 <- unlist(unified$anchor1)
-    ans@anchor2 <- unlist(unified$anchor2)
+    unchecked_regions(ans) <- unified$region
+    unchecked_anchor1(ans) <- unlist(unified$anchor1)
+    unchecked_anchor2(ans) <- unlist(unified$anchor2)
     mcols(ans) <- do.call(rbind, all.mcols)
 
     # Checking what to do with names.
