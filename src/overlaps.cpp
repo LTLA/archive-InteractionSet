@@ -1,7 +1,5 @@
 #include "iset.h"
 
-extern "C" {
-
 /* Checking validity of inputs */
 
 void check_indices (const int* qsptr, const int* qeptr, const int Nq, const int* sjptr, const int Ns, const int Ns_all) {
@@ -39,9 +37,9 @@ void set_mode_values (SEXP use_both, int& start, int& end) {
     return;
 }  
 
-/***************************************************************
+/*****************************************************************************************************
  * Useful classes to get different outputs from the same code. *
- ***************************************************************/
+ *****************************************************************************************************/
 
 class output_store {
 public:
@@ -278,6 +276,38 @@ private:
  * Base function, to detect all overlaps between linear ranges and either interacting loci in a pair *
  *****************************************************************************************************/
 
+void help_add_current_overlaps(const int& true_mode_start, const int& true_mode_end,
+        const int& curpair, const int* a1ptr, const int* a2ptr, 
+        const int* qsptr, const int* qeptr, const int& Nq,
+        const int* sjptr, output_store* output, int* latest_pair) {
+    /* This helper function checks all overlaps involving the interaction indexed by 'curpair'.
+     * I factorized it out of the main function below to avoid using 'goto's upon the quit() call.
+     */
+
+    const int& a1=a1ptr[curpair];
+    const int& a2=a2ptr[curpair];
+    const int maxmode=(a1==a2 ? true_mode_start+1 : true_mode_end); // just check one or the other, if they're the same.
+    int curq, curs, curindex;
+
+    for (int mode=true_mode_start; mode<maxmode; ++mode) { 
+        curq = (mode == 0 ? a1 : a2);
+        
+        if (curq >= Nq || curq < 0 || curq==NA_INTEGER) { throw std::runtime_error("region index out of bounds"); }
+        for (curindex=qsptr[curq]; curindex<qeptr[curq]; ++curindex) {
+            curs=sjptr[curindex];
+            if (latest_pair[curs] < curpair) { 
+                output->acknowledge(curpair, curs);
+                latest_pair[curs] = curpair;
+
+                if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
+                    return;
+                }
+            }
+        }
+    }
+    return;
+}
+
 void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP querystarts, SEXP queryends, SEXP subject, SEXP nsubjects, SEXP use_both) {
     if (!isInteger(anchor1) || !isInteger(anchor2)) { throw std::runtime_error("anchors must be integer vectors"); }
     const int Npairs = LENGTH(anchor1);
@@ -300,44 +330,24 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
 
     // Checking indices. 
     check_indices(qsptr, qeptr, Nq, sjptr, Ns, Ns_all);
-    /* Constructing an output deque */
+
     output->prime(Npairs, Ns_all);
     int* latest_pair=(int*)R_alloc(Ns_all, sizeof(int));
-    for (int checkdex=0; checkdex < Ns_all; ++checkdex) { latest_pair[checkdex] = -1; }
+    std::fill(latest_pair, latest_pair + Ns_all, -1);
 
-    int curpair=0, mode=0, maxmode, curq=0, curindex=0, curs=0;
-    for (curpair=0; curpair<Npairs; ++curpair) {
-        maxmode=(a1ptr[curpair]==a2ptr[curpair] ? true_mode_start+1 : true_mode_end); // just check one or the other, if they're the same.
-
-        for (mode=true_mode_start; mode<maxmode; ++mode) { 
-            if (mode == 0) {
-                curq = a1ptr[curpair];
-            } else {
-                curq = a2ptr[curpair];
-            }
-
-            if (curq >= Nq || curq < 0 || curq==NA_INTEGER) { throw std::runtime_error("region index out of bounds"); }
-            for (curindex=qsptr[curq]; curindex<qeptr[curq]; ++curindex) {
-                curs=sjptr[curindex];
-                if (latest_pair[curs] < curpair) { 
-                    output->acknowledge(curpair, curs);
-                    latest_pair[curs] = curpair;
-                    
-                    if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
-                        goto outofnest; // Ugh. Oh well, cleaner than lots of break's.
-                    }
-                }
-            }
-        }
-
-        outofnest:
+    for (int curpair=0; curpair<Npairs; ++curpair) {
+        help_add_current_overlaps(true_mode_start, true_mode_end, 
+                curpair, a1ptr, a2ptr, 
+                qsptr, qeptr, Nq,
+                sjptr, output, latest_pair);
         output->postprocess();
     }
 
     return;
 }
 
-/* Base function, to detect all 2D overlaps between two GInteractions objects.
+/*****************************************************************************************************
+ * Base function, to detect all 2D overlaps between two GInteractions objects.
  * This is pretty complicated:
  *
  *   anchor1, anchor2 hold the anchor indices of the query GInteractions.
@@ -354,8 +364,90 @@ void detect_olaps(output_store* output, SEXP anchor1, SEXP anchor2, SEXP queryst
  *   2) retrieve the regions(subject) overlapping each anchor query;
  *   3) identify all subject anchors matching each retrieved regions(subject)
  *   4) cross-reference all identified subject anchors 1 and 2 to identify 2D overlaps.
- */
+ *****************************************************************************************************/
 
+void help_add_current_paired_overlaps(const int& true_mode_start, const int& true_mode_end,
+        const int& curpair, const int* a1ptr, const int* a2ptr, 
+        const int* qsptr, const int* qeptr, const int& Nq,
+        const int* nasptr1, const int* naeptr1, const int* niptr1,
+        const int* nasptr2, const int* naeptr2, const int* niptr2,
+        const int* sjptr, output_store* output, 
+        int* latest_pair_A, bool* is_complete_A,
+        int* latest_pair_B, bool* is_complete_B) {
+    /* This helper function checks all overlaps involving the interaction indexed by 'curpair'.
+     * Factorized out of the main function below to avoid using 'goto's upon the quit() call.
+     */
+
+    int mode=0, curq1=0, curq2=0, curindex=0, cur_subreg=0, cur_nextanch=0, cur_nextid;
+    int * latest_pair;
+    bool * is_complete;
+
+    const int& a1=a1ptr[curpair];
+    const int& a2=a2ptr[curpair];
+    const int maxmode = (a1==a2 ? true_mode_start+1 : true_mode_end);
+
+    /* Checking whether the first and second anchor overlaps anything in the opposing query sets.
+     * Doing this twice; first and second anchors to the first and second query sets (A, mode=0), then
+     * the first and second anchors to the second and first query sets (B, mode=1).
+     */
+    for (mode=true_mode_start; mode<maxmode; ++mode) { 
+        if (mode==0) { 
+            curq1 = a1;
+            curq2 = a2;
+            if (curq1 >= Nq || curq1 < 0 || curq1==NA_INTEGER) { throw std::runtime_error("region index (1) out of bounds"); }
+            if (curq2 >= Nq || curq2 < 0 || curq2==NA_INTEGER) { throw std::runtime_error("region index (2) out of bounds"); }
+            latest_pair = latest_pair_A;
+            is_complete = is_complete_A;
+        } else {
+            curq2 = a1;
+            curq1 = a2;
+            latest_pair = latest_pair_B;
+            is_complete = is_complete_B;
+        }
+
+        for (curindex=qsptr[curq1]; curindex<qeptr[curq1]; ++curindex) {
+            cur_subreg=sjptr[curindex];
+            for (cur_nextanch=nasptr1[cur_subreg]; cur_nextanch<naeptr1[cur_subreg]; ++cur_nextanch) {
+                cur_nextid=niptr1[cur_nextanch];
+
+                /* An overlap with element 'cur_nextid' has already been added from the "A" cycle, if 
+                 * is_complete[cur_nextid]=true and latest_pair[cur_nextid] is at the current query index.
+                 * Otherwise, updating latest_pair if it hasn't already been updated - setting 
+                 * latest_pair to the query index to indicate that the first anchor region is overlapped,
+                 * but also setting is_complete to false to indicate that the overlap is not complete.
+                 */
+                if (mode!=0 && latest_pair_A[cur_nextid] == curpair && is_complete_A[cur_nextid]) { continue; } 
+                if (latest_pair[cur_nextid] < curpair) { 
+                    latest_pair[cur_nextid] = curpair;
+                    is_complete[cur_nextid] = false;
+                }
+            }
+        }
+
+        for (curindex=qsptr[curq2]; curindex<qeptr[curq2]; ++curindex) {
+            cur_subreg=sjptr[curindex];
+            for (cur_nextanch=nasptr2[cur_subreg]; cur_nextanch<naeptr2[cur_subreg]; ++cur_nextanch) {
+                cur_nextid=niptr2[cur_nextanch];
+
+                /* Again, checking if overlap has already been added from the "A" cycle. Otherwise, we only add
+                 * an overlap if anchor region 1 was overlapped by 'cur_nextid', as indicated by latest_pair
+                 * (and is_complete is false, to avoid re-adding something that was added in this cycle).
+                 */
+                if (mode!=0 && latest_pair_A[cur_nextid] == curpair && is_complete_A[cur_nextid]) { continue; }
+                if (latest_pair[cur_nextid] == curpair && !is_complete[cur_nextid]) {
+                    output->acknowledge(curpair, cur_nextid);
+                    is_complete[cur_nextid] = true;
+            
+                    if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
+ 
 void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2, 
         SEXP querystarts, SEXP queryends, SEXP subject, 
         SEXP next_anchor_start1, SEXP next_anchor_end1, SEXP next_id1,
@@ -406,90 +498,29 @@ void detect_paired_olaps(output_store* output, SEXP anchor1, SEXP anchor2,
     int* latest_pair_B=(int*)R_alloc(Nnp, sizeof(int));
     bool* is_complete_A=(bool*)R_alloc(Nnp, sizeof(bool));
     bool* is_complete_B=(bool*)R_alloc(Nnp, sizeof(bool));
-    for (int checkdex=0; checkdex < Nnp; ++checkdex) { 
-        latest_pair_A[checkdex] = latest_pair_B[checkdex] = -1; 
-        is_complete_A[checkdex] = is_complete_B[checkdex] = true;
-    }
+    std::fill(latest_pair_A, latest_pair_A+Nnp, -1);
+    std::fill(latest_pair_B, latest_pair_B+Nnp, -1);
+    std::fill(is_complete_A, is_complete_A+Nnp, true);
+    std::fill(is_complete_B, is_complete_B+Nnp, true);
 
-    int curpair=0, mode=0, maxmode, curq1=0, curq2=0, 
-        curindex=0, cur_subreg=0, cur_nextanch=0, cur_nextid;
-    int * latest_pair;
-    bool * is_complete;
-    for (curpair=0; curpair<Npairs; ++curpair) {
-        maxmode = (a1ptr[curpair] == a2ptr[curpair] ? true_mode_start+1 : true_mode_end);
-
-        /* Checking whether the first and second anchor overlaps anything in the opposing query sets.
-         * Doing this twice; first and second anchors to the first and second query sets (A, mode=0), then
-         * the first and second anchors to the second and first query sets (B, mode=1).
-         */
-        for (mode=true_mode_start; mode<maxmode; ++mode) { 
-            if (mode==0) { 
-                curq1 = a1ptr[curpair];
-                curq2 = a2ptr[curpair];
-                if (curq1 >= Nq || curq1 < 0 || curq1==NA_INTEGER) { throw std::runtime_error("region index (1) out of bounds"); }
-                if (curq2 >= Nq || curq2 < 0 || curq2==NA_INTEGER) { throw std::runtime_error("region index (2) out of bounds"); }
-                latest_pair = latest_pair_A;
-                is_complete = is_complete_A;
-            } else {
-                curq2 = a1ptr[curpair];
-                curq1 = a2ptr[curpair];
-                latest_pair = latest_pair_B;
-                is_complete = is_complete_B;
-            }
-
-            for (curindex=qsptr[curq1]; curindex<qeptr[curq1]; ++curindex) {
-                cur_subreg=sjptr[curindex];
-                for (cur_nextanch=nasptr1[cur_subreg]; cur_nextanch<naeptr1[cur_subreg]; ++cur_nextanch) {
-                    cur_nextid=niptr1[cur_nextanch];
-
-                    /* An overlap with element 'checkdex' has already been added from the "A" cycle, if 
-                     * is_complete[checkdex]=true and latest_pair[checkdex] is at the current query index.
-                     * Otherwise, updating latest_pair if it hasn't already been updated - setting 
-                     * latest_pair to the query index to indicate that the first anchor region is overlapped,
-                     * but also setting is_complete to false to indicate that the overlap is not complete.
-                     */
-                    if (mode!=0 && latest_pair_A[cur_nextid] == curpair && is_complete_A[cur_nextid]) { continue; } 
-                    if (latest_pair[cur_nextid] < curpair) { 
-                        latest_pair[cur_nextid] = curpair;
-                        is_complete[cur_nextid] = false;
-                    }
-                }
-            }
-
-            for (curindex=qsptr[curq2]; curindex<qeptr[curq2]; ++curindex) {
-                cur_subreg=sjptr[curindex];
-                for (cur_nextanch=nasptr2[cur_subreg]; cur_nextanch<naeptr2[cur_subreg]; ++cur_nextanch) {
-                    cur_nextid=niptr2[cur_nextanch];
-
-                    /* Again, checking if overlap has already been added from the "A" cycle. Otherwise, we only add
-                     * an overlap if anchor region 1 was overlapped by 'cur_nextid', as indicated by latest_pair
-                     * (and is_complete is false, to avoid re-adding something that was added in this cycle).
-                     */
-                    if (mode!=0 && latest_pair_A[cur_nextid] == curpair && is_complete_A[cur_nextid]) { continue; }
-                    if (latest_pair[cur_nextid] == curpair && !is_complete[cur_nextid]) {
-                        output->acknowledge(curpair, cur_nextid);
-                        is_complete[cur_nextid] = true;
-                
-                        if (output->quit()) { // If we just want any hit, we go to the next 'curpair'.
-                            goto outofnest;
-                        }
-                    }
-                }
-            }
-        }
-
-        outofnest:
+    for (int curpair=0; curpair<Npairs; ++curpair) {
+        help_add_current_paired_overlaps(true_mode_start, true_mode_end, 
+                curpair, a1ptr, a2ptr,
+                qsptr, qeptr, Nq,
+                nasptr1, naeptr1, niptr1,
+                nasptr2, naeptr2, niptr2,
+                sjptr, output,
+                latest_pair_A, is_complete_A,
+                latest_pair_B, is_complete_B);
         output->postprocess();
     }
 
     return;
 }
 
-}
-
-/***************************************
- * Functions based on derived classes. *
- ***************************************/
+/*****************************************************************************************************
+ * Functions that actually get called from R.
+ *****************************************************************************************************/
 
 void choose_output_type(SEXP select, SEXP GIquery, output_store** x) {
     if (!isString(select) || LENGTH(select)!=1) { throw std::runtime_error("'select' specifier should be a single string"); }
@@ -587,12 +618,13 @@ SEXP paired_olaps(SEXP anchor1, SEXP anchor2,
     return mkString(e.what());
 }
 
-/* Another function that links two regions together. This does something quite similar
+/*****************************************************************************************************
+ * Another function that links two regions together. This does something quite similar
  * to detect_paired_olaps, but whereas that function requires both anchor regions to
  * overlap the regions from the same subject pair, here we only require that the
  * anchor regions overlap one region from either set. We then store all possible 
  * combinations of regions that are mediated by our interactions.
- */
+ *****************************************************************************************************/
 
 SEXP expand_pair_links(SEXP anchor1, SEXP anchor2, SEXP querystarts1, SEXP queryends1, SEXP subject1, SEXP nsubjects1, 
         SEXP querystarts2, SEXP queryends2, SEXP subject2, SEXP nsubjects2, SEXP sameness, SEXP use_both) try {

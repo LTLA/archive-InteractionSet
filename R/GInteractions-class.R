@@ -7,7 +7,7 @@ setClass("GInteractions",
         anchor1="integer",
         anchor2="integer",
         regions="GRanges",
-        NAMES="characterORNULL"
+        NAMES="character_OR_NULL"
     ),
     prototype(
         anchor1=integer(0),

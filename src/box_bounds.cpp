@@ -1,7 +1,5 @@
 #include "iset.h"
 
-extern "C" {
-
 SEXP get_box_bounds (SEXP ids, SEXP reflevels, SEXP adex, SEXP chrs, SEXP starts, SEXP ends) try {
 
     if (!isInteger(ids)) { throw std::runtime_error("grouping vector should be integer"); }
@@ -81,5 +79,3 @@ try {
     return mkString(e.what());
 }
 
-
-}
