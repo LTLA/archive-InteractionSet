@@ -2,7 +2,7 @@
 \title{InteractionSet News}
 \encoding{UTF-8}
 
-\section{Version 1.3.1}{\itemize{
+\section{Version 1.4.0}{\itemize{
 \item Deprecated anchors<- in favour of anchorIds<-, to avoid confusion about 'value' type.
 
 \item Added first(), second() functions for convenience.
