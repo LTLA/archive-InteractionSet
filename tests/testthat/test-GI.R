@@ -268,6 +268,18 @@ expect_identical(temp.x$score, mod.score)
 expect_identical(temp.x[rchosen]$score, mod.score[rchosen])
 expect_identical(nrow(mcols(temp.x[rchosen])), length(rchosen))
 
+temp.x <- x
+regions(temp.x) <- resize(regions(temp.x), 10) # what happens with different regions?
+ref <- c(x[1], temp.x[-1])
+temp.x[1] <- x[1]
+expect_identical(temp.x, ref)
+
+temp.x <- x
+regions(temp.x) <- resize(regions(temp.x), 10) # Checking again, just in case.
+ref <- c(temp.x[1:5], x[1:5], temp.x[11:length(temp.x)])
+temp.x[6:10] <- x[1:5]
+expect_identical(temp.x, ref)
+
 # Testing the combining.
 
 xsub <- x[1:5,]
