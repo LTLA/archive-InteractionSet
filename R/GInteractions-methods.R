@@ -270,8 +270,8 @@ setMethod("GInteractions", c("missing", "missing", "GenomicRangesORmissing"),
 ###############################################################
 # Combining
 
-setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
-    args <- unname(list(...))
+setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym for 'rbind'.
+    args <- unname(list(x, ...))
     ans <- args[[1]]
     all.regions <- lapply(args, FUN=regions)
     all.anchor1 <- lapply(args, FUN=anchor1)
@@ -336,11 +336,6 @@ setMethod("rbind", "GInteractions", function(..., deparse.level=1) {
     }
     return(list(region=out.range, anchor1=all.anchor1, anchor2=all.anchor2))
 }
-
-
-setMethod("c", "GInteractions", function(x, ..., recursive=FALSE) { # synonym for 'rbind'.
-    rbind(x, ...)                   
-})
 
 ###############################################################
 # Other methods

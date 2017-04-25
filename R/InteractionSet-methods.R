@@ -87,11 +87,7 @@ setMethod("cbind", "InteractionSet", function(..., deparse.level=1) {
 setMethod("rbind", "InteractionSet", function(..., deparse.level=1) {
     args <- unname(list(...))
     base <- do.call(rbind, lapply(args, function(x) { as(x, "SummarizedExperiment") }))
-    new("InteractionSet", base, interactions=do.call(rbind, lapply(args, FUN=interactions)))
-})
-
-setMethod("c", "InteractionSet", function(x, ..., recursive = FALSE) {
-    rbind(x, ...)
+    new("InteractionSet", base, interactions=do.call(c, lapply(args, FUN=interactions)))
 })
 
 ###############################################################

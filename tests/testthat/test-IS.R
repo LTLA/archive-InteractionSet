@@ -264,7 +264,7 @@ next.x <- InteractionSet(counts, GInteractions(next.anchor1, next.anchor2, next.
 
 c.x <- rbind(x, next.x)
 expect_equivalent(assay(c.x), rbind(assay(x), assay(next.x)))
-expect_identical(interactions(c.x), rbind(interactions(x), interactions(next.x)))
+expect_identical(interactions(c.x), c(interactions(x), interactions(next.x)))
 
 expect_identical(nrow(rbind(x[0,], next.x[0,])), 0L) # Behaviour with empties.
 expect_identical(ncol(rbind(x[0,], next.x[0,])), ncol(x))
@@ -319,7 +319,7 @@ expect_identical(names(temp.x[2:5]), names(interactions(temp.x)[2:5]))
 combined <- rbind(temp.x, temp.x)
 expect_identical(names(combined), names(interactions(combined)))
 expect_identical(names(combined), names(c(interactions(temp.x), interactions(temp.x))))
-combined <- c(temp.x, x)
+combined <- rbind(temp.x, x)
 expect_identical(names(combined), c(ref.names, character(length(x))))
 expect_identical(names(interactions(combined)), c(ref.names, character(length(x))))
 

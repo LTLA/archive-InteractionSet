@@ -272,19 +272,17 @@ expect_identical(nrow(mcols(temp.x[rchosen])), length(rchosen))
 
 xsub <- x[1:5,]
 xsub2 <- x[6:20,]
-expect_identical(rbind(xsub, xsub2), x)
 expect_identical(c(xsub, xsub2), x)
 xsub <- x[1:15]
 xsub2 <- x[16:20]
-expect_identical(rbind(xsub, xsub2), x)
 expect_identical(c(xsub, xsub2), x)
 
-expect_identical(rbind(x[0,], x[0,]), x[0,])
-expect_identical(rbind(x, x[0,]), x)
+expect_identical(c(x[0,], x[0,]), x[0,])
+expect_identical(c(x, x[0,]), x)
 
 temp.x <- x
 temp.x$score <- new.score
-double.up <- rbind(temp.x, temp.x)
+double.up <- c(temp.x, temp.x)
 expect_identical(regions(double.up), regions(x))
 expect_identical(anchors(double.up, type="first"), rep(anchors(x, type="first"), 2))
 expect_identical(anchors(double.up, type="second"), rep(anchors(x, type="second"), 2))
@@ -301,16 +299,16 @@ next.anchor1 <- sample(N, Np)
 next.anchor2 <- sample(N, Np)
 next.x <- GInteractions(next.anchor1, next.anchor2, next.regions)
 
-c.x <- rbind(x, next.x)
+c.x <- c(x, next.x)
 expect_identical(c(anchors(x, type="first"), anchors(next.x, type="first")), anchors(c.x, type="first"))
 expect_identical(c(anchors(x, type="second"), anchors(next.x, type="second")), anchors(c.x, type="second"))
 expect_identical(unique(sort(c(regions(x), regions(next.x)))), regions(c.x))
 
-expect_identical(anchors(rbind(x[0,], next.x[0,])), anchors(x[0,])) # Behaviour with empties.
-expect_identical(anchors(rbind(x, next.x[0,])), anchors(x)) # Not fully equal, as regions have changed.
+expect_identical(anchors(c(x[0,], next.x[0,])), anchors(x[0,])) # Behaviour with empties.
+expect_identical(anchors(c(x, next.x[0,])), anchors(x)) # Not fully equal, as regions have changed.
 
 next.x2 <- GInteractions(1:10, 1:10, next.regions[1:10]) # What happens with non-equal lengths of the regions?
-c.x <- rbind(x, next.x2)
+c.x <- c(x, next.x2)
 expect_identical(c(anchors(x, type="first"), anchors(next.x2, type="first")), anchors(c.x, type="first"))
 expect_identical(c(anchors(x, type="second"), anchors(next.x2, type="second")), anchors(c.x, type="second"))
 expect_identical(unique(sort(c(regions(x), regions(next.x2)))), regions(c.x))
@@ -319,7 +317,7 @@ expect_identical(unique(sort(c(regions(x), regions(next.x2)))), regions(c.x))
 
 temp.x <- x
 temp.x$score <- new.score
-double.up <- rbind(temp.x, temp.x)
+double.up <- c(temp.x, temp.x)
 expect_identical(regions(double.up), regions(x))
 expect_identical(anchors(double.up, type="first"), rep(anchors(x, type="first"), 2))
 expect_identical(anchors(double.up, type="second"), rep(anchors(x, type="second"), 2))
@@ -336,7 +334,7 @@ expect_identical(o.x2, order(x, next.x))
 
 is.dup <- duplicated(paste0(anchors(x, type="first"), ".", anchors(x, type="second")))
 expect_identical(is.dup, duplicated(x))
-temp.x <- rbind(x, x)    
+temp.x <- c(x, x)    
 is.dup <- duplicated(paste0(anchors(temp.x, type="first"), ".", anchors(temp.x, type="second")))
 expect_identical(is.dup, duplicated(temp.x))
 expect_true(all(tail(is.dup, length(x)))) # if ordering is stable; only the first occurrence should be true.
