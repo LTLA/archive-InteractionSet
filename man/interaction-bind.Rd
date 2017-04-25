@@ -14,7 +14,7 @@ Methods to combine InteractionSet or GInteractions objects.
 \usage{
 \S4method{c}{GInteractions}(x, ..., recursive=FALSE)
 
-\S4method{rbind}{GInteractions}(..., deparse.level=1)
+\S4method{rbind}{InteractionSet}(..., deparse.level=1)
 \S4method{cbind}{InteractionSet}(..., deparse.level=1)
 }
 
