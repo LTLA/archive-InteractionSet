@@ -2,6 +2,12 @@
 \title{InteractionSet News}
 \encoding{UTF-8}
 
+\section{Version 1.5.1}{\itemize{
+\item Removed c method for InteractionSet, rbind method for GInteractions.
+
+\item Separated subsetting and combining documentation into two different pages. 
+}}
+
 \section{Version 1.4.0}{\itemize{
 \item Deprecated anchors<- in favour of anchorIds<-, to avoid confusion about 'value' type.
 
