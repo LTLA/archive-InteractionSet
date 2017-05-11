@@ -3,7 +3,7 @@
 setClass("ContactMatrix",
     contains="Annotated", 
     slots=list(
-        matrix="Matrix", 
+        matrix="ANY", 
         anchor1="integer",
         anchor2="integer",
         regions="GRanges"

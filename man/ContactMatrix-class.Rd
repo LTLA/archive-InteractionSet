@@ -25,7 +25,7 @@ Coordinates of the loci are also contained within this class.
 
 \arguments{
 \item{matrix}{
-    Any object containing interaction data that can be coerced into a Matrix object.
+    Any matrix-like object containing interaction data.
 }
 
 \item{anchor1, anchor2}{
@@ -50,7 +50,7 @@ For the constructors, a ContactMatrix object is returned.
 \details{
 The ContactMatrix class inherits from the \code{\link[S4Vectors]{Annotated}} class, with several additional slots:
 \describe{
-\item{\code{matrix}:}{A Matrix object.}
+\item{\code{matrix}:}{A matrix-like object.}
 \item{\code{anchor1}:}{An integer vector specifying the index of the first interacting region.}
 \item{\code{anchor2}:}{An integer vector specifying the index of the second interacting region.}
 \item{\code{regions}:}{A sorted GRanges object containing the coordinates of all interacting regions.}
@@ -73,19 +73,20 @@ Both methods will return an ContactMatrix object containing all of the specified
 Sorting of \code{regions} is also performed automatically, with re-indexing of all anchor indices to preserve the correct pairings between regions.
 }
 
-\section{Choosing between Matrix classes}{
-The ContactMatrix class provides support for Matrix objects from the Matrix package.
-This provides several classes for storing sparse and symmetric matrices in a memory-efficient manner, e.g., via the sparseMatrix class.
-These classes may be preferable for handling very large matrices spanning substantial areas in the interaction space.
-
-There are, however, some caveats to the use of the various Matrix subclasses.
-All numeric values are coerced to double-precision types, which may take up more memory than a direct integer representation.
-Character data is not supported, though this is unlikely to be relevant in most cases.
+\section{Choosing between matrix classes}{
+The ContactMatrix class provides support for any matrix-like object that implements \code{dim}, \code{rbind}, \code{cbind}, \code{[} and \code{t} methods.
+The choice of class depends on the type of data and the intended application.
+Some of the common choices are described in more detail here:
+\itemize{
+\item Base matrices are simple to generate and are most efficient for dense data. 
+This is often sufficient for most use cases where small regions of the interaction space are being examined.
+\item Sparse matrices from the \pkg{Matrix} package are useful for large areas of the interaction space where most entries are zero.
+This reduces memory usage compared to a dense representation (though conversely, is less efficient for dense data).
+Note that all numeric values are coerced to double-precision types, which may take up more memory than a direct integer representation.
 Another issue is how missing values should be interpreted in the sparseMatrix -- see \code{?\link{inflate}} for more details.
-
-In general, the choice of class depends on the type of data and the intended application.
-A dense Matrix is often sufficient for most use cases where small or dense regions of the interaction space are being examined.
-Switching to sparseMatrix may be desirable in emptier parts of the space, where there can be substantial memory savings.
+\item Packed symmetric matrices from the \pkg{Matrix} package provide some memory savings for symmetric regions of the interaction space.
+\item Delayed or HDF5-backed matrices from the \pkg{DelayedArray} and \pkg{HDF5Array} packages allow very large matrices to be represented without loading into memory.
+}
 }
 
 \examples{

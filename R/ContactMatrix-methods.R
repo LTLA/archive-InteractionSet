@@ -8,10 +8,14 @@ setValidity2("ContactMatrix", function(object) {
     msg <- .check_inputs(anchor1(object), anchor2(object), regions(object), same.length=FALSE)
     if (is.character(msg)) { return(msg) }
 
-    if (nrow(as.matrix(object))!=length(anchor1(object))) { 
+    mat <- as.matrix(object)
+    if (length(dim(mat))!=2L) {
+        return("'matrix' slot should contain a matrix-like object with 2 dimensions")
+    }
+    if (nrow(mat)!=length(anchor1(object))) { 
         return("'matrix' nrow must be equal to length of 'anchor1'")
     }
-    if (ncol(as.matrix(object))!=length(anchor2(object))) {
+    if (ncol(mat)!=length(anchor2(object))) {
         return("'matrix' ncol must be equal to length of 'anchor2'")
     }
     return(TRUE)
@@ -49,9 +53,6 @@ setMethod("show", signature("ContactMatrix"), function(object) {
     if (is.character(msg)) { stop(msg) }
     out <- .resort_regions(anchor1, anchor2, regions)
 
-    if (!is(matrix, "Matrix")) { 
-        matrix <- Matrix(matrix)
-    }
     new("ContactMatrix", matrix=matrix, anchor1=out$anchor1, anchor2=out$anchor2, 
         regions=out$regions, metadata=metadata)
 }
