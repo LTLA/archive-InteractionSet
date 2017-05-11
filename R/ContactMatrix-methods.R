@@ -86,7 +86,7 @@ setMethod("ContactMatrix", c("ANY", "GRanges", "GRanges", "GenomicRangesORmissin
 setMethod("ContactMatrix", c("missing", "missing", "missing", "GenomicRangesORmissing"),
     function(matrix, anchor1, anchor2, regions, metadata=list()) {
         if (missing(regions)) { regions <- GRanges() }
-        .new_ContactMatrix(Matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
+        .new_ContactMatrix(base::matrix(0L, 0, 0), integer(0), integer(0), regions, metadata)
     } 
 )
 

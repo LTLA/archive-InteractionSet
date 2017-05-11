@@ -1,12 +1,15 @@
 # Tests the construction and manipulation of ContactMatrix objects.
 
 ### Start of loop.
-for (type in c("normal", "sparse")) { 
+for (type in c("normal", "sparse", "dense")) { 
 if (type=="sparse") { 
     mattype <- "dgCMatrix"
     makeMatrix <- function(x, r, c) {
         Matrix::sparseMatrix(rep(seq_len(r), c), rep(seq_len(c), each=r), x=x, dims=c(r, c))
     }
+} else if (type=="normal") {
+    makeMatrix <- base::matrix
+    mattype <- "matrix"
 } else {
     makeMatrix <- Matrix::Matrix
     mattype <- "dgeMatrix"
@@ -97,7 +100,7 @@ expect_error(ContactMatrix(makeMatrix(0, 4, 0), c(1,2,3,-1), 1:4, all.regions), 
 expect_error(ContactMatrix(makeMatrix(0, 4, 0), c(1,2,3,length(all.regions)+1L), 1:4, all.regions), "all anchor indices must refer to entries in 'regions'")
 
 expect_identical(dim(ContactMatrix()), integer(2))
-if (type!="sparse") { expect_identical(ContactMatrix(), ContactMatrix(makeMatrix(0L,0,0), integer(0), integer(0), GRanges())) }
+if (type=="normal") { expect_identical(ContactMatrix(), ContactMatrix(makeMatrix(0L,0,0), integer(0), integer(0), GRanges())) }
 
 # Testing setters.
 
